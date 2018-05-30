@@ -3,6 +3,9 @@ SCRIPTPATH=$PWD
 
 rm -f $SCRIPTPATH/stats.txt
 
+echo -e "Graph,Method,Name" >> $SCRIPTPATH/stats.txt
+echo -e "Graph,Method" >> $SCRIPTPATH/statsPublic.txt
+
 for dotFile in $SCRIPTPATH/3/*.dot; do
     if [ -f $dotFile ]; then
         LINEDOT=$(wc -l < $dotFile)
@@ -10,7 +13,8 @@ for dotFile in $SCRIPTPATH/3/*.dot; do
         codFile=$codFile".txt"
         if [ -f $codFile ]; then
             LINECOD=$(wc -l < $codFile)
-            echo "$LINEDOT,$LINECOD,$dotFile" >> $SCRIPTPATH/stats.txt
+            echo -e "$LINEDOT,$LINECOD,$dotFile" >> $SCRIPTPATH/stats.txt
+            echo -e "$LINEDOT,$LINECOD" >> $SCRIPTPATH/statsPublic.txt
         else
             echo "ERROR, $codFile not found, exiting..."
             exit
