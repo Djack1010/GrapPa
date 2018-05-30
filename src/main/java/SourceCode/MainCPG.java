@@ -10,6 +10,7 @@ import soot.util.dot.DotGraph;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -65,7 +66,7 @@ public class MainCPG {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.reflect.ConstructorUtils"
+                    //"org.apache.commons.lang3.reflect.ConstructorUtils"
                     //
                     //
                     //"-cp",
@@ -76,7 +77,7 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
-            info.setClassToAnalyzed("org.apache.commons.lang3.reflect.ConstructorUtils");
+            info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
         }else if(args.length==11){//-> use the passed arguments
             sootArgs = new String[11];
             System.arraycopy( args, 0, sootArgs, 0, args.length );
@@ -140,6 +141,10 @@ public class MainCPG {
                         }
                         Body body = m.retrieveActiveBody();
 
+                        String[] partNameCl = cl.getName().split("\\.");
+                        String nameMethod = partNameCl[partNameCl.length-1] + "_" + m.getName();
+
+
                         //De-comment for printing Jimple Code of Body method
 
                         StringWriter sw = new StringWriter();
@@ -147,9 +152,10 @@ public class MainCPG {
                         Printer.v().printTo(body, pw);
                         String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
                         try{
-                            PrintWriter out = new PrintWriter("graphs/JimpleCode/"+m.getName()+".txt");
+                            PrintWriter out = new PrintWriter("/home/djack/IdeaProjects/nedo/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
                             out.println(inputString);
-                        } catch (FileNotFoundException e) {
+                            out.close();
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
@@ -165,43 +171,40 @@ public class MainCPG {
                                 continue;
                             }
 
-                            String[] partNameCl = cl.getName().split("\\.");
-                            String nameMethod = partNameCl[partNameCl.length-1] + "_" + m.getName();
-
                             //Print on file the cfg using CFGToDotGraph
                             ExceptionalUnitGraph cfg = new ExceptionalUnitGraph(body);
                             System.out.println("\tPrinting CFG on file");
                             CFGToDotGraph cfgToDot = new CFGToDotGraph();
                             DotGraph CFGdotGraph = cfgToDot.drawCFG(cfg, body);
-                            CFGdotGraph.plot("graphs/CFGs/" + nameMethod + ".dot");
+                            CFGdotGraph.plot("/home/djack/IdeaProjects/nedo/graphs/CFGs/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             ProgramDependenceGraph pdg = new HashMutablePDG(cfg);
                             System.out.println("\tPrinting PDG on file");
                             PDGToDotGraph pdgToDot = new PDGToDotGraph(pdg, nameMethod);
                             DotGraph PDGdotGraph = pdgToDot.drawPDG();
-                            PDGdotGraph.plot("graphs/PDGs/" + nameMethod + ".dot");
+                            PDGdotGraph.plot("/home/djack/IdeaProjects/nedo/graphs/PDGs/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
                             CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
                             DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
-                            CPGdotGraphAST.plot("graphs/1/" + nameMethod + ".dot");
+                            CPGdotGraphAST.plot("/home/djack/IdeaProjects/nedo/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG on file");
                             cpg.buildCPGphase("CFG");
                             CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
-                            CPGdotGraphCFG.plot("graphs/2/" + nameMethod + ".dot");
+                            CPGdotGraphCFG.plot("/home/djack/IdeaProjects/nedo/graphs/2/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
                             cpg.buildCPGphase("PDG");
                             CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-                            CPGdotGraphPDG.plot("graphs/3/" + nameMethod + ".dot");
+                            CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3/" + nameMethod + ".dot");
 
                             System.out.println("\tALL DONE!");
 
