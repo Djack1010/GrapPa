@@ -30,4 +30,4 @@ sootOutput
 *.dot
 *.pdf
 *.txt
-graph/*.txt
+graphs/*.txt
