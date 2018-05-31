@@ -7,10 +7,7 @@ import soot.toolkits.graph.pdg.ProgramDependenceGraph;
 import soot.util.cfgcmd.CFGToDotGraph;
 import soot.util.dot.DotGraph;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -18,10 +15,11 @@ import java.util.*;
 public class MainCPG {
 
     private static class infoExec{
+        boolean mutMode;
         String classToAnalyzed;
 
         public infoExec(){
-            //do nothing
+            this.mutMode=false;
         }
 
         public infoExec(String classToAnalyzed){
@@ -31,6 +29,10 @@ public class MainCPG {
         public String getClassToAnalyzed(){ return this.classToAnalyzed; }
 
         public void setClassToAnalyzed(String newClass){ this.classToAnalyzed=newClass; }
+
+        public void setMutMode(){ this.mutMode=true; }
+        public boolean isMutMode(){ return this.mutMode; }
+
     }
 
     public static void main(String[] args) {
@@ -89,13 +91,17 @@ public class MainCPG {
                 case "-targetClass":
                     temp=args[args.length-1];
                     break;
+                case "-mutationClass":
+                    info.setMutMode();
+                    temp=args[args.length-1];
+                    break;
                 default:
                     System.err.println("Invalid arguments " + args[args.length-2] + ", exiting...");
                     System.exit(0);
             }
             System.arraycopy( args, 0, sootArgs, 0, args.length-3 );
-            sootArgs[sootArgs.length-2]=args[args.length-3];
-            sootArgs[sootArgs.length-1]=temp;
+            sootArgs[sootArgs.length-2]=args[args.length-3];//DEFAULT MAIN CLASS
+            sootArgs[sootArgs.length-1]=temp;//TARGET CLASS
             info.setClassToAnalyzed(temp);
         }else{
             System.err.println("Invalid number of arguments, exiting...");
@@ -199,12 +205,27 @@ public class MainCPG {
                             DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
                             CPGdotGraphCFG.plot("/home/djack/IdeaProjects/nedo/graphs/2/" + nameMethod + ".dot");
 
-                            //Print on file the cfg using CFGToDotGraph
-                            System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
-                            cpg.buildCPGphase("PDG");
-                            CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                            DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-                            CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3/" + nameMethod + ".dot");
+                            if(info.isMutMode()){
+                                //Print on file the cfg using CFGToDotGraph
+                                System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
+                                cpg.buildCPGphase("PDG");
+                                CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
+                                DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
+                                int countMut = 0;
+                                File f = new File("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                while(f.exists() && !f.isDirectory()) {
+                                    countMut++;
+                                    f= new File("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                }
+                                CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                            }else {
+                                //Print on file the cfg using CFGToDotGraph
+                                System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
+                                cpg.buildCPGphase("PDG");
+                                CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
+                                DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
+                                CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3/" + nameMethod + ".dot");
+                            }
 
                             System.out.println("\tALL DONE!");
 
