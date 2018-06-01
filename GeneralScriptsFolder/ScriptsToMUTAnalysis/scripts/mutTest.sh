@@ -1,0 +1,104 @@
+#!/bin/bash
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+if [[ -z $1 ]]; then
+    echo "Mutation type not set, exiting..."
+    exit
+elif [ "$1" != "AOR" ] && [ "$1" != "LOR" ] && [ "$1" != "COR" ] && [ "$1" != "ROR" ] && [ "$1" != "SOR" ] && [ "$1" != "EVR" ] && [ "$1" != "LVR" ]; then
+    echo "Mutation type unkown, exiting..."
+    exit
+else
+    MUTTY=$1
+    echo $MUTTY
+fi
+
+#rm -fdr src
+#rm -fdr JAIL
+#tar xzf $SCRIPTPATH/commons-lang3-3.4-src.tar.gz
+#cd $SCRIPTPATH/commons-lang3-3.4-src
+#ls | grep -v src | xargs rm
+#cd $SCRIPTPATH
+#mv $SCRIPTPATH/commons-lang3-3.4-src/src $SCRIPTPATH
+#rm -d $SCRIPTPATH/commons-lang3-3.4-src
+#mkdir -p $SCRIPTPATH/JAIL
+#mv $SCRIPTPATH/src/test/java/org/apache/commons/lang3/time/DateUtilsTest.java $SCRIPTPATH/JAIL
+#mv $SCRIPTPATH/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTimeZonesTest.java $SCRIPTPATH/JAIL
+#mv $SCRIPTPATH/src/test/java/org/apache/commons/lang3/math/FractionTest.java $SCRIPTPATH/JAIL
+
+rm -fdr src
+cd ..
+cp -R src $SCRIPTPATH
+cd $SCRIPTPATH
+
+mvn compile "-DmutEn=true" "-DmutType=$MUTTY"
+mvn clean
+mvn compile "-DmutEn=false" "-DmutType=NONE"
+mkdir -p $SCRIPTPATH/temp_folder
+mkdir -p $SCRIPTPATH/test_report
+COUNTER=0
+TOT=$(ls $SCRIPTPATH/mutants | wc -l)
+MUTNAME=""
+
+for D in $SCRIPTPATH/mutants/*; do
+    NAV=$D
+    while [ -d $NAV ]; do
+        cd $NAV
+        NAV=$(ls)
+    done
+    MUTNAME=$NAV
+    MUTPATH="$PWD/$NAV"
+    MUTNUMB=${D##*/}
+    echo "----------------------------------------------------------"
+    echo "-------------------STARTING $MUTNAME ---------------------"
+    echo "----------------------------------------------------------"
+    
+    TOREPLACE=$( find $SCRIPTPATH/src/ -name "$MUTNAME")
+    if [ -z "$TOREPLACE" ]; then
+        echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
+        continue
+    fi
+    cp $TOREPLACE $SCRIPTPATH/temp_folder 
+    rm $TOREPLACE
+    cp $MUTPATH $TOREPLACE
+
+    cd $SCRIPTPATH
+
+    MUTNAME_temp=$(echo $MUTNAME | cut -d'.' -f1 )
+    COMPILED=$( find $SCRIPTPATH/target/classes -name "$MUTNAME_temp".class )
+    if [ -z "$COMPILED" ]; then
+        echo "SKIPPING $MUTNAME, $MUTNAME_temp.class TO DELETE NOT FOUND..."
+        #majorAnt clean.classes
+        cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
+    	rm $SCRIPTPATH/temp_folder/$MUTNAME
+	continue
+    else
+        rm $COMPILED
+    fi
+    #majorAnt clean.classes
+    mvn compile  "-DmutEn=false" "-DmutType=NONE"
+    mvn test "-DtarTest=$MUTNAME_temp"
+
+    #TEST=$(ls $SCRIPTPATH/target/temp_test-reports)
+    #mv $SCRIPTPATH/target/temp_test-reports/$TEST $SCRIPTPATH/test_report/TEST-"$COUNTER"
+    if [ -d "$SCRIPTPATH/target/surefire-reports" ]; then
+        rm -f $SCRIPTPATH/target/surefire-reports/*.xml
+        cp -R $SCRIPTPATH/target/surefire-reports $SCRIPTPATH/test_report/TESTonMUT"$MUTNUMB"
+        rm -dr $SCRIPTPATH/target/surefire-reports 
+    else
+        echo "TEST FOLDER NOT FOUND, exiting..."
+    fi
+
+    cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
+    rm $SCRIPTPATH/temp_folder/$MUTNAME
+
+    COUNTER=$(($COUNTER+1))
+    PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100") 
+    echo "-----------------------------------------------------"
+    echo "-------------------END $MUTNAME----------------------"
+    echo "-----------------------------------------------------"
+    echo "---------- INFO : $PER % mutants analyzed -----------"
+    #COUNTER=$(($COUNTER+1))
+    #PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100")
+    #echo -ne "$PER % mutants analyzed"\\r 
+done
+rm -dr $SCRIPTPATH/temp_folder
