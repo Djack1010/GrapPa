@@ -29,8 +29,10 @@ for F in $SCRIPTPATH/$INPUTFOLDER; do
             continue
         fi
         cd $F/test_report
+        COUNTLIN=0
+        COUNTTOT=$(ls | wc -l)
         for S in $F/test_report/*; do #for each mutant
-            echo "# Mutant $S"
+            #echo "# Mutant $S"
             if [ -d "${S}" ]; then
                 for T in $S/*; do #for each test
                     if [ -f "${T}" ]; then
@@ -77,6 +79,9 @@ for F in $SCRIPTPATH/$INPUTFOLDER; do
                 #echo "Folder $S is empty"
                 rm -d $S
             fi
+            COUNTLIN=$(($COUNTLIN+1))
+            PER=$(bc <<< "scale = 2; ($COUNTLIN / $COUNTTOT) * 100")
+            echo -ne "$PER % lines analyzed"\\r 
         done
     fi
 done
