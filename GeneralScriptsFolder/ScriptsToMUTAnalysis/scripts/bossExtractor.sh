@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPTPATH_ORIGIN="$( cd "$(dirname "$0")" ; pwd -P )"
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )/.."
 CHANGE=6000
 
@@ -66,7 +67,7 @@ fi
 COMMAND=""
 echo "Starting multiprocessing..."
 for T in $SCRIPTPATH/temp_partAnalysis/*; do
-    COMMAND="$COMMAND $SCRIPTPATH/mutExtractor.sh $T $ERRORNAME $LOCKNUM &"
+    COMMAND="$COMMAND $SCRIPTPATH_ORIGIN/mutExtractor.sh $T $ERRORNAME $LOCKNUM &"
 done
 COMMAND="$COMMAND wait"
 eval $COMMAND

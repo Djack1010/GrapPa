@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPTPATH_ORIGIN="$( cd "$(dirname "$0")" ; pwd -P )"
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )/.."
 CHANGE=6000
 
@@ -50,7 +51,7 @@ touch $SCRIPTPATH/Counter.txt
 COMMAND=""
 echo "Starting multiprocessing..."
 for T in $SCRIPTPATH/temp_partAnalysis/*; do
-    COMMAND="$COMMAND $SCRIPTPATH/mutCounter.sh $T show &"
+    COMMAND="$COMMAND $SCRIPTPATH_ORIGIN/mutCounter.sh $T show &"
 done
 COMMAND="$COMMAND wait"
 eval $COMMAND

@@ -29,12 +29,13 @@ IN THE PLUGINS (BEST REPLACE COMPILER PLUGINS IF ANY) ------XXXXX CHECK PATH FOR
 IN PROPERTIES
 
 <configuration>
-    <forkedProcessTimeoutInSeconds>2</forkedProcessTimeoutInSeconds>
+    <forkedProcessTimeoutInSeconds>10</forkedProcessTimeoutInSeconds>
     <includes>
         <include>**/${tarTest}*Test.java</include
     </includes>
 </configuration>
 IN MAVE-SUREFIRE-PLUGINS
+NB --->>> forkedProcessTimeoutInSeconds DEPENDS ON THE TEST TIME, CHECK mvn test BEFORE SET A TOO LOW VALUE!
 
 THEN IN ANALYSIS FACTORY RUN
 mutAnalysis.sh OutputFileName InputFolderName

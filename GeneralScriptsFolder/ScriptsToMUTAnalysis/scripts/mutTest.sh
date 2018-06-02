@@ -1,6 +1,21 @@
 #!/bin/bash
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
+
+function handleInsDel {
+    if [ "$1" == "rep" ]; then
+        cp $TOREPLACE $SCRIPTPATH/temp_folder 
+        rm $TOREPLACE
+        cp $MUTPATH $TOREPLACE
+    elif [ "$1" == "res" ]; then
+        rm $TOREPLACE
+        cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
+        rm $SCRIPTPATH/temp_folder/$MUTNAME
+    else
+        echo "ERROR in handleInsDel, exiting..."
+        exit
+    fi
+}
 if [[ -z $1 ]]; then
     echo "Mutation type not set, exiting..."
     exit
@@ -57,9 +72,8 @@ for D in $SCRIPTPATH/mutants/*; do
         echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
         continue
     fi
-    cp $TOREPLACE $SCRIPTPATH/temp_folder 
-    rm $TOREPLACE
-    cp $MUTPATH $TOREPLACE
+    
+    handleInsDel rep
 
     cd $SCRIPTPATH
 
@@ -68,9 +82,8 @@ for D in $SCRIPTPATH/mutants/*; do
     if [ -z "$COMPILED" ]; then
         echo "SKIPPING $MUTNAME, $MUTNAME_temp.class TO DELETE NOT FOUND..."
         #majorAnt clean.classes
-        cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
-    	rm $SCRIPTPATH/temp_folder/$MUTNAME
-	continue
+        handleInsDel res
+	    continue
     else
         rm $COMPILED
     fi
@@ -85,11 +98,12 @@ for D in $SCRIPTPATH/mutants/*; do
         cp -R $SCRIPTPATH/target/surefire-reports $SCRIPTPATH/test_report/TESTonMUT"$MUTNUMB"
         rm -dr $SCRIPTPATH/target/surefire-reports 
     else
-        echo "TEST FOLDER NOT FOUND, exiting..."
+        echo "TEST FOLDER NOT FOUND, skipping $MUTNAME..."
+        handleInsDel res
+        continue
     fi
 
-    cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
-    rm $SCRIPTPATH/temp_folder/$MUTNAME
+    handleInsDel res
 
     COUNTER=$(($COUNTER+1))
     PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100") 
