@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!extLib/soot-2.5.0.jar
 *.war
 *.nar
 *.ear

@@ -3,9 +3,9 @@
 #v1.0 - 22/05/18
 
 function UsageInfo {
-    echo "USAGE: ./run.sh [Options Argument]"
+    echo "USAGE: ./run.sh [Option Argument]"
     echo "-targ CLASS: run on a single CLASS file"
-    echo "-mut CLASS: run on a mutated CLASS"
+    echo "-mut CLASS: run on a mutated CLASS file"
     echo "-allclasses: run on all class file in SOURCE_ANALYSIS_FOLDER"
     exit
 }
@@ -67,6 +67,11 @@ function MutationHandler {
         echo "Deleting $TOREPLACE..."
         rm $TOREPLACE
         cp $MUTFOLDER/mut/$MUTNAME $TOREPLACE
+        
+        cd $PROJECT_FOLDER
+        mvn clean
+        mvn compile
+
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
             -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2
@@ -155,10 +160,6 @@ if [[ $JPACK == .* ]]; then
     JPACK=${JPACK#"."}
 fi
 
-cd $PROJECT_FOLDER
-mvn clean
-mvn compile
-
 if [ ! -d "$CLASS_FOLDER" ]; then
     echo "ERROR: Set the CLASS_FOLDER variable in config.txt! Exiting..."
     exit
@@ -166,10 +167,16 @@ fi
 
 #java -cp $MYCP_JAVA SourceCode.MainCPG -cp $SOURCE_ANALYSIS_FOLDER -pp -w SourceCode.test
 if [ -z "$1" ]; then
+    cd $PROJECT_FOLDER
+    mvn clean
+    mvn compile
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
         -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS
 elif [[ "$1" == "-allclasses" ]]; then
+    cd $PROJECT_FOLDER
+    mvn clean
+    mvn compile
     cd $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER
     LoopFolder "*/*.java"
     LoopFolder "*.java"    
@@ -183,10 +190,17 @@ elif [[ "$1" == "-targ" ]]; then
     if [ -z "$2" ]; then
         UsageInfo
     else
+        cd $PROJECT_FOLDER
+        mvn clean
+        mvn compile
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
             -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2
     fi
+elif [[ "$1" == "-help" ]]; then
+    UsageInfo
+else
+    UsageInfo
 fi
 echo "ENDING run.sh SCRIPT"
 #-cp /home/djack/Desktop/Test_Folder/RunSoot/InputClasses/java.lang.NullPointerException/3_3 -pp -w AnnotationUtils
