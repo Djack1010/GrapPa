@@ -21,14 +21,14 @@ BOOL=0
 while read l; do
     case "$BOOL" in
         "0")
-            if [[ $(echo $l | grep "Tests run: ") ]]; then  
-                continue
-            elif [[ $(echo $l | grep "<<< FAILURE!") ]]; then
+            if [[ $(echo $l | grep "FAILED") ]] ; then
                 TEMPLINE="FAILED"
                 BOOL=1
-            elif [[ $(echo $l | grep "<<< ERROR!") ]]; then
+                #printf "Failed --->"
+            elif [[ $(echo $l | grep "Caused an ERROR") ]] ; then
                 TEMPLINE="ERROR"
                 BOOL=3
+                #printf "Failed --->"
             fi
             ;;
         "1")

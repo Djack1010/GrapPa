@@ -80,10 +80,10 @@ for D in $SCRIPTPATH/mutants/*; do
     MUTNAME_temp=$(echo $MUTNAME | cut -d'.' -f1 )
     COMPILED=$( find $SCRIPTPATH/target/classes -name "$MUTNAME_temp".class )
     if [ -z "$COMPILED" ]; then
-        echo "SKIPPING $MUTNAME, $MUTNAME_temp.class TO DELETE NOT FOUND..."
+        echo "$MUTNAME_temp.class TO DELETE NOT FOUND..."
         #majorAnt clean.classes
-        handleInsDel res
-	    continue
+        #handleInsDel res
+	    #continue
     else
         rm $COMPILED
     fi
@@ -100,6 +100,8 @@ for D in $SCRIPTPATH/mutants/*; do
     else
         echo "TEST FOLDER NOT FOUND, skipping $MUTNAME..."
         handleInsDel res
+        mvn clean
+        mvn compile "-DmutEn=false" "-DmutType=NONE"
         continue
     fi
 
