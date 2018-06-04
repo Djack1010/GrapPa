@@ -32,14 +32,14 @@ while read l; do
             fi
             ;;
         "1")
-            if [[ $l == "expected"* ]]; then
+            if [[ $(echo $l | grep ": expected:") ]]; then
                 #PARTl=$( echo $l | sed -r 's/_/X/g' | sed -r 's/ //g' )
                 #PARTl=$( echo "${PARTl//<*>/<XXX>butwas<YYY>}" )
                 #PARTl=$( echo $PARTl | sed -r 's/ //g' )
                 TEMPLINE=$TEMPLINE"_expected<XXX>butwas<YYY>"
                 BOOL=2
                 #printf " OK ---> "
-            elif  [[ $l == "null"* ]]; then
+            elif  [[ $(echo $l | grep " null") ]]; then
                 TEMPLINE=$TEMPLINE"_null"
                 BOOL=2
                 #printf " OK ---> "

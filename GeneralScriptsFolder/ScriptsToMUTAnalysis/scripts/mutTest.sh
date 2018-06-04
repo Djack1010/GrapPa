@@ -67,6 +67,11 @@ for D in $SCRIPTPATH/mutants/*; do
     echo "-------------------STARTING $MUTNAME ---------------------"
     echo "----------------------------------------------------------"
     
+    COUNTER=$(($COUNTER+1))
+    PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100")
+    echo "------------- INFO : $PER % mutants analyzed -------------"
+    echo "----------------------------------------------------------"
+
     TOREPLACE=$( find $SCRIPTPATH/src/ -name "$MUTNAME")
     if [ -z "$TOREPLACE" ]; then
         echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
@@ -87,6 +92,13 @@ for D in $SCRIPTPATH/mutants/*; do
     else
         rm $COMPILED
     fi
+
+    if [[ ! $(find $SCRIPTPATH/src -name "$MUTNAME_temp"Test*) ]]; then
+        echo "$MUTNAME has no test, skipping..."
+        handleInsDel res
+        continue
+    fi
+
     #majorAnt clean.classes
     mvn compile  "-DmutEn=false" "-DmutType=NONE"
     mvn test "-DtarTest=$MUTNAME_temp"
@@ -98,21 +110,17 @@ for D in $SCRIPTPATH/mutants/*; do
         cp -R $SCRIPTPATH/target/surefire-reports $SCRIPTPATH/test_report/TESTonMUT"$MUTNUMB"
         rm -dr $SCRIPTPATH/target/surefire-reports 
     else
-        echo "TEST FOLDER NOT FOUND, skipping $MUTNAME..."
+        echo "ERROR! TEST FOLDER NOT FOUND, skipping $MUTNAME..."
         handleInsDel res
         mvn clean
-        mvn compile "-DmutEn=false" "-DmutType=NONE"
         continue
     fi
 
     handleInsDel res
-
-    COUNTER=$(($COUNTER+1))
-    PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100") 
+     
     echo "-----------------------------------------------------"
     echo "-------------------END $MUTNAME----------------------"
     echo "-----------------------------------------------------"
-    echo "---------- INFO : $PER % mutants analyzed -----------"
     #COUNTER=$(($COUNTER+1))
     #PER=$(bc <<< "scale = 2; ($COUNTER / $TOT) * 100")
     #echo -ne "$PER % mutants analyzed"\\r 
