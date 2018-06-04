@@ -17,10 +17,17 @@ else
 fi
 
 if [[ -z $3 ]]; then
+    echo "Set NAME_FOLDER (Example: nameFolder_AOR, nameFolder_LVR, etc...)"
+    exit
+else
+    NAMEFOLDERPR=$3
+fi
+
+if [[ -z $4 ]]; then
     echo "Set LOCKNUM, exiting..."
     exit
 else
-    LOCKNUM=$3
+    LOCKNUM=$4
 fi
 
 
@@ -52,7 +59,7 @@ while read l; do
                     echo "MutNum $MUTNUM from folder $MUTLOC" >> $SCRIPTPATH/FilesToExtract_$ERRORNAME.txt
                 ) 200>/var/lock/lockCounter$LOCKNUM
                 VAL=0
-                cd $SCRIPTPATH/Lang3-3.4_$MUTLOC/mutants/$MUTNUM
+                cd $SCRIPTPATH/"$NAMEFOLDERPR"_$MUTLOC/mutants/$MUTNUM
                 while [[ "$VAL" -eq 0 ]]; do
                     TEMP=$(ls )
                     if [ -d "$TEMP" ]; then

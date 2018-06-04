@@ -21,6 +21,13 @@ fi
 echo "LOCKNUM set to $LOCKNUM"
 
 if [[ -z $3 ]]; then
+    echo "Set NAME_FOLDER (Example: nameFolder_AOR, nameFolder_LVR, etc...)"
+    exit
+else
+    NAMEFOLDERPR=$3
+fi
+
+if [[ -z $4 ]]; then
     SKIP=0
 else
     echo "SKIPPING temp_parAnalysis creation"
@@ -63,11 +70,10 @@ if [ "$SKIP" -eq 0 ]; then
         done < $A
     done
 fi
-
 COMMAND=""
 echo "Starting multiprocessing..."
 for T in $SCRIPTPATH/temp_partAnalysis/*; do
-    COMMAND="$COMMAND $SCRIPTPATH_ORIGIN/mutExtractor.sh $T $ERRORNAME $LOCKNUM &"
+    COMMAND="$COMMAND $SCRIPTPATH_ORIGIN/mutExtractor.sh $T $ERRORNAME $NAMEFOLDERPR $LOCKNUM &"
 done
 COMMAND="$COMMAND wait"
 eval $COMMAND

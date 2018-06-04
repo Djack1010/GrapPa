@@ -43,12 +43,15 @@ function runBossCounter {
 }
 
 function runBossExtractor {
-    echo "ARGUMENTS REQUIRED: Error LockNum [ FolderDivision ]"
+    echo "ARGUMENTS REQUIRED: Error LockNum NameFolder [ FolderDivision ]"
     echo "FolderDivision -> If set, reuse temp_partAnalysis folder (should exist...)"
+    echo "NameFolder -> Example: nameFolder_AOR, nameFolder_LVR, etc"
     read ARG1
     echo "Error: $ARG1"
     read ARG2
     echo "LockNum: $ARG2"
+    read ARG3
+    echo "NameFolder: $ARG3"
     echo "Reuse FolderDivision? [Y/n]"
     read -n1 FDIV
     if [ "$FDIV" == "n" ]; then
@@ -63,9 +66,9 @@ function runBossExtractor {
         runBossExtractor
     else
         if [ "$FDIV" == "n" ]; then
-            $SCRIPTPATH/scripts/bossExtractor.sh $ARG1 $ARG2
+            $SCRIPTPATH/scripts/bossExtractor.sh $ARG1 $ARG2 $ARG3
         else
-            $SCRIPTPATH/scripts/bossExtractor.sh $ARG1 $ARG2 ReFold
+            $SCRIPTPATH/scripts/bossExtractor.sh $ARG1 $ARG2 $ARG3 ReFold
         fi
     fi
 }

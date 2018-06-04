@@ -60,6 +60,11 @@ for D in $SCRIPTPATH/mutants/*; do
         cd $NAV
         NAV=$(ls)
     done
+
+    if [[ $(ls $SCRIPTPATH/temp_folder) ]]; then
+        handleInsDel res
+    fi
+
     MUTNAME=$NAV
     MUTPATH="$PWD/$NAV"
     MUTNUMB=${D##*/}
@@ -83,12 +88,12 @@ for D in $SCRIPTPATH/mutants/*; do
     cd $SCRIPTPATH
 
     MUTNAME_temp=$(echo $MUTNAME | cut -d'.' -f1 )
-    COMPILED=$( find $SCRIPTPATH/target/classes -name "$MUTNAME_temp".class )
+    if [ -d $SCRIPTPATH/target/classes ]; then
+        COMPILED=$( find $SCRIPTPATH/target/classes -name "$MUTNAME_temp".class )
+    fi
+    
     if [ -z "$COMPILED" ]; then
         echo "$MUTNAME_temp.class TO DELETE NOT FOUND..."
-        #majorAnt clean.classes
-        #handleInsDel res
-	    #continue
     else
         rm $COMPILED
     fi
@@ -113,6 +118,7 @@ for D in $SCRIPTPATH/mutants/*; do
         echo "ERROR! TEST FOLDER NOT FOUND, skipping $MUTNAME..."
         handleInsDel res
         mvn clean
+        mvn compile  "-DmutEn=false" "-DmutType=NONE"
         continue
     fi
 
