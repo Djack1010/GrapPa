@@ -4,17 +4,13 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 function handleInsDel {
     if [ "$1" == "rep" ]; then
-        echo "REPLACING OPERATION!"
-        mkdir -p $SCRIPTPATH/temp_folder
         cp $TOREPLACE $SCRIPTPATH/temp_folder 
         rm $TOREPLACE
         cp $MUTPATH $TOREPLACE
     elif [ "$1" == "res" ]; then
-        echo "RESTORING OPERATION!"
         rm $TOREPLACE
         cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
         rm $SCRIPTPATH/temp_folder/$MUTNAME
-        rm -fdr $SCRIPTPATH/temp_folder
     else
         echo "ERROR in handleInsDel, exiting..."
         exit
@@ -52,26 +48,24 @@ cd $SCRIPTPATH
 mvn compile "-DmutEn=true" "-DmutType=$MUTTY"
 mvn clean
 mvn compile "-DmutEn=false" "-DmutType=NONE"
-#mkdir -p $SCRIPTPATH/temp_folder
+mkdir -p $SCRIPTPATH/temp_folder
 mkdir -p $SCRIPTPATH/test_report
 COUNTER=0
 TOT=$(ls $SCRIPTPATH/mutants | wc -l)
 MUTNAME=""
 
 for D in $SCRIPTPATH/mutants/*; do
-
-    if [ -d $SCRIPTPATH/temp_folder ]; then
-        echo "temp_folder still exist, call restoring operation"
-        handleInsDel res
-        rm -fdr $SCRIPTPATH/src
-        cp -R $SCRIPTPATH/../src $SCRIPTPATH
-    fi
-
     NAV=$D
     while [ -d $NAV ]; do
         cd $NAV
         NAV=$(ls)
     done
+
+    if [[ $(ls $SCRIPTPATH/temp_folder) ]]; then
+        handleInsDel res
+        rm -fdr $SCRIPTPATH/src
+        cp -R $SCRIPTPATH/../src $SCRIPTPATH
+    fi
 
     MUTNAME=$NAV
     MUTPATH="$PWD/$NAV"
