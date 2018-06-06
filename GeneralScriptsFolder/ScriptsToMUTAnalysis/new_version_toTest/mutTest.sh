@@ -15,6 +15,9 @@ function handleInsDel {
         cp $SCRIPTPATH/temp_folder/$MUTNAME $TOREPLACE
         rm $SCRIPTPATH/temp_folder/$MUTNAME
         rm -fdr $SCRIPTPATH/temp_folder
+    elif [ "$1" == "res-f" ]; then
+        echo "RESTORING OPERATION!"
+        rm -dr $SCRIPTPATH/temp_folder
     else
         echo "ERROR in handleInsDel, exiting..."
         exit
@@ -63,7 +66,7 @@ for D in $SCRIPTPATH/mutants/*; do
 
     if [ -d $SCRIPTPATH/temp_folder ]; then
         echo "temp_folder still exist, call restoring operation"
-        handleInsDel res
+        handleInsDel res-f
         rm -fdr $SCRIPTPATH/src
         cp -R $SCRIPTPATH/../src $SCRIPTPATH
     fi
@@ -90,6 +93,15 @@ for D in $SCRIPTPATH/mutants/*; do
     echo "$PER % mutants analyzed at $TIME" >> $SCRIPTPATH/infoLog.txt
 
     MUTNAME_temp=$(echo $MUTNAME | cut -d'.' -f1 )
+    TOREPLACE=$( find $SCRIPTPATH/src/ -name "$MUTNAME")
+    
+    if [ -z "$TOREPLACE" ]; then
+        echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
+        echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..." >> $SCRIPTPATH/infoLog.txt
+        rm -fdr $SCRIPTPATH/src
+        cp -R $SCRIPTPATH/../src $SCRIPTPATH
+        continue
+    fi
 
     if [[ ! $(find $SCRIPTPATH/src -name "$MUTNAME_temp"Test*) ]]; then
         echo "$MUTNAME has no test, skipping..."
@@ -97,15 +109,6 @@ for D in $SCRIPTPATH/mutants/*; do
         #handleInsDel res
         continue
     fi
-
-    TOREPLACE=$( find $SCRIPTPATH/src/ -name "$MUTNAME")
-    if [ -z "$TOREPLACE" ]; then
-        echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
-        echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..." >> $SCRIPTPATH/infoLog.txt
-        continue
-    fi
-    
-    handleInsDel rep
 
     cd $SCRIPTPATH
 
@@ -122,6 +125,8 @@ for D in $SCRIPTPATH/mutants/*; do
         rm $COMPILED
     fi
 
+    handleInsDel rep
+
     #majorAnt clean.classes
     mvn compile  "-DmutEn=false" "-DmutType=NONE"
     mvn test "-DtarTest=$MUTNAME_temp"
@@ -135,7 +140,7 @@ for D in $SCRIPTPATH/mutants/*; do
     else
         echo "ERROR! TEST FOLDER NOT FOUND, skipping $MUTNAME..."
         echo "ERROR! TEST FOLDER NOT FOUND, skipping $MUTNAME..." >> $SCRIPTPATH/infoLog.txt
-        handleInsDel res
+        handleInsDel res-f
         mvn clean
         rm -fdr $SCRIPTPATH/src
         cp -R $SCRIPTPATH/../src $SCRIPTPATH
