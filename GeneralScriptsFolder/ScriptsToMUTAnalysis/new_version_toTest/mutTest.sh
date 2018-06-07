@@ -16,7 +16,7 @@ function handleInsDel {
         rm $SCRIPTPATH/temp_folder/$MUTNAME
         rm -fdr $SCRIPTPATH/temp_folder
     elif [ "$1" == "res-f" ]; then
-        echo "RESTORING OPERATION!"
+        echo "RESTORING OPERATION (F-Mode)!"
         rm -dr $SCRIPTPATH/temp_folder
     else
         echo "ERROR in handleInsDel, exiting..."
@@ -95,7 +95,7 @@ for D in $SCRIPTPATH/mutants/*; do
     MUTNAME_temp=$(echo $MUTNAME | cut -d'.' -f1 )
     TOREPLACE=$( find $SCRIPTPATH/src/ -name "$MUTNAME")
     
-    if [ -z "$TOREPLACE" ]; then
+    if [ ! -f "$TOREPLACE" ]; then
         echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..."
         echo "SKIPPING FILE, $MUTNAME TO REPLACE NOT FOUND..." >> $SCRIPTPATH/infoLog.txt
         rm -fdr $SCRIPTPATH/src
