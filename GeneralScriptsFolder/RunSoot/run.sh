@@ -3,10 +3,12 @@
 #v1.0 - 22/05/18
 
 function UsageInfo {
-    echo "USAGE: ./run.sh [Option Argument]"
+    echo "USAGE: ./run.sh [ OP CLASS | -allclasses [ -graph2vec TOOLNAME]]"
+    echo "Available OP = -targ | -mut"
     echo "-targ CLASS: run on a single CLASS file"
     echo "-mut CLASS: run on a mutated CLASS file"
     echo "-allclasses: run on all class file in SOURCE_ANALYSIS_FOLDER"
+    echo "-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)"
     exit
 }
 
@@ -33,6 +35,10 @@ function MutationHandler {
     rm -f $SCRIPTPATH/temp_MUT.txt
     MUTFOLDER=$1
     MUTNAME="$2.java"
+    GRAPH2VECTOOL=""
+    if [ ! -z "$3" ]; then
+        GRAPH2VECTOOL="-grap2vec $3"
+    fi
     TOREPLACE=$( find $SOURCE_ANALYSIS_FOLDER -name "$MUTNAME")
     if [ -z "$TOREPLACE" ]; then
         echo "EXITING WITH ERROR, $MUTNAME TO REPLACE NOT FOUND..."
@@ -74,7 +80,7 @@ function MutationHandler {
 
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2
+            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 $GRAPH2VECTOOL
         rm $TOREPLACE
         cp $MUTFOLDER/$MUTNAME $TOREPLACE
         echo "Restored $TOREPLACE!"
@@ -86,13 +92,17 @@ function LoopFolder {
         echo "ERROR! Argument not set for LoopFolder, exiting..."
         exit
     fi
+    GRAPH2VECTOOL=""
+    if [ ! -z "$2" ]; then
+        GRAPH2VECTOOL="-grap2vec $2"
+    fi
     for JavaFile in $1; do
         rm -rf sootOutput
         THISCLASS=$(echo $JavaFile | cut -d"." -f1 | sed 's/\//./g' )
         echo "STARTING ANALYSIS FOR $JavaFile"
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         echo "ENDING ANALYSIS FOR $JavaFile"
         if [[ $(cat $SCRIPTPATH/result.txt | grep "Soot finished") ]] ; then
             if [ -f $SCRIPTPATH/analysisResult.sh ]; then
@@ -178,13 +188,30 @@ elif [[ "$1" == "-allclasses" ]]; then
     mvn clean
     mvn compile
     cd $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER
-    LoopFolder "*/*.java"
-    LoopFolder "*.java"    
+    if [[ "$2" == "-graph2vec" ]]; then
+        if [ -z "$3" ]; then
+            UsageInfo
+        else
+            LoopFolder "*/*.java" $3
+            LoopFolder "*.java" $3
+        fi
+    else
+        LoopFolder "*/*.java"
+        LoopFolder "*.java"  
+    fi  
 elif [[ "$1" == "-mut" ]]; then
     if [ -z "$2" ]; then
         UsageInfo
     else
-        MutationHandler $MUTATION_FOLDER $2
+        if [[ "$3" == "-graph2vec" ]]; then
+            if [ -z "$4" ]; then
+                UsageInfo
+            else
+                MutationHandler $MUTATION_FOLDER $2 $4
+            fi
+        else
+            MutationHandler $MUTATION_FOLDER $2
+        fi
     fi
 elif [[ "$1" == "-targ" ]]; then
     if [ -z "$2" ]; then
@@ -193,9 +220,17 @@ elif [[ "$1" == "-targ" ]]; then
         cd $PROJECT_FOLDER
         mvn clean
         mvn compile
+        GRAPH2VECTOOL=""
+        if [[ "$3" == "-graph2vec" ]]; then
+            if [ -z "$4" ]; then
+                UsageInfo
+            else
+                GRAPH2VECTOOL="-graph2vec $4"
+            fi
+        fi
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2
+                SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+                -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 $GRAPH2VECTOOL
     fi
 elif [[ "$1" == "-help" ]]; then
     UsageInfo
