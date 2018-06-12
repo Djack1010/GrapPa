@@ -14,12 +14,18 @@ import java.util.*;
 
 public class MainCPG {
 
+    //PATH
+    final static String nedoPath ="/home/djack/IdeaProjects/nedo";
+    final static String struct2vecPath ="/home/djack/Dropbox/thesis/external_material/struc2vec";
+
     private static class infoExec{
         boolean mutMode;
+        boolean struc2vec;
         String classToAnalyzed;
 
         public infoExec(){
             this.mutMode=false;
+            this.struc2vec=false;
         }
 
         public infoExec(String classToAnalyzed){
@@ -32,6 +38,9 @@ public class MainCPG {
 
         public void setMutMode(){ this.mutMode=true; }
         public boolean isMutMode(){ return this.mutMode; }
+
+        public void setStruc2vec(){ this.struc2vec=true; }
+        public boolean isStruc2vec(){ return this.struc2vec; }
 
     }
 
@@ -103,6 +112,42 @@ public class MainCPG {
             sootArgs[sootArgs.length-2]=args[args.length-3];//DEFAULT MAIN CLASS
             sootArgs[sootArgs.length-1]=temp;//TARGET CLASS
             info.setClassToAnalyzed(temp);
+        }else if(args.length==15){
+            sootArgs = new String[12];
+            String temp = null;
+            String vecTool =null;
+            switch (args[args.length-4]){
+                case "-targetClass":
+                    temp=args[args.length-3];
+                    break;
+                case "-mutationClass":
+                    info.setMutMode();
+                    temp=args[args.length-3];
+                    break;
+                default:
+                    System.err.println("Invalid arguments " + args[args.length-3] + ", exiting...");
+                    System.exit(0);
+            }
+            switch (args[args.length-2]){
+                case "-graph2vec":
+                    vecTool=args[args.length-1];
+                    break;
+                default:
+                    System.err.println("Invalid arguments " + args[args.length-2] + ", exiting...");
+                    System.exit(0);
+            }
+            switch (vecTool){
+                case "struc2vec":
+                    info.setStruc2vec();
+                    break;
+                default:
+                    System.err.println("Invalid vec tool " + args[args.length-1] + ", exiting...");
+                    System.exit(0);
+            }
+            System.arraycopy( args, 0, sootArgs, 0, args.length-5 );
+            sootArgs[sootArgs.length-2]=args[args.length-5];//DEFAULT MAIN CLASS
+            sootArgs[sootArgs.length-1]=temp;//TARGET CLASS
+            info.setClassToAnalyzed(temp);
         }else{
             System.err.println("Invalid number of arguments, exiting...");
             System.exit(0);
@@ -158,7 +203,7 @@ public class MainCPG {
                         Printer.v().printTo(body, pw);
                         String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
                         try{
-                            PrintWriter out = new PrintWriter("/home/djack/IdeaProjects/nedo/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
+                            PrintWriter out = new PrintWriter(nedoPath + "/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
                             out.println(inputString);
                             out.close();
                         } catch (Exception e) {
@@ -169,7 +214,7 @@ public class MainCPG {
                         try {
 
                             System.out.println("Creating Code Property Graph for " + m.getName());
-                            CodePropertyGraph cpg = new CodePropertyGraph(body);
+                            CodePropertyGraph cpg = new CodePropertyGraph(body, m.getName());
 
                             if(!(cpg.isInitializedSuccessfully())){
                                 System.err.println("Skipping " + m.getName());
@@ -182,28 +227,28 @@ public class MainCPG {
                             System.out.println("\tPrinting CFG on file");
                             CFGToDotGraph cfgToDot = new CFGToDotGraph();
                             DotGraph CFGdotGraph = cfgToDot.drawCFG(cfg, body);
-                            CFGdotGraph.plot("/home/djack/IdeaProjects/nedo/graphs/CFGs/" + nameMethod + ".dot");
+                            CFGdotGraph.plot(nedoPath + "/graphs/CFGs/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             ProgramDependenceGraph pdg = new HashMutablePDG(cfg);
                             System.out.println("\tPrinting PDG on file");
                             PDGToDotGraph pdgToDot = new PDGToDotGraph(pdg, nameMethod);
                             DotGraph PDGdotGraph = pdgToDot.drawPDG();
-                            PDGdotGraph.plot("/home/djack/IdeaProjects/nedo/graphs/PDGs/" + nameMethod + ".dot");
+                            PDGdotGraph.plot(nedoPath + "/graphs/PDGs/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
                             CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
                             DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
-                            CPGdotGraphAST.plot("/home/djack/IdeaProjects/nedo/graphs/1/" + nameMethod + ".dot");
+                            CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG on file");
                             cpg.buildCPGphase("CFG");
                             CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
-                            CPGdotGraphCFG.plot("/home/djack/IdeaProjects/nedo/graphs/2/" + nameMethod + ".dot");
+                            CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
                             if(info.isMutMode()){
                                 //Print on file the cfg using CFGToDotGraph
@@ -212,22 +257,31 @@ public class MainCPG {
                                 CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                                 DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
                                 int countMut = 0;
-                                File f = new File("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                File f = new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
                                 while(f.exists() && !f.isDirectory()) {
                                     countMut++;
-                                    f= new File("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                    f= new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
                                 }
-                                CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
                             }else {
                                 //Print on file the cfg using CFGToDotGraph
                                 System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
                                 cpg.buildCPGphase("PDG");
                                 CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                                 DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-                                CPGdotGraphPDG.plot("/home/djack/IdeaProjects/nedo/graphs/3/" + nameMethod + ".dot");
+                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
                             }
 
                             System.out.println("\tALL DONE!");
+
+                            if (info.isStruc2vec()){
+                                System.out.print("\tPrinting CPG in input format for struct2vec...");
+                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,struct2vecPath,nedoPath);
+                                s2v.printEdgeListOnFile();
+                                System.out.println("DONE!");
+                                //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
+                                //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
+                            }
 
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
@@ -250,7 +304,7 @@ public class MainCPG {
             //for(int i=0; i<sootArgs.length;i++){
             //    System.err.print(sootArgs[i] + " ");
             //}
-            System.err.println();
+            //System.err.println();
             soot.Main.main(sootArgs);
         //} catch (Exception e) {
         //    System.out.println("Exception catched: " + e);
@@ -303,58 +357,3 @@ public class MainCPG {
         //public void addCheckMethod(String name){ this.nameManCheck.add(name);}
     }
 }
-
-/*
-try{
-
-            InputStream is = new FileInputStream(FILE_PATH);
-            System.out.println("Creating Code Property Graph COMPLETE");
-            CodePropertyGraph cpg = new CodePropertyGraph(is);
-
-            //Print on file the cfg using CFGToDotGraph
-            System.out.println("\tPrinting CPG on file");
-            CPGToDotGraph cpgToDot = new CPGToDotGraph(cpg.getRootNode(), "COMPLETE");
-            DotGraph CPGdotGraph = cpgToDot.drawCPG();
-            CPGdotGraph.plot("graphs/ASTs/COMPLETE.dot");
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
- */
-
-/*
-*
-*
-* EnhancedUnitGraph cfg = new EnhancedUnitGraph(body);
-Chain<Unit> units = cfg.getBody().getUnits();
-//List<UnitBox> units = cfg.getBody().getAllUnitBoxes();
-Iterator<Unit> itUnBox = units.iterator();
-while(itUnBox.hasNext()){
-    Unit temp = itUnBox.next();
-    System.err.println(temp.toString());
-    //System.err.println(temp.);
-}
-
-Map<SootMethod, JimpleBody> bodyAST = new HashMap<SootMethod, JimpleBody>();
-BodyExtractorWalker bdWalker = new BodyExtractorWalker(cl,SootResolver.v(),bodyAST);
-if(bodyAST.isEmpty())System.err.println("Empty");
-else{
-    for (Map.Entry<SootMethod, JimpleBody> entry : bodyAST.entrySet()) {
-        String key = entry.getKey().toString();
-        String value = entry.getValue().toString();
-        System.out.println("key, " + key + " value " + value);
-    }
-}
-
-//JimpleBody body2 = new JimpleBody(m);
-*
-*
-*
-*
-*
-*
-*
-*
-*
-* */

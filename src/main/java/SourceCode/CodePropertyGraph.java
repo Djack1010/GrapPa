@@ -23,6 +23,7 @@ import java.util.*;
 public class CodePropertyGraph {
     int unId;
     Body body;
+    String nameCPG;
     ExceptionalUnitGraph unitGraph;
     ProgramDependenceGraph pdg;
     Unit UGrootNode;
@@ -43,11 +44,12 @@ public class CodePropertyGraph {
     //int tempSkippedNops = 0;
     boolean debug = false;
 
-    public CodePropertyGraph(Body body){
+    public CodePropertyGraph(Body body, String nameCPG){
         this.unId=2;//0 is reserved for EntryNode and 1 for ExitNode
         this.ASTrootNode=null;
         this.CPGrootNode=null;
         this.body=body;
+        this.nameCPG = nameCPG;
         this.unitGraph = new ExceptionalUnitGraph(this.body);
         if(this.unitGraph.getHeads().size()!=1){
            for(Unit unitHeads: this.unitGraph.getHeads()){
@@ -111,6 +113,8 @@ public class CodePropertyGraph {
     public int getSize(){
         return this.unId;
     }
+
+    public String getNameCPG() { return this.nameCPG; }
 
     public boolean isInitializedSuccessfully(){
         if(this.pdg==null)return false;
@@ -489,6 +493,8 @@ public class CodePropertyGraph {
     public Map<Integer,CPGNode> getCPGNodes(){
         return this.cpgAllNodes;
     }
+
+    public Set<CPGEdge> getCPGEdges() { return this.cpgAllEdges; }
 
     public LinkedList<CPGNode> getStmntNodes(){
         return this.cpgStmntNodes;

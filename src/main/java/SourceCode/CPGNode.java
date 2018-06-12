@@ -32,18 +32,6 @@ public class CPGNode {
         this.astNode = astNode;
     }
 
-    /*
-    public CPGNode(NodeTypes type, String name, String content, int nodeId, CPGEdge edgeIn){
-        this.nodeType = type;
-        this.content = content;
-        this.name = name;
-        this.nodeId=nodeId;
-        this.edgesOut = new HashSet<CPGEdge>();
-        this.edgesIn = new HashSet<CPGEdge>();
-        this.edgesIn.add(edgeIn);
-    }
-    */
-
     public void addEdgeIn(CPGEdge edge){ this.edgesIn.add(edge); }
 
 
