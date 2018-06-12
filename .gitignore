@@ -31,3 +31,7 @@ sootOutput
 *.dot
 *.pdf
 *.txt
+
+#input/output file struc2vec
+*.edgelist
+*.emb
