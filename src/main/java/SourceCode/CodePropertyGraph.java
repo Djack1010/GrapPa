@@ -22,6 +22,7 @@ import java.util.*;
 
 public class CodePropertyGraph {
     int unId;
+    int startCPGid;
     Body body;
     String nameCPG;
     ExceptionalUnitGraph unitGraph;
@@ -113,6 +114,8 @@ public class CodePropertyGraph {
     public int getSize(){
         return this.unId;
     }
+
+    public int getStartCPGid() { return this.startCPGid; }
 
     public String getNameCPG() { return this.nameCPG; }
 
@@ -375,7 +378,8 @@ public class CodePropertyGraph {
 
     private void createCFGEdges(UnitGraph graph){
         if(this.mapUnitToStmtIndex.get(this.UGrootNode)!=null){
-            this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,this.cpgAllNodes.get(0),this.cpgStmntNodes.get(this.mapUnitToStmtIndex.get(this.UGrootNode))));
+            this.startCPGid=this.cpgStmntNodes.get(this.mapUnitToStmtIndex.get(this.UGrootNode)).getId();
+            this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,this.cpgAllNodes.get(0),this.cpgAllNodes.get(this.startCPGid)));
         }else{
             System.err.println("ERROR! Constructing CFG, UGrootNode not Found, exiting...");
             System.exit(0);
@@ -473,7 +477,7 @@ public class CodePropertyGraph {
             }
             */
         }
-        //TODO Handle AEntermonitorStatement, AExitmonitorStatement, ATableswitchStatement, ALookupswitchStatement, AThrowStatement
+
         if (astNode instanceof ALabelStatement || astNode instanceof ABreakpointStatement || astNode instanceof AEntermonitorStatement
                 || astNode instanceof AExitmonitorStatement || astNode instanceof ATableswitchStatement
                 || astNode instanceof ALookupswitchStatement || astNode instanceof AIdentityStatement
