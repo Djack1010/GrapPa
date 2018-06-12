@@ -12,6 +12,21 @@ function UsageInfo {
     exit
 }
 
+function preAnalysisResult {
+    if [[ $(cat $SCRIPTPATH/result.txt | grep "Soot finished") ]] ; then
+        if [ -f $SCRIPTPATH/analysisResult.sh ]; then
+            AnalysisResult $SCRIPTPATH/result.txt
+        else
+            echo "ERROR! analysisResult script not found!"
+            exit
+        fi
+    else
+        echo "EXIT WITH ERROR, check errors.txt file"
+        AnalysisResult $SCRIPTPATH/result.txt
+        exit
+    fi
+}
+
 function AnalysisResult {
     if [ -f $1 ]; then
         while read l ;
@@ -37,7 +52,7 @@ function MutationHandler {
     MUTNAME="$2.java"
     GRAPH2VECTOOL=""
     if [ ! -z "$3" ]; then
-        GRAPH2VECTOOL="-grap2vec $3"
+        GRAPH2VECTOOL="-graph2vec $3"
     fi
     TOREPLACE=$( find $SOURCE_ANALYSIS_FOLDER -name "$MUTNAME")
     if [ -z "$TOREPLACE" ]; then
@@ -80,10 +95,11 @@ function MutationHandler {
 
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 $GRAPH2VECTOOL
+            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         rm $TOREPLACE
         cp $MUTFOLDER/$MUTNAME $TOREPLACE
         echo "Restored $TOREPLACE!"
+        preAnalysisResult
     done  
 }
 
@@ -104,18 +120,7 @@ function LoopFolder {
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
             -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         echo "ENDING ANALYSIS FOR $JavaFile"
-        if [[ $(cat $SCRIPTPATH/result.txt | grep "Soot finished") ]] ; then
-            if [ -f $SCRIPTPATH/analysisResult.sh ]; then
-                AnalysisResult $SCRIPTPATH/result.txt
-            else
-                echo "ERROR! analysisResult script not found!"
-                exit
-            fi
-        else
-            echo "EXIT WITH ERROR, check errors.txt file"
-            AnalysisResult $SCRIPTPATH/result.txt
-            exit
-        fi
+        preAnalysisResult
     done
 }
 
@@ -182,7 +187,8 @@ if [ -z "$1" ]; then
     mvn compile
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-        -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS
+        -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+    preAnalysisResult
 elif [[ "$1" == "-allclasses" ]]; then
     cd $PROJECT_FOLDER
     mvn clean
@@ -230,7 +236,8 @@ elif [[ "$1" == "-targ" ]]; then
         fi
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
                 SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-                -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 $GRAPH2VECTOOL
+                -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+        preAnalysisResult
     fi
 elif [[ "$1" == "-help" ]]; then
     UsageInfo

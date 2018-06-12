@@ -17,6 +17,7 @@ public class MainCPG {
     //PATH
     final static String nedoPath ="/home/djack/IdeaProjects/nedo";
     final static String struct2vecPath ="/home/djack/Dropbox/thesis/external_material/struc2vec";
+    final static infoExec info = new infoExec();;
 
     private static class infoExec{
         boolean mutMode;
@@ -44,9 +45,78 @@ public class MainCPG {
 
     }
 
+    private static String[] handleArgs(String[] args){
+        String [] myArrayArgs = new String[args.length];
+        int i=0;
+        int j=0;
+        boolean mainClass = true;
+        while(i<args.length){
+            switch (args[i]){
+                case "-p":
+                case "cg":
+                case "all-reachable:true":
+                case "-w":
+                case "-no-bodies-for-excluded":
+                case "-full-resolver":
+                    myArrayArgs[j]=args[i];
+                    j++;
+                    break;
+                case "-cp":
+                case "-process-dir":
+                    myArrayArgs[j]=args[i];
+                    i++;
+                    j++;
+                    myArrayArgs[j]=args[i];
+                    j++;
+                    break;
+                case "-targetClass":
+                    i++;
+                    myArrayArgs[j]=args[i];
+                    j++;
+                    info.setClassToAnalyzed(args[i]);
+                    break;
+                case "-mutationClass":
+                    i++;
+                    myArrayArgs[j]=args[i];
+                    j++;
+                    info.setClassToAnalyzed(args[i]);
+                    info.setMutMode();
+                    break;
+                case "-graph2vec":
+                    i++;
+                    switch (args[i]){
+                        case "struc2vec":
+                            info.setStruc2vec();
+                            break;
+                        default:
+                            System.err.println("Invalid vec tool " + args[i] + ", exiting...");
+                            System.exit(0);
+                            break;
+                    }
+                    break;
+                default:
+                    if(mainClass){
+                        myArrayArgs[j]=args[i];
+                        j++;
+                        mainClass=false;
+                    }
+                    else {
+                        System.err.println("Invalid arguments " + args[i] + ", exiting...");
+                        System.exit(0);
+                    }
+                    break;
+            }
+            i++;
+        }
+        if(j!=myArrayArgs.length){
+            String[] tempArray = new String[j];
+            System.arraycopy( myArrayArgs, 0, tempArray, 0, tempArray.length );
+            return tempArray;
+        }else return myArrayArgs;
+    }
+
     public static void main(String[] args) {
 
-        final infoExec info = new infoExec();
         String[] sootArgs=null;
 
         if (args.length == 0) {
@@ -89,69 +159,7 @@ public class MainCPG {
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
             info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
-        }else if(args.length==11){//-> use the passed arguments
-            sootArgs = new String[11];
-            System.arraycopy( args, 0, sootArgs, 0, args.length );
-            info.setClassToAnalyzed(args[args.length-1]);
-        }else if(args.length==13){
-            sootArgs = new String[12];
-            String temp = null;
-            switch (args[args.length-2]){
-                case "-targetClass":
-                    temp=args[args.length-1];
-                    break;
-                case "-mutationClass":
-                    info.setMutMode();
-                    temp=args[args.length-1];
-                    break;
-                default:
-                    System.err.println("Invalid arguments " + args[args.length-2] + ", exiting...");
-                    System.exit(0);
-            }
-            System.arraycopy( args, 0, sootArgs, 0, args.length-3 );
-            sootArgs[sootArgs.length-2]=args[args.length-3];//DEFAULT MAIN CLASS
-            sootArgs[sootArgs.length-1]=temp;//TARGET CLASS
-            info.setClassToAnalyzed(temp);
-        }else if(args.length==15){
-            sootArgs = new String[12];
-            String temp = null;
-            String vecTool =null;
-            switch (args[args.length-4]){
-                case "-targetClass":
-                    temp=args[args.length-3];
-                    break;
-                case "-mutationClass":
-                    info.setMutMode();
-                    temp=args[args.length-3];
-                    break;
-                default:
-                    System.err.println("Invalid arguments " + args[args.length-3] + ", exiting...");
-                    System.exit(0);
-            }
-            switch (args[args.length-2]){
-                case "-graph2vec":
-                    vecTool=args[args.length-1];
-                    break;
-                default:
-                    System.err.println("Invalid arguments " + args[args.length-2] + ", exiting...");
-                    System.exit(0);
-            }
-            switch (vecTool){
-                case "struc2vec":
-                    info.setStruc2vec();
-                    break;
-                default:
-                    System.err.println("Invalid vec tool " + args[args.length-1] + ", exiting...");
-                    System.exit(0);
-            }
-            System.arraycopy( args, 0, sootArgs, 0, args.length-5 );
-            sootArgs[sootArgs.length-2]=args[args.length-5];//DEFAULT MAIN CLASS
-            sootArgs[sootArgs.length-1]=temp;//TARGET CLASS
-            info.setClassToAnalyzed(temp);
-        }else{
-            System.err.println("Invalid number of arguments, exiting...");
-            System.exit(0);
-        }
+        }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
 
@@ -195,6 +203,18 @@ public class MainCPG {
                         String[] partNameCl = cl.getName().split("\\.");
                         String nameMethod = partNameCl[partNameCl.length-1] + "_" + m.getName();
 
+                        if(info.isMutMode()){
+                            int countMut = 1;
+                            File f = new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                            while(f.exists() && !f.isDirectory()) {
+                                countMut++;
+                                f= new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                            }
+                            nameMethod=nameMethod+"_"+countMut;
+                        }else{
+                            nameMethod=nameMethod+"_"+0;
+                        }
+
 
                         //De-comment for printing Jimple Code of Body method
 
@@ -214,7 +234,7 @@ public class MainCPG {
                         try {
 
                             System.out.println("Creating Code Property Graph for " + m.getName());
-                            CodePropertyGraph cpg = new CodePropertyGraph(body, m.getName());
+                            CodePropertyGraph cpg = new CodePropertyGraph(body, nameMethod);
 
                             if(!(cpg.isInitializedSuccessfully())){
                                 System.err.println("Skipping " + m.getName());
@@ -250,25 +270,14 @@ public class MainCPG {
                             DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
                             CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
+                            //Print on file the cfg using CFGToDotGraph
+                            System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
+                            cpg.buildCPGphase("PDG");
+                            CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
+                            DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
                             if(info.isMutMode()){
-                                //Print on file the cfg using CFGToDotGraph
-                                System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
-                                cpg.buildCPGphase("PDG");
-                                CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                                DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-                                int countMut = 0;
-                                File f = new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
-                                while(f.exists() && !f.isDirectory()) {
-                                    countMut++;
-                                    f= new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
-                                }
-                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3_mut/" + nameMethod + ".dot");
                             }else {
-                                //Print on file the cfg using CFGToDotGraph
-                                System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
-                                cpg.buildCPGphase("PDG");
-                                CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                                DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
                                 CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
                             }
 
@@ -278,6 +287,7 @@ public class MainCPG {
                                 System.out.print("\tPrinting CPG in input format for struct2vec...");
                                 CPG2struc2vec s2v = new CPG2struc2vec(cpg,struct2vecPath,nedoPath);
                                 s2v.printEdgeListOnFile();
+                                s2v.printNodeListOnFile();
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
                                 //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());

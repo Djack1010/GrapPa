@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3ec161ca-ea8e-4712-939c-8e21056c0139" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPGNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPGNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -20,17 +19,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="MainCPG.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MainCPG.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="574">
-              <caret line="282" column="34" selection-start-line="282" selection-start-column="34" selection-end-line="282" selection-end-column="34" />
+            <state relative-caret-position="396">
+              <caret line="18" column="38" selection-start-line="17" selection-start-column="4" selection-end-line="18" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#594#595#0" expanded="true" />
-                <element signature="e#654#655#0" expanded="true" />
-                <element signature="e#6809#14073#0" expanded="true" />
-                <element signature="e#14072#14073#0" expanded="true" />
+                <element signature="class#infoExec#0;class#MainCPG#0" />
+                <element signature="e#6761#14536#0" expanded="true" />
+                <element signature="e#14535#14536#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -48,26 +46,33 @@
       <file leaf-file-name="CodePropertyGraph.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="496" column="65" selection-start-line="496" selection-start-column="65" selection-end-line="496" selection-end-column="65" />
+            <state relative-caret-position="213">
+              <caret line="452" column="5" selection-start-line="452" selection-start-column="5" selection-end-line="452" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#isInitializedSuccessfully#0;class#CodePropertyGraph#0" />
                 <element signature="method#generateAST#0;class#CodePropertyGraph#0" />
                 <element signature="method#generateCFG#0;class#CodePropertyGraph#0" />
+                <element signature="method#generatePDG#0;class#CodePropertyGraph#0" />
+                <element signature="class#RunPDGThread#0;class#CodePropertyGraph#0" />
                 <element signature="method#buildCPGphase#0;class#CodePropertyGraph#0" />
                 <element signature="method#createPDGDataEdge#0;class#CodePropertyGraph#0" />
-                <element signature="method#newNodeAST#0;class#CodePropertyGraph#0" />
+                <element signature="method#createPDGControlEdges#0;class#CodePropertyGraph#0" />
+                <element signature="method#createCFGEdges#0;class#CodePropertyGraph#0" />
+                <element signature="method#mapUnitToStmtNodes#0;class#CodePropertyGraph#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CPG2struc2vec.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CPG2struc2vec.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="30" column="39" selection-start-line="30" selection-start-column="39" selection-end-line="30" selection-end-column="39" />
+            <state relative-caret-position="469">
+              <caret line="60" column="35" selection-start-line="60" selection-start-column="35" selection-end-line="60" selection-end-column="35" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -77,15 +82,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2354">
               <caret line="117" column="22" selection-start-line="117" selection-start-column="22" selection-end-line="117" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConstructPDGException.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/ConstructPDGException.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="66">
-              <caret line="3" column="53" selection-start-line="3" selection-start-column="53" selection-end-line="3" selection-end-column="53" />
             </state>
           </provider>
         </entry>
@@ -122,11 +118,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>visitedNodes</find>
-      <find>new CPGEdge</find>
-      <find>this.cpgStmntNodes.size()</find>
-      <find>this.astNode</find>
-      <find>drawEdge</find>
       <find>indexesLabelStmnt</find>
       <find>app</find>
       <find>this.ASTrootNode</find>
@@ -152,6 +143,11 @@
       <find>visited</find>
       <find>cpgAllEdges</find>
       <find>cpgAllNodes</find>
+      <find>TBrea</find>
+      <find>At</find>
+      <find>ANew</find>
+      <find>AGo</find>
+      <find>CodePropertyGraph</find>
     </findStrings>
     <replaceStrings>
       <replace>package ApacheCLang3.</replace>
@@ -221,9 +217,9 @@
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/ConstructPDGException.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/PDGToDotGraph.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPGNode.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java" />
+        <option value="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" />
       </list>
     </option>
@@ -248,7 +244,7 @@
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="32" />
-    <option name="width" value="1920" />
+    <option name="width" value="960" />
     <option name="height" value="1048" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -257,8 +253,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -480,7 +476,7 @@
       <window_info anchor="bottom" x="0" y="28" width="960" height="1172" id="Run" order="2" sideWeight="0.49892703" type="WINDOWED" weight="0.2780269" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3288719" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20493563" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20761803" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="4" />
@@ -512,10 +508,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/dependency/LocalStmtPairRetriever.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/dependency/PairRetriever.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/dependency/StmtRetriever.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/dependency/AbstractDependenceRetriever.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/dependency/AbstractDependencyAnalysis.java" />
     <entry file="file://$PROJECT_DIR$/../soot/src/main/java/soot/toolkits/graph/pdg/ConditionalPDGNode.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -683,17 +675,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPGEdge.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="574">
-          <caret line="282" column="34" selection-start-line="282" selection-start-column="34" selection-end-line="282" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#594#595#0" expanded="true" />
-            <element signature="e#654#655#0" expanded="true" />
-            <element signature="e#6809#14073#0" expanded="true" />
-            <element signature="e#14072#14073#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="132">
+          <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -707,33 +692,74 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/extLib/soot-2.5.0.jar!/soot/jimple/parser/node/Start.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../soot/src/main/generated/sablecc/soot/jimple/parser/analysis/AnalysisAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5413">
+          <caret line="515" column="23" selection-start-line="515" selection-start-column="20" selection-end-line="515" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../soot/src/main/generated/sablecc/soot/jimple/parser/node/Start.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="34" column="26" lean-forward="true" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../soot/src/main/generated/sablecc/soot/jimple/parser/analysis/DepthFirstAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="7" column="44" lean-forward="true" selection-start-line="7" selection-start-column="44" selection-end-line="7" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="496" column="65" selection-start-line="496" selection-start-column="65" selection-end-line="496" selection-end-column="65" />
+        <state relative-caret-position="213">
+          <caret line="452" column="5" selection-start-line="452" selection-start-column="5" selection-end-line="452" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#isInitializedSuccessfully#0;class#CodePropertyGraph#0" />
             <element signature="method#generateAST#0;class#CodePropertyGraph#0" />
             <element signature="method#generateCFG#0;class#CodePropertyGraph#0" />
+            <element signature="method#generatePDG#0;class#CodePropertyGraph#0" />
+            <element signature="class#RunPDGThread#0;class#CodePropertyGraph#0" />
             <element signature="method#buildCPGphase#0;class#CodePropertyGraph#0" />
             <element signature="method#createPDGDataEdge#0;class#CodePropertyGraph#0" />
-            <element signature="method#newNodeAST#0;class#CodePropertyGraph#0" />
+            <element signature="method#createPDGControlEdges#0;class#CodePropertyGraph#0" />
+            <element signature="method#createCFGEdges#0;class#CodePropertyGraph#0" />
+            <element signature="method#mapUnitToStmtNodes#0;class#CodePropertyGraph#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPGEdge.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="30" column="39" selection-start-line="30" selection-start-column="39" selection-end-line="30" selection-end-column="39" />
+        <state relative-caret-position="469">
+          <caret line="60" column="35" selection-start-line="60" selection-start-column="35" selection-end-line="60" selection-end-column="35" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="18" column="38" selection-start-line="17" selection-start-column="4" selection-end-line="18" selection-end-column="38" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="class#infoExec#0;class#MainCPG#0" />
+            <element signature="e#6761#14536#0" expanded="true" />
+            <element signature="e#14535#14536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
