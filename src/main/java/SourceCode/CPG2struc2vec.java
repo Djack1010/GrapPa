@@ -5,11 +5,11 @@ import soot.jimple.parser.node.*;
 import java.io.PrintWriter;
 
 public class CPG2struc2vec extends CPG2vec {
-    String pathStru2vec;
+    //String pathStru2vec;
 
-    public CPG2struc2vec(CodePropertyGraph cpg, String pathNedo, String pathStruc2vec) {
+    public CPG2struc2vec(CodePropertyGraph cpg, String pathNedo) {
         super(cpg,pathNedo);
-        this.pathStru2vec = pathStruc2vec;
+        //this.pathStru2vec = pathStruc2vec;
         this.edgeList=this.createEdgeListOnlyCPG();
         this.nodeLabels=this.createNodeLabelsListOnlyCPG();
     }

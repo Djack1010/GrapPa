@@ -205,6 +205,7 @@ public class MainCPG {
 
                         if(info.isMutMode()){
                             int countMut = 1;
+                            checkAndCreateFolder(nedoPath + "/graphs/3_mut");
                             File f = new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
                             while(f.exists() && !f.isDirectory()) {
                                 countMut++;
@@ -212,7 +213,7 @@ public class MainCPG {
                             }
                             nameMethod=nameMethod+"_"+countMut;
                         }else{
-                            nameMethod=nameMethod+"_"+0;
+                            nameMethod=nameMethod+"_0";
                         }
 
 
@@ -223,6 +224,7 @@ public class MainCPG {
                         Printer.v().printTo(body, pw);
                         String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
                         try{
+                            checkAndCreateFolder(nedoPath + "/graphs/JimpleCode");
                             PrintWriter out = new PrintWriter(nedoPath + "/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
                             out.println(inputString);
                             out.close();
@@ -247,6 +249,7 @@ public class MainCPG {
                             System.out.println("\tPrinting CFG on file");
                             CFGToDotGraph cfgToDot = new CFGToDotGraph();
                             DotGraph CFGdotGraph = cfgToDot.drawCFG(cfg, body);
+                            checkAndCreateFolder(nedoPath + "/graphs/CFGs");
                             CFGdotGraph.plot(nedoPath + "/graphs/CFGs/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
@@ -254,13 +257,15 @@ public class MainCPG {
                             System.out.println("\tPrinting PDG on file");
                             PDGToDotGraph pdgToDot = new PDGToDotGraph(pdg, nameMethod);
                             DotGraph PDGdotGraph = pdgToDot.drawPDG();
-                            PDGdotGraph.plot(nedoPath + "/graphs/PDGs/" + nameMethod + ".dot");
+                            checkAndCreateFolder(nedoPath + "/graphs/PDGs");
+                            PDGdotGraph.plot(nedoPath + "" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
                             System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
                             CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
                             DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
+                            checkAndCreateFolder(nedoPath + "/graphs/1");
                             CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
@@ -268,6 +273,7 @@ public class MainCPG {
                             cpg.buildCPGphase("CFG");
                             CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
+                            checkAndCreateFolder(nedoPath + "/graphs/2");
                             CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
                             //Print on file the cfg using CFGToDotGraph
@@ -276,8 +282,10 @@ public class MainCPG {
                             CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
                             if(info.isMutMode()){
+                                checkAndCreateFolder(nedoPath + "/graphs/3_mut");
                                 CPGdotGraphPDG.plot(nedoPath + "/graphs/3_mut/" + nameMethod + ".dot");
                             }else {
+                                checkAndCreateFolder(nedoPath + "/graphs/3");
                                 CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
                             }
 
@@ -285,7 +293,7 @@ public class MainCPG {
 
                             if (info.isStruc2vec()){
                                 System.out.print("\tPrinting CPG in input format for struct2vec...");
-                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,struct2vecPath,nedoPath);
+                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath);
                                 s2v.printEdgeListOnFile();
                                 s2v.printNodeListOnFile();
                                 System.out.println("DONE!");
@@ -325,6 +333,13 @@ public class MainCPG {
         stats.printStatsShort();
         System.exit(1);
 
+    }
+
+    private static void checkAndCreateFolder(String folderPath){
+        File directory = new File(folderPath);
+        if (! directory.exists()){
+            directory.mkdirs();
+        }
     }
 
     private static class MainStats{
