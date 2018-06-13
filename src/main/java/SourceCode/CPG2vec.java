@@ -3,70 +3,115 @@ package SourceCode;
 import soot.jimple.parser.node.*;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class CPG2vec {
     CodePropertyGraph cpg;
     String pathNedo;
     String edgeList;
     String nodeLabels;
+    ArrayList<Integer> visitCPGid;
+    boolean decr;
 
-    public CPG2vec(CodePropertyGraph cpg, String pathNedo){
+    public CPG2vec(CodePropertyGraph cpg, String pathNedo, boolean needDecr) {
         this.cpg = cpg;
         this.pathNedo = pathNedo;
+        this.decr = needDecr;
+        this.visitCPGid = new ArrayList<Integer>();
+        this.visitCPG(this.cpg.getCPGNodes().get(0));
+        Collections.sort(this.visitCPGid);
     }
 
-    protected String createEdgeListComplete() {
-        String toReturn = "";
-        for (CPGEdge tempEdge : this.cpg.getCPGEdges()) {
-            if (toReturn.equals("")) toReturn = tempEdge.getSource().getId() + " " + tempEdge.getDest().getId();
-            else toReturn = toReturn + "\n" + tempEdge.getSource().getId() + " " + tempEdge.getDest().getId();
+    private void visitCPG(CPGNode node) {
+        if(this.visitCPGid.contains(node.getId())) return;
+        this.visitCPGid.add(node.getId());
+        //if (this.mapStmtLabel(node.getAstNode())<17)this.visitCPGStmtid.add(node.getId());
+        for(CPGEdge tempEdge: node.getEdgesOut()){
+            this.visitCPG(tempEdge.getDest());
+        }
+    }
+
+    protected String createAdjacentListOnlyCPG() {
+        String toReturn="";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            if(!toReturn.equals(""))toReturn=toReturn+"\n";
+            //toReturn = toReturn + tempNode.getId();
+            for(CPGEdge tempEdge: tempNode.getEdgesIn()){
+                if (!(this.visitCPGid.contains((tempEdge.getSource().getId())))
+                        || !(this.visitCPGid.contains((tempEdge.getDest().getId())))) continue;
+                toReturn = toReturn + "(" + this.getNodeNumber(tempEdge.getSource()) + " " + mapEdgeLabel(tempEdge) + ") ";
+            }
         }
         return toReturn;
     }
 
-    protected String createEdgeListOnlyCPG() {
+    protected String createEdgeListComplete () {
         String toReturn = "";
         for (CPGEdge tempEdge : this.cpg.getCPGEdges()) {
-            if((tempEdge.getSource().getId()<this.cpg.startCPGid) && !(tempEdge.getSource().getId()==0)) continue;
-            if (toReturn.equals("")) toReturn = tempEdge.getSource().getId() + " " + tempEdge.getDest().getId();
-            else toReturn = toReturn + "\n" + tempEdge.getSource().getId() + " " + tempEdge.getDest().getId();
+            if (toReturn.equals(""))
+                toReturn = this.getNodeNumber(tempEdge.getSource()) + " " + this.getNodeNumber(tempEdge.getDest());
+            else
+                toReturn = toReturn + "\n" + this.getNodeNumber(tempEdge.getSource()) + " " + this.getNodeNumber(tempEdge.getDest());
         }
         return toReturn;
     }
 
-    protected String createNodeLabelsListComplete() {
+    protected String createEdgeListOnlyCPG () {
+        String toReturn = "";
+        for (CPGEdge tempEdge : this.cpg.getCPGEdges()) {
+            if (!(this.visitCPGid.contains((tempEdge.getSource().getId())))
+                    || !(this.visitCPGid.contains((tempEdge.getDest().getId())))) continue;
+            if (toReturn.equals(""))
+                toReturn = this.getNodeNumber(tempEdge.getSource()) + " " + this.getNodeNumber(tempEdge.getDest());
+            else
+                toReturn = toReturn + "\n" + this.getNodeNumber(tempEdge.getSource()) + " " + this.getNodeNumber(tempEdge.getDest());
+        }
+        return toReturn;
+    }
+
+    protected String createNodeLabelsListComplete () {
         String toReturn = "node label\n0 0";
         for (int i = 2; i < this.cpg.getSize(); i++) {
             CPGNode tempNode = this.cpg.getCPGNodes().get(i);
-            toReturn = toReturn + "\n" + tempNode.getId() + " " + mapNodeLabel(tempNode.getAstNode());
+            toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapNodeLabel(tempNode.getAstNode());
         }
         return toReturn + "\n1 0";
     }
 
-    protected String createNodeLabelsListOnlyCPG() {
-        String toReturn = "node label\n0 0";
-        for (int i = this.cpg.getStartCPGid(); i < this.cpg.getSize(); i++) {
-            CPGNode tempNode = this.cpg.getCPGNodes().get(i);
-            toReturn = toReturn + "\n" + tempNode.getId() + " " + mapNodeLabel(tempNode.getAstNode());
+    protected String createNodeLabelsListOnlyCPG () {
+        String toReturn = "node label";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapNodeLabel(tempNode.getAstNode());
         }
-        return toReturn + "\n1 0";
+        return toReturn;
     }
 
-    protected String createNodeLabelsListOnlyCPGStmts() {
-        String toReturn = "node label\n0 0";
-        for (int i = this.cpg.getStartCPGid(); i < this.cpg.getSize(); i++) {
-            CPGNode tempNode = this.cpg.getCPGNodes().get(i);
-            toReturn = toReturn + "\n" + tempNode.getId() + " " + mapStmtLabel(tempNode.getAstNode());
+    protected String createNodeLabelsListOnlyCPGStmts () {
+        String toReturn = "node label";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapStmtLabel(tempNode.getAstNode());
         }
-        return toReturn + "\n1 0";
+        return toReturn;
     }
 
-    private int mapNodeLabel(Node tempNode) {
-        if (tempNode instanceof EOF) {
+    private int getNodeNumber (CPGNode node){
+        if ((node.getId() == 0) || (node.getId() == 1)) return node.getId();
+        if (this.decr) return node.getId() - (this.cpg.startCPGid - 2);
+        else return node.getId();
+    }
+
+    private int mapNodeLabel (Node tempNode){
+        if (tempNode == null) {//case ENTRY and EXIT Node
+            return 0;
+        } else if (tempNode instanceof EOF) {
             return 258;
         } else if (tempNode instanceof Start) {
             return 257;
-        }else if (tempNode instanceof AFile) {
+        } else if (tempNode instanceof AFile) {
             return 256;
         } else if (tempNode instanceof AAbstractModifier) {
             return 1;
@@ -579,47 +624,67 @@ public abstract class CPG2vec {
         } else if (tempNode instanceof TStringConstant) {
             return 255;
         } else {
-            System.err.println("CPG2struc2vec: Invalid node " + tempNode.getClass().getSimpleName() + ", exiting...");
+            System.err.println("CPG2vec: Invalid node " + tempNode.getClass().getSimpleName() + ", exiting...");
             System.exit(0);
         }
         return -1;
     }
 
-    private int mapStmtLabel(Node tempNode) {
-        if(tempNode instanceof ALabelStatement){
+    private int mapStmtLabel (Node tempNode){
+        if (tempNode == null) {//case ENTRY and EXIT Node
+            return 0;
+        } else if (tempNode instanceof ALabelStatement) {
             return 1;
-        } else if(tempNode instanceof ABreakpointStatement){
+        } else if (tempNode instanceof ABreakpointStatement) {
             return 2;
-        } else if(tempNode instanceof AEntermonitorStatement){
+        } else if (tempNode instanceof AEntermonitorStatement) {
             return 3;
-        } else if(tempNode instanceof AExitmonitorStatement){
+        } else if (tempNode instanceof AExitmonitorStatement) {
             return 4;
-        } else if(tempNode instanceof ATableswitchStatement){
+        } else if (tempNode instanceof ATableswitchStatement) {
             return 5;
-        } else if(tempNode instanceof ALookupswitchStatement){
+        } else if (tempNode instanceof ALookupswitchStatement) {
             return 6;
-        } else if(tempNode instanceof AIdentityStatement){
+        } else if (tempNode instanceof AIdentityStatement) {
             return 7;
-        } else if(tempNode instanceof AIdentityNoTypeStatement){
+        } else if (tempNode instanceof AIdentityNoTypeStatement) {
             return 8;
-        } else if(tempNode instanceof AAssignStatement){
+        } else if (tempNode instanceof AAssignStatement) {
             return 9;
-        } else if(tempNode instanceof AIfStatement){
+        } else if (tempNode instanceof AIfStatement) {
             return 10;
-        } else if(tempNode instanceof AGotoStatement){
+        } else if (tempNode instanceof AGotoStatement) {
             return 11;
-        } else if(tempNode instanceof ANopStatement){
+        } else if (tempNode instanceof ANopStatement) {
             return 12;
-        } else if(tempNode instanceof ARetStatement){
+        } else if (tempNode instanceof ARetStatement) {
             return 13;
-        } else if(tempNode instanceof AReturnStatement){
+        } else if (tempNode instanceof AReturnStatement) {
             return 14;
-        } else if(tempNode instanceof AThrowStatement){
+        } else if (tempNode instanceof AThrowStatement) {
             return 15;
-        } else if(tempNode instanceof AInvokeStatement){
+        } else if (tempNode instanceof AInvokeStatement) {
             return 16;
         } else {
-            return 0;
+            return 17;
         }
     }
+
+    private int mapEdgeLabel (CPGEdge tempEdge){
+        if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.AST_EDGE) {
+            return 1;
+        } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.CFG_EDGE_C) {
+            return 2;
+        } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.PDG_EDGE_C) {
+            return 3;
+        } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.PDG_EDGE_D) {
+            return 4;
+        } else {
+            System.err.println("CPG2vec: Invalid edge from " + tempEdge.getSource().getId() + " to " + tempEdge.getDest().getId() + ", exiting...");
+            System.exit(0);
+        }
+        return 0;
+    }
+
+
 }

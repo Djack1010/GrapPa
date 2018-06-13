@@ -38,7 +38,13 @@ USAGE: ./run.sh [ ((-targ | -mut) CLASS | -allclasses) [-graph2vec TOOLNAME]]
 -mut CLASS: run on a mutated CLASS file
 -allclasses: run on all class file in SOURCE_ANALYSIS_FOLDER
 -graph2vec TOOLNAME: print graph on file as input format for TOOLNAME
-	Available TOOLNAME: -struc2vec
+	Available TOOLNAME: struc2vec
+```
+### Examples
+```
+./run.sh -targ AnnotationUtils -graph2vec struc2vec
+./run.sh -mut builder.Builder
+./run.sh -allclasses -graph2vec struc2vec
 ```
 ## Authors
 

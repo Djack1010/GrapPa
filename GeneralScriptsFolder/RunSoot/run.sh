@@ -49,20 +49,25 @@ function AnalysisResult {
 function MutationHandler {
     rm -f $SCRIPTPATH/temp_MUT.txt
     MUTFOLDER=$1
-    MUTNAME="$2.java"
+    if [ $(echo $2 | grep ".") ]; then
+        MUTNAME_temp=$( echo ${2##*.} )
+        MUTNAME="$MUTNAME_temp.java"
+    else
+        MUTNAME="$2.java"
+    fi
     GRAPH2VECTOOL=""
     if [ ! -z "$3" ]; then
         GRAPH2VECTOOL="-graph2vec $3"
     fi
     TOREPLACE=$( find $SOURCE_ANALYSIS_FOLDER -name "$MUTNAME")
     if [ -z "$TOREPLACE" ]; then
-        echo "EXITING WITH ERROR, $MUTNAME TO REPLACE NOT FOUND..."
+        echo "EXITING WITH ERROR#1, $MUTNAME TO REPLACE NOT FOUND..."
         exit
     fi
     find $MUTFOLDER -name "$MUTNAME" >> $SCRIPTPATH/temp_MUT.txt
     if ! [[ $(cat $SCRIPTPATH/temp_MUT.txt) ]]; then
-        echo "EXITING WITH ERROR, $MUTNAME TO REPLACE NOT FOUND..."
-        exit
+        echo "$MUTNAME HAS NO MUTANTS..." >> $SCRIPTPATH/log.txt
+        return
     fi 
 
     mutArray[0]=0
@@ -75,17 +80,45 @@ function MutationHandler {
     done < $SCRIPTPATH/temp_MUT.txt
     rm -f $SCRIPTPATH/temp_MUT.txt
     for (( n=1; n<=${mutArray[0]}; n++ )); do  
+        echo "MUTANT $n out of ${mutArray[0]}" >> $SCRIPTPATH/log.txt
         MUTFOLDER=${mutArray[$n]}
-        if [ ! -f $MUTFOLDER/mut/$MUTNAME ] || [ ! -f $MUTFOLDER/$MUTNAME ]; then
-            echo "EXITING WITH ERROR, $MUTFOLDER DOES NOT CONTAIN MUT and ORIGINAL FILES..."
+        if [ ! -f $MUTFOLDER/mut/$MUTNAME ] || [ ! -f $MUTFOLDER/$MUTNAME ] || [ -z "$(diff $MUTFOLDER/mut/$MUTNAME $MUTFOLDER/$MUTNAME)" ]; then
+            echo "EXITING WITH ERROR, $MUTFOLDER DOES NOT CONTAIN MUT and ORIGINAL FILES (OR they are identical)"
             exit
         fi 
+
+        rm -f $SCRIPTPATH/tempJava
+        LINED=$(diff $MUTFOLDER/mut/$MUTNAME $MUTFOLDER/$MUTNAME | grep -v "^---" | grep -v "^[<>]" | cut -d'c' -f1)
+        if [ "$LINED" == "$(diff $MUTFOLDER/mut/$MUTNAME $MUTFOLDER/$MUTNAME | grep -v "^---" | grep -v "^[<>]" | cut -d'c' -f2)" ]; then
+            tac $MUTFOLDER/$MUTNAME | tail -n $LINED >> $SCRIPTPATH/tempJava
+            while read l; do
+                if [[ $( echo $l | egrep 'private|public|protected'  ) ]]; then
+                    TEMP=$( echo $l | cut -d'(' -f1 )
+                    TARGETMETHOD=$( echo ${TEMP##* } )
+                    break
+                fi
+            done < $SCRIPTPATH/tempJava
+            rm $SCRIPTPATH/tempJava
+            if [ -z "$TARGETMETHOD" ]; then
+                echo "EXITING WITH ERROR, MUTATED METOD NOT FOUND"
+                exit
+            fi
+        fi
+
         if [ $(diff $TOREPLACE $MUTFOLDER/$MUTNAME) ]; then
             echo "EXITING WITH ERROR, $MUTFOLDER ORIGINAL FILE DIVERSE BY $TOREPLACE..."
             diff $TOREPLACE $MUTFOLDER/$MUTNAME 
             exit
         fi
-        echo "Deleting $TOREPLACE..."
+
+        echo "TARGET METHOD: $TARGETMETHOD" >> $SCRIPTPATH/log.txt
+        $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
+            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+        
+        preAnalysisResult
+
+        echo "Deleting $TOREPLACE..." >> $SCRIPTPATH/log.txt
         rm $TOREPLACE
         cp $MUTFOLDER/mut/$MUTNAME $TOREPLACE
         
@@ -95,10 +128,10 @@ function MutationHandler {
 
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         rm $TOREPLACE
         cp $MUTFOLDER/$MUTNAME $TOREPLACE
-        echo "Restored $TOREPLACE!"
+        echo "Restored $TOREPLACE!"  >> $SCRIPTPATH/log.txt
         preAnalysisResult
     done  
 }
@@ -110,23 +143,21 @@ function LoopFolder {
     fi
     GRAPH2VECTOOL=""
     if [ ! -z "$2" ]; then
-        GRAPH2VECTOOL="-grap2vec $2"
+        GRAPH2VECTOOL="-graph2vec $2"
     fi
     for JavaFile in $1; do
         rm -rf sootOutput
         THISCLASS=$(echo $JavaFile | cut -d"." -f1 | sed 's/\//./g' )
-        echo "STARTING ANALYSIS FOR $JavaFile"
-        $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
-        echo "ENDING ANALYSIS FOR $JavaFile"
-        preAnalysisResult
+        echo "STARTING ANALYSIS FOR $JavaFile"  >> $SCRIPTPATH/log.txt
+        MutationHandler $MUTATION_FOLDER $THISCLASS $2
+        echo "ENDING ANALYSIS FOR $JavaFile"  >> $SCRIPTPATH/log.txt
     done
 }
 
 SCRIPTPATH=$PWD
 rm -f $SCRIPTPATH/result.txt
 rm -f $SCRIPTPATH/errors.txt
+rm -f $SCRIPTPATH/log.txt
 
 if [ ! -f config.txt ]; then
     echo "ERROR! File config.txt not found! Exiting..."
@@ -187,7 +218,7 @@ if [ -z "$1" ]; then
     mvn compile
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-        -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+        -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
     preAnalysisResult
 elif [[ "$1" == "-allclasses" ]]; then
     cd $PROJECT_FOLDER
@@ -236,7 +267,7 @@ elif [[ "$1" == "-targ" ]]; then
         fi
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
                 SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-                -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+                -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         preAnalysisResult
     fi
 elif [[ "$1" == "-help" ]]; then

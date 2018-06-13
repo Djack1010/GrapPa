@@ -16,5 +16,11 @@ for Fold in $SCRIPTPATH/*; do
                 rm $emb
             fi
         done
+        for text in $Fold/*.txt; do
+            if [ -f $text ]; then
+                echo "Removing $text"
+                rm $text
+            fi
+        done
     fi
 done

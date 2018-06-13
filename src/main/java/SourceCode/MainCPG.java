@@ -23,19 +23,19 @@ public class MainCPG {
         boolean mutMode;
         boolean struc2vec;
         String classToAnalyzed;
+        String methodToAnalyzed;
 
         public infoExec(){
             this.mutMode=false;
             this.struc2vec=false;
-        }
-
-        public infoExec(String classToAnalyzed){
-            this.classToAnalyzed=classToAnalyzed;
+            this.methodToAnalyzed=null;
         }
 
         public String getClassToAnalyzed(){ return this.classToAnalyzed; }
+        public String getMethodToAnalyzed(){ return this.methodToAnalyzed; }
 
         public void setClassToAnalyzed(String newClass){ this.classToAnalyzed=newClass; }
+        public void setMethodToAnalyzed(String newMethod){ this.methodToAnalyzed=newMethod; }
 
         public void setMutMode(){ this.mutMode=true; }
         public boolean isMutMode(){ return this.mutMode; }
@@ -49,7 +49,6 @@ public class MainCPG {
         String [] myArrayArgs = new String[args.length];
         int i=0;
         int j=0;
-        boolean mainClass = true;
         while(i<args.length){
             switch (args[i]){
                 case "-p":
@@ -69,6 +68,11 @@ public class MainCPG {
                     myArrayArgs[j]=args[i];
                     j++;
                     break;
+                case "-mainClass":
+                    i++;
+                    myArrayArgs[j]=args[i];
+                    j++;
+                    break;
                 case "-targetClass":
                     i++;
                     myArrayArgs[j]=args[i];
@@ -81,6 +85,10 @@ public class MainCPG {
                     j++;
                     info.setClassToAnalyzed(args[i]);
                     info.setMutMode();
+                    break;
+                case "-targetMethod":
+                    i++;
+                    info.setMethodToAnalyzed(args[i]);
                     break;
                 case "-graph2vec":
                     i++;
@@ -95,15 +103,8 @@ public class MainCPG {
                     }
                     break;
                 default:
-                    if(mainClass){
-                        myArrayArgs[j]=args[i];
-                        j++;
-                        mainClass=false;
-                    }
-                    else {
-                        System.err.println("Invalid arguments " + args[i] + ", exiting...");
-                        System.exit(0);
-                    }
+                    System.err.println("MainCPG:ERROR:Invalid arguments " + args[i] + ", exiting...");
+                    System.exit(0);
                     break;
             }
             i++;
@@ -147,7 +148,7 @@ public class MainCPG {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    //"org.apache.commons.lang3.reflect.ConstructorUtils"
+                    "org.apache.commons.lang3.AnnotationUtils"
                     //
                     //
                     //"-cp",
@@ -158,7 +159,8 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
-            info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
+            info.setClassToAnalyzed("org.apache.commons.lang3.AnnotationUtils");
+            info.setStruc2vec();
         }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
@@ -192,7 +194,7 @@ public class MainCPG {
 
                         //System.err.println("QUA CI ARRIVO2");
                         SootMethod m = (SootMethod) methodIt.next();
-                        //if(!(m.getName().equals("reflectionAppend")))continue;
+                        if((info.getMethodToAnalyzed()!=null) && !(m.getName().equals(info.getMethodToAnalyzed())))continue;
                         if(!(m.hasActiveBody())){
                             System.err.println("No active body for method " + m.getName());
                             stats.addFailBDY();
@@ -293,9 +295,9 @@ public class MainCPG {
 
                             if (info.isStruc2vec()){
                                 System.out.print("\tPrinting CPG in input format for struct2vec...");
-                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath);
+                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath,true);
                                 s2v.printEdgeListOnFile();
-                                s2v.printNodeListOnFile();
+                                //s2v.printNodeListOnFile();
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
                                 //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
