@@ -4,10 +4,8 @@
     <list default="true" id="3ec161ca-ea8e-4712-939c-8e21056c0139" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/extTool/struc2vec/clean.sh" beforeDir="false" afterPath="$PROJECT_DIR$/extTool/struc2vec/clean.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphs/clean.sh" beforeDir="false" afterPath="$PROJECT_DIR$/graphs/clean.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -24,10 +22,12 @@
       <file leaf-file-name="MainCPG.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="134">
-              <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
+            <state relative-caret-position="1208">
+              <caret line="384" column="5" selection-start-line="384" selection-start-column="5" selection-end-line="384" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#7413#17306#0" expanded="true" />
+                <element signature="e#17305#17306#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -45,7 +45,7 @@
       <file leaf-file-name="CodePropertyGraph.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="790">
+            <state relative-caret-position="5940">
               <caret line="593" selection-start-line="593" selection-end-line="593" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -130,7 +130,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>[Source Line Pos Tag: sline: 10 eline: 10 spos: 17 epos: 19 file: test.java]</find>
       <find>|| astNode instanceof</find>
       <find>this.cpgStmntNodes.get(index).getAstNode()</find>
       <find>ACase</find>
@@ -160,6 +159,7 @@
       <find>AThrowStatement</find>
       <find>astNode</find>
       <find>getId()</find>
+      <find>1</find>
     </findStrings>
     <replaceStrings>
       <replace>package ApacheCLang3.</replace>
@@ -257,7 +257,7 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="y" value="32" />
     <option name="width" value="960" />
     <option name="height" value="1048" />
@@ -268,7 +268,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -310,13 +310,13 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="ToolWindowRun.ShowToolbar" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../soot" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
@@ -480,19 +480,20 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="32" width="1920" height="1048" extended-state="6" />
+    <frame x="0" y="32" width="1920" height="1048" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3295964" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.32286996" />
       <window_info anchor="right" id="Palette&#9;" order="5" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50107294" side_tool="true" weight="0.32623318" />
       <window_info anchor="right" id="Maven Projects" order="4" weight="0.3299356" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" x="0" y="64" width="1920" height="1016" id="Run" order="2" sideWeight="0.49892703" type="WINDOWED" weight="0.2780269" />
+      <window_info active="true" anchor="bottom" x="0" y="62" width="1920" height="1018" id="Run" order="2" sideWeight="0.49892703" type="WINDOWED" visible="true" weight="0.2780269" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3288719" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.21030043" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.21298283" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="4" />
@@ -501,7 +502,6 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.32286996" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32934782" />
@@ -683,13 +683,6 @@
     <entry file="file://$PROJECT_DIR$/nedo.iml">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="11" column="22" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPGNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
@@ -760,7 +753,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="790">
+        <state relative-caret-position="5940">
           <caret line="593" selection-start-line="593" selection-end-line="593" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -776,12 +769,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="11" column="22" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134">
-          <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
+        <state relative-caret-position="1208">
+          <caret line="384" column="5" selection-start-line="384" selection-start-column="5" selection-end-line="384" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#7413#17306#0" expanded="true" />
+            <element signature="e#17305#17306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -814,7 +816,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>1.8</last-edited>
+          <last-edited>1.7</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -831,7 +833,6 @@
             <option name="proportions">
               <list>
                 <option value="0.2" />
-                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>

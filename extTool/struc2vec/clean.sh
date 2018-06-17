@@ -1,7 +1,7 @@
 #!/bin/bash
-SCRIPTPATH=$PWD
+SCRIPTLOC="$( cd "$(dirname "$0")" ; pwd -P )"
 
-for Fold in $SCRIPTPATH/*; do
+for Fold in $SCRIPTLOC/*; do
     if [ -d "${Fold}" ]; then
         cd $Fold
         for edgeList in $Fold/*.edgelist; do

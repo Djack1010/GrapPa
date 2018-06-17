@@ -1,6 +1,9 @@
 package SourceCode;
 
 import soot.*;
+import soot.options.Options;
+import soot.tagkit.LineNumberTag;
+import soot.tagkit.Tag;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.pdg.HashMutablePDG;
 import soot.toolkits.graph.pdg.ProgramDependenceGraph;
@@ -16,18 +19,21 @@ public class MainCPG {
 
     //PATH
     final static String nedoPath ="/home/djack/IdeaProjects/nedo";
-    final static String struct2vecPath ="/home/djack/Dropbox/thesis/external_material/struc2vec";
     final static infoExec info = new infoExec();;
 
     private static class infoExec{
         boolean mutMode;
         boolean struc2vec;
+        boolean overloading;
+        boolean methodFound;
         String classToAnalyzed;
         String methodToAnalyzed;
 
         public infoExec(){
             this.mutMode=false;
             this.struc2vec=false;
+            this.overloading=false;
+            this.methodFound=false;
             this.methodToAnalyzed=null;
         }
 
@@ -42,6 +48,12 @@ public class MainCPG {
 
         public void setStruc2vec(){ this.struc2vec=true; }
         public boolean isStruc2vec(){ return this.struc2vec; }
+
+        public void setOverloading(){ this.overloading=true; }
+        public boolean isOverloading(){ return this.overloading; }
+
+        public void setMethodFound(){ this.methodFound=true; }
+        public boolean isMethodFound(){ return this.methodFound; }
 
     }
 
@@ -160,6 +172,7 @@ public class MainCPG {
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
             info.setClassToAnalyzed("org.apache.commons.lang3.AnnotationUtils");
+            //info.setMethodToAnalyzed("replaceAll:2004");
             info.setStruc2vec();
         }else sootArgs=handleArgs(args);
 
@@ -185,25 +198,59 @@ public class MainCPG {
                         continue;
                     }
 
-                    stats.addClass(cl.getName());
+                    stats.setClass(cl.getName());
 
                     Iterator<SootMethod> methodIt = cl.getMethods().iterator();
                     while (methodIt.hasNext()) {
 
-                        stats.addMethod();
-
                         //System.err.println("QUA CI ARRIVO2");
                         SootMethod m = (SootMethod) methodIt.next();
-                        if((info.getMethodToAnalyzed()!=null) && !(m.getName().equals(info.getMethodToAnalyzed())))continue;
-                        if(!(m.hasActiveBody())){
-                            System.err.println("No active body for method " + m.getName());
-                            stats.addFailBDY();
+                        Body body = null;
+
+                        if((info.getMethodToAnalyzed()!=null) && !(m.getName().equals(info.getMethodToAnalyzed().split(":")[0]))){
+                            stats.setMethod(info.getMethodToAnalyzed());
                             continue;
                         }
-                        Body body = m.retrieveActiveBody();
+                        else if ((info.getMethodToAnalyzed()!=null) && (m.getName().equals(info.getMethodToAnalyzed().split(":")[0]))){
+                            if(!(m.hasActiveBody())){
+                                stats.addMethod();
+                                System.err.println("No active body for method " + m.getName());
+                                stats.addFailBDY();
+                                continue;
+                            }
+                            body = m.retrieveActiveBody();
+                            String methodLineTag = body.getUnits().getFirst().getTags().toString();
+                            //unicodeEscaped:354
+                            if(methodLineTag.contains("Source Line Pos Tag: sline: ")){
+                                methodLineTag=methodLineTag.split(" sline: ")[1].split(" eline: ")[0];
+                                if( (methodLineTag.equals(info.getMethodToAnalyzed().split(":")[1])) ||
+                                         ( Math.abs(Integer.parseInt(methodLineTag)-Integer.parseInt(info.getMethodToAnalyzed().split(":")[1])) <= 2 ) ){
+                                    info.setMethodFound();
+                                    if(info.isOverloading()){
+                                        System.err.println("OVERLOADING for method "+m.getName());
+                                        stats.setOverload();
+                                        break;
+                                    }else info.setOverloading();
+                                }else continue;
+                            }
+                        } else {//(info.getMethodToAnalyzed()==null)
+                            if(!(m.hasActiveBody())){
+                                stats.addMethod();
+                                System.err.println("No active body for method " + m.getName());
+                                stats.addFailBDY();
+                                continue;
+                            }
+                            body = m.retrieveActiveBody();
+                        }
+                        stats.addMethod();
 
-                        String[] partNameCl = cl.getName().split("\\.");
-                        String nameMethod = partNameCl[partNameCl.length-1] + "_" + m.getName();
+                        String nameMethod=null;
+                        if(info.getMethodToAnalyzed()!=null){
+                            nameMethod=info.getMethodToAnalyzed();
+                        }else {
+                            String[] partNameCl = cl.getName().split("\\.");
+                            nameMethod = partNameCl[partNameCl.length - 1] + "_" + m.getName();
+                        }
 
                         if(info.isMutMode()){
                             int countMut = 1;
@@ -220,7 +267,6 @@ public class MainCPG {
 
 
                         //De-comment for printing Jimple Code of Body method
-
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         Printer.v().printTo(body, pw);
@@ -254,15 +300,15 @@ public class MainCPG {
                             checkAndCreateFolder(nedoPath + "/graphs/CFGs");
                             CFGdotGraph.plot(nedoPath + "/graphs/CFGs/" + nameMethod + ".dot");
 
-                            //Print on file the cfg using CFGToDotGraph
+                            //Print on file the pdg using PDGToDotGraph
                             ProgramDependenceGraph pdg = new HashMutablePDG(cfg);
                             System.out.println("\tPrinting PDG on file");
                             PDGToDotGraph pdgToDot = new PDGToDotGraph(pdg, nameMethod);
                             DotGraph PDGdotGraph = pdgToDot.drawPDG();
                             checkAndCreateFolder(nedoPath + "/graphs/PDGs");
-                            PDGdotGraph.plot(nedoPath + "" + nameMethod + ".dot");
+                            PDGdotGraph.plot(nedoPath + "/graphs/PDGs/" + nameMethod + ".dot");
 
-                            //Print on file the cfg using CFGToDotGraph
+                            //Print on file the cpg-part1 using CPGToDotGraph
                             System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
                             CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
@@ -270,7 +316,7 @@ public class MainCPG {
                             checkAndCreateFolder(nedoPath + "/graphs/1");
                             CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
-                            //Print on file the cfg using CFGToDotGraph
+                            //Print on file the cpg-part2 using CPGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG on file");
                             cpg.buildCPGphase("CFG");
                             CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
@@ -278,7 +324,7 @@ public class MainCPG {
                             checkAndCreateFolder(nedoPath + "/graphs/2");
                             CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
-                            //Print on file the cfg using CFGToDotGraph
+                            //Print on file the cpg-part3 using CPGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
                             cpg.buildCPGphase("PDG");
                             CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
@@ -319,19 +365,20 @@ public class MainCPG {
         }));
 
         //run Soot
-        //try {
+        try {
             //System.err.print("ARGUMENTS: ");
             //for(int i=0; i<sootArgs.length;i++){
             //    System.err.print(sootArgs[i] + " ");
             //}
             //System.err.println();
+            Options.v().set_keep_line_number(true);
             soot.Main.main(sootArgs);
-        //} catch (Exception e) {
-        //    System.out.println("Exception catched: " + e);
-        //    System.exit(0);
-        //}
+        } catch (OutOfMemoryError e) {
+            System.out.println("ERROR -> OutOfMemoryError: " + e);
+            System.exit(0);
+        }
 
-        stats.printStats();
+        //stats.printStats();
         stats.printStatsShort();
         System.exit(1);
 
@@ -346,10 +393,11 @@ public class MainCPG {
 
     private static class MainStats{
         String className=null;
+        String methodName=null;
         int failedCPG =0;
         int failedBDY =0;
-        //boolean requiredCheck = false;
         int totMethod =0;
+        boolean overload=false;
         //Set<String> nameManCheck;
 
         public MainStats(){}
@@ -360,11 +408,14 @@ public class MainCPG {
             System.out.println("No-Body -------->\t"+this.failedBDY);
             System.out.println("Total success -->\t"+(this.totMethod-this.failedBDY-this.failedCPG));
             System.out.println("Total-Analyzed ->\t"+this.totMethod);
-            //System.out.println("Required check ->\t"+this.requiredCheck);
+            System.out.println("OVERLOADING ---->\t"+this.overload);
+            if(info.getMethodToAnalyzed()!=null){
+                System.out.println("METHOD-FOUND---->\t"+info.isMethodFound());
+            }
         }
 
         public void printStatsShort(){
-            String percentage = "0";
+            String percentage = "N.A.";
             if(this.totMethod!=0){
                 DecimalFormat df = new DecimalFormat("##.##");
                 df.setRoundingMode(RoundingMode.CEILING);
@@ -372,15 +423,20 @@ public class MainCPG {
                 Double d = totSuc.doubleValue();
                 percentage = df.format(d);
             }
-            System.out.println("RESULT " + this.className +" ::: Fail-CPG ("+this.failedCPG+") No-Body ("+this.failedBDY+") Total-Analyzed ("+this.totMethod+") Total Success ("+percentage+"%)");
-            //if(this.requiredCheck)System.out.println("RESULT Method(s) to check -> " + nameManCheck.toString());
+            System.out.print("RESULT " + this.className +" ::: Fail-CPG ("+this.failedCPG+") No-Body ("+this.failedBDY+") Total-Analyzed ("+this.totMethod+") MUT ("+info.isMutMode()+") Total Success perc. ("+percentage+")");
+            if(this.overload){
+                System.out.println(" OVERLOADING ("+this.overload+")");
+            } else if((info.getMethodToAnalyzed()!=null) && (!info.isMethodFound())){
+                System.out.println(" METHOD-NOT-FOUND! ("+this.methodName+")");
+            } else System.out.println();
         }
 
         public void addFailCPG(){ this.failedCPG++;}
-        public void addClass(String name){ this.className=name;}
+        public void setClass(String name){ this.className=name;}
+        public void setMethod(String name){ this.methodName=name;}
         public void addFailBDY(){ this.failedBDY++;}
         public void addMethod(){ this.totMethod++;}
-        //public void setRequiredCheck(){this.requiredCheck=true;}
+        public void setOverload(){this.overload=true;}
         //public void addCheckMethod(String name){ this.nameManCheck.add(name);}
     }
 }
