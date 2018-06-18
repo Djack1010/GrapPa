@@ -24,6 +24,7 @@ public class MainCPG {
     private static class infoExec{
         boolean mutMode;
         boolean struc2vec;
+        boolean CGMM;
         boolean overloading;
         boolean methodFound;
         String classToAnalyzed;
@@ -32,6 +33,7 @@ public class MainCPG {
         public infoExec(){
             this.mutMode=false;
             this.struc2vec=false;
+            this.CGMM=false;
             this.overloading=false;
             this.methodFound=false;
             this.methodToAnalyzed=null;
@@ -48,6 +50,9 @@ public class MainCPG {
 
         public void setStruc2vec(){ this.struc2vec=true; }
         public boolean isStruc2vec(){ return this.struc2vec; }
+
+        public void setCGMM(){ this.CGMM=true; }
+        public boolean isCGMM(){ return this.CGMM; }
 
         public void setOverloading(){ this.overloading=true; }
         public boolean isOverloading(){ return this.overloading; }
@@ -104,14 +109,20 @@ public class MainCPG {
                     break;
                 case "-graph2vec":
                     i++;
-                    switch (args[i]){
-                        case "struc2vec":
-                            info.setStruc2vec();
-                            break;
-                        default:
-                            System.err.println("Invalid vec tool " + args[i] + ", exiting...");
-                            System.exit(0);
-                            break;
+                    String[] toolArray = args[i].split(":");
+                    for (String t: toolArray){
+                        switch (t){
+                            case "struc2vec":
+                                info.setStruc2vec();
+                                break;
+                            case "CGMM":
+                                info.setCGMM();
+                                break;
+                            default:
+                                System.err.println("Invalid vec tool " + args[i] + ", exiting...");
+                                System.exit(0);
+                                break;
+                        }
                     }
                     break;
                 default:
@@ -343,10 +354,18 @@ public class MainCPG {
                                 System.out.print("\tPrinting CPG in input format for struct2vec...");
                                 CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath,true);
                                 s2v.printEdgeListOnFile();
-                                //s2v.printNodeListOnFile();
+                                s2v.printNodeListOnFile();
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
                                 //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
+                            }
+                            if (info.isCGMM()){
+                                System.out.print("\tPrinting CPG in input format for CGMM...");
+                                CPG2CGMM cgmm = new CPG2CGMM(cpg,nedoPath,true);
+                                cgmm.printEdgeListOnFile();
+                                cgmm.printNodeListOnFile();
+                                cgmm.printNodeListOnFile2();
+                                System.out.println("DONE!");
                             }
 
                         } catch (Exception e) {

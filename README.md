@@ -14,11 +14,16 @@ The complete jar of Soot2.5 ant is dependencies can be found in the "/nedo/extLi
 #### TEMP_DEPENDENCIES
 Set paths "nedoPath" and "struct2vecPath" in "/nedo/src/main/java/SourceCode/MainCPG.java"
 
-#### External tools required: 
+#### External tools required for vectorization: 
 Struct2Vec
 ```
 git clone https://github.com/leoribeiro/struc2vec.git
 ```
+CGMM
+```
+git clone https://github.com/diningphil/CGMM.git
+```
+
 
 ### Compile
 
@@ -38,7 +43,7 @@ USAGE: ./run.sh [ ((-targ | -mut) CLASS | -allclasses) [-graph2vec TOOLNAME]]
 -mut CLASS: run on a mutated CLASS file
 -allclasses: run on all class file in SOURCE_ANALYSIS_FOLDER
 -graph2vec TOOLNAME: print graph on file as input format for TOOLNAME
-	Available TOOLNAME: struc2vec
+	Available TOOLNAME: struc2vec | CGMM
 ```
 ### Examples
 ```

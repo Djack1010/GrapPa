@@ -32,6 +32,11 @@ sootOutput
 *.pdf
 *.txt
 
-#input/output file struc2vec
+#input/output file struc2vec,CGMM
+*.adjlist
 *.edgelist
 *.emb
+
+#run file
+backup
+!config.txt

@@ -1,0 +1,9 @@
+PROJECT_FOLDER=/home/djack/IdeaProjects/nedo
+CLASS_FOLDER=/home/djack/IdeaProjects/nedo/target/classes
+SOOT_JAR=/home/djack/IdeaProjects/nedo/extLib/soot-2.5.0.jar
+SOURCE_ANALYSIS_FOLDER=/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java
+PACKAG_ANALYSIS_FOLDER=/org/apache/commons/lang3
+MUTATION_FOLDER=/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/AnalysisFactory/java.lang.StringIndexOutOfBoundsException
+DEFAULT_MAIN_CLASS=MainTest
+JAVA_LIBS=/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/alt-rt.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/charsets.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/deploy.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/javaws.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jce.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfr.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfxrt.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jsse.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/management-agent.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/plugin.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/resource.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/rt.jar
+JAVA7_HOME=/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80

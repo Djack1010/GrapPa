@@ -16,7 +16,7 @@ public class CPG2struc2vec extends CPG2vec {
 
     public void printEdgeListOnFile() {
         try {
-            PrintWriter out = new PrintWriter(this.pathNedo + "/extTool/struc2vec/graph/" + this.cpg.getNameCPG() + ".edgelist", "UTF-8");
+            PrintWriter out = new PrintWriter(this.pathNedo + "/extTool/struc2vec/graph/base/" + this.cpg.getNameCPG() + ".edgelist", "UTF-8");
             out.println(this.edgeList);
             out.close();
         } catch (Exception e) {
@@ -26,7 +26,7 @@ public class CPG2struc2vec extends CPG2vec {
 
     public void printNodeListOnFile() {
         try {
-            PrintWriter out = new PrintWriter(this.pathNedo + "/extTool/struc2vec/graph/labels-" + this.cpg.getNameCPG() + ".txt", "UTF-8");
+            PrintWriter out = new PrintWriter(this.pathNedo + "/extTool/struc2vec/graph/label/labels-" + this.cpg.getNameCPG() + ".txt", "UTF-8");
             out.println(this.nodeLabels);
             out.close();
         } catch (Exception e) {
