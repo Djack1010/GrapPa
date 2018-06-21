@@ -29,6 +29,11 @@ function preAnalysisResult {
             echo "Out of Memory Error catched, check errors.txt file" >> $SCRIPTPATH/log.txt
             cat $SCRIPTPATH/result.txt | grep "ERROR -> OutOfMemoryError: " >> $SCRIPTPATH/errors.txt
             AnalysisResult $SCRIPTPATH/result.txt
+        elif [[ $(cat $SCRIPTPATH/result.txt | grep "ERROR -> NullPointerException: ") ]] ; then
+            echo "Null Pointer Exception catched, check errors.txt file"
+            echo "Null Pointer Exception catched, check errors.txt file" >> $SCRIPTPATH/log.txt
+            cat $SCRIPTPATH/result.txt | grep "ERROR -> NullPointerException: " >> $SCRIPTPATH/errors.txt
+            AnalysisResult $SCRIPTPATH/result.txt
         else
             echo "EXIT WITH ERROR, check errors.txt file"
             AnalysisResult $SCRIPTPATH/result.txt
@@ -47,9 +52,11 @@ function AnalysisResult {
                 continue
             fi
         done < $1
-        rm $1
-        cat $SCRIPTPATH/temp_result.txt >> $SCRIPTPATH/result.txt
-        rm $SCRIPTPATH/temp_result.txt
+        rm -f $1
+        if [ -f $SCRIPTPATH/temp_result.txt ]; then 
+            cat $SCRIPTPATH/temp_result.txt >> $SCRIPTPATH/result.txt
+            rm -f $SCRIPTPATH/temp_result.txt
+        fi
     else
         echo "ERROR! result.txt not found, exiting..."
         exit
@@ -89,7 +96,7 @@ function MutationHandler {
         if [ ! -z "$MUTPAR" ]; then
             MUTPAR=$(($MUTPAR+1))
         fi  
-        echo "MUTANT $n out of ${mutArray[0]}" >> $SCRIPTPATH/log.txt
+        echo "MUTANT $n out of ${mutArray[0]} at $(date)" >> $SCRIPTPATH/log.txt
         MUTFOLDER=${mutArray[$n]}
         if [ ! -f $MUTFOLDER/mut/$MUTNAME ] || [ ! -f $MUTFOLDER/$MUTNAME ] || [ -z "$(diff $MUTFOLDER/mut/$MUTNAME $MUTFOLDER/$MUTNAME)" ]; then
             echo "EXITING WITH ERROR, $MUTFOLDER DOES NOT CONTAIN MUT and ORIGINAL FILES (OR they are identical)"
@@ -130,6 +137,16 @@ function MutationHandler {
         fi
 
         echo "TARGET METHOD: $TARGETMETHOD" >> $SCRIPTPATH/log.txt
+
+        if [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" != "TARGET METHOD: toLongString:1685" ]; then
+            echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
+            continue
+        elif [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" == "TARGET METHOD: toLongString:1685" ]; then
+            EMERGENCYVAR="SET"
+            echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
+            #continue
+        fi
+        #exit
 
         #mvn -f $PROJECT_FOLDER clean
         #mvn -f $PROJECT_FOLDER compile
@@ -295,10 +312,9 @@ if [ "$MODE" == "a" ]; then
         #rm -rf $SOURCE_ANALYSIS_FOLDER/sootOutput
         JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
         THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
-        echo $THISCLASS
-        echo "STARTING ANALYSIS FOR $JavaFileNEW"  >> $SCRIPTPATH/log.txt
+        echo "STARTING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
         MutationHandler $MUTATION_FOLDER $THISCLASS $GRAPH2VECTOOL
-        echo "ENDING ANALYSIS FOR $JavaFileNEW"  >> $SCRIPTPATH/log.txt
+        echo "ENDING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
         CLASPAR=$(($CLASPAR+1))
     done
 elif [ "$MODE" == "m" ]; then 

@@ -22,9 +22,12 @@ public class MainCPG {
     final static infoExec info = new infoExec();;
 
     private static class infoExec{
+
         boolean mutMode;
         boolean struc2vec;
         boolean CGMM;
+        boolean senFormat;
+
         boolean overloading;
         boolean methodFound;
         String classToAnalyzed;
@@ -34,6 +37,7 @@ public class MainCPG {
             this.mutMode=false;
             this.struc2vec=false;
             this.CGMM=false;
+            this.senFormat=false;
             this.overloading=false;
             this.methodFound=false;
             this.methodToAnalyzed=null;
@@ -53,6 +57,9 @@ public class MainCPG {
 
         public void setCGMM(){ this.CGMM=true; }
         public boolean isCGMM(){ return this.CGMM; }
+
+        public void setSenFormat(){ this.senFormat=true; }
+        public boolean isSenFormat(){ return this.senFormat; }
 
         public void setOverloading(){ this.overloading=true; }
         public boolean isOverloading(){ return this.overloading; }
@@ -118,6 +125,9 @@ public class MainCPG {
                             case "CGMM":
                                 info.setCGMM();
                                 break;
+                            case "SenFormat":
+                                info.setSenFormat();
+                                break;
                             default:
                                 System.err.println("Invalid vec tool " + args[i] + ", exiting...");
                                 System.exit(0);
@@ -171,7 +181,8 @@ public class MainCPG {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.AnnotationUtils"
+                    "org.apache.commons.lang3.concurrent.MultiBackgroundInitializer"
+                    //
                     //
                     //
                     //"-cp",
@@ -182,8 +193,8 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
-            info.setClassToAnalyzed("org.apache.commons.lang3.AnnotationUtils");
-            //info.setMethodToAnalyzed("replaceAll:2004");
+            info.setClassToAnalyzed("org.apache.commons.lang3.concurrent.MultiBackgroundInitializer");
+            info.setMethodToAnalyzed("initializerNames:319");
             info.setStruc2vec();
         }else sootArgs=handleArgs(args);
 
@@ -255,12 +266,12 @@ public class MainCPG {
                         }
                         stats.addMethod();
 
-                        String nameMethod=null;
+                        String[] partNameCl = cl.getName().split("\\.");
+                        String nameMethod = partNameCl[partNameCl.length - 1] + "_" + m.getName();
                         if(info.getMethodToAnalyzed()!=null){
-                            nameMethod=info.getMethodToAnalyzed();
+                            nameMethod=nameMethod+info.getMethodToAnalyzed();
                         }else {
-                            String[] partNameCl = cl.getName().split("\\.");
-                            nameMethod = partNameCl[partNameCl.length - 1] + "_" + m.getName();
+                            nameMethod=nameMethod+m.getName();
                         }
 
                         if(info.isMutMode()){
@@ -355,6 +366,7 @@ public class MainCPG {
                                 CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath,true);
                                 s2v.printEdgeListOnFile();
                                 s2v.printNodeListOnFile();
+                                s2v.printNodeListOnFile2();
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
                                 //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
@@ -365,6 +377,13 @@ public class MainCPG {
                                 cgmm.printEdgeListOnFile();
                                 cgmm.printNodeListOnFile();
                                 cgmm.printNodeListOnFile2();
+                                System.out.println("DONE!");
+                            }
+                            if (info.isSenFormat()){
+                                System.out.print("\tPrinting CPG in input format for SenFormat...");
+                                CPG2SenFormat sf = new CPG2SenFormat(cpg,nedoPath,true);
+                                sf.printGraphOnFile();
+                                sf.printGraphOnFile2();
                                 System.out.println("DONE!");
                             }
 
@@ -394,6 +413,9 @@ public class MainCPG {
             soot.Main.main(sootArgs);
         } catch (OutOfMemoryError e) {
             System.out.println("ERROR -> OutOfMemoryError: " + e);
+            System.exit(0);
+        } catch (NullPointerException ex) {
+            System.out.println("ERROR -> NullPointerException: " + ex);
             System.exit(0);
         }
 

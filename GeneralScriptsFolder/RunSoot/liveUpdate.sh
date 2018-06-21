@@ -45,11 +45,12 @@ if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ]; then
         MUTNOFO=$(cat result.txt | grep "MUT (true)" | grep "Total Success perc. (N.A.) METHOD-NOT-FOUND!" | wc -l)
         #MUTLOSE=$(($MUTLOSE/2))
         MUTGET=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (100)" | wc -l)
-        #MUTGET=$(($MUTGET/2))
-        MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO))
+        MUTERR=$(cat errors.txt | grep "ERROR -> " | wc -l)
+        MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO+$MUTERR))
         echo -ne "$(cat log.txt | grep PROGRESS | tail -n1)\n"
-        echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
-        progrBar $MUTPAR $MUTTOT
+        echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
+        MUTPAR2=$(cat log.txt | grep PROGRESS | tail -n1 | cut -d'(' -f2 | cut -d' ' -f1)
+        progrBar $MUTPAR2 $MUTTOT
         #echo -ne ""\\r
         sleep $SLEEPTIME
         echo -e "\033[3A"
@@ -65,9 +66,9 @@ elif [ "$(ps aux | grep "./run.sh -mut" | wc -l )" -gt "1" ]; then
         MUTNOFO=$(cat result.txt | grep "MUT (true)" | grep "Total Success perc. (N.A.) METHOD-NOT-FOUND!" | wc -l)
         #MUTLOSE=$(($MUTLOSE/2))
         MUTGET=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (100)" | wc -l)
-        #MUTGET=$(($MUTGET/2))
+        MUTERR=$(cat errors.txt | grep "ERROR -> " | wc -l)
         MUTPAR=$(cat log.txt | grep "MUT" | tail -n1 | cut -d' ' -f2)
-        echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
+        echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
         progrBar $MUTPAR $MUTTOT
         #echo -ne ""\\r
         sleep $SLEEPTIME

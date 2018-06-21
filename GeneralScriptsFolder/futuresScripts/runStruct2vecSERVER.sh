@@ -12,7 +12,7 @@ function progrBar {
     #echo -ne ""\\r
     echo -e "\033[2A"
     #echo -e "\n"
-    echo "$PAR out of $TOT"
+    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l)"
     echo -ne "["
     while [ "$TEMPPER" -gt "0" ]; do
         TEMPPER=$(($TEMPPER-2))
@@ -30,6 +30,7 @@ function progrBar {
     fi
 }
 
+
 if [ ! -f $STRUCT2VECPATH/src/main.py ]; then
     echo "ERROR, set struct2vec path! Exiting..."
     exit
@@ -40,23 +41,44 @@ if [ ! -d $SCRIPTPATH/graph ] || [ ! -d $SCRIPTPATH/emb ]; then
     exit
 fi
 
-echo -e "\n"
-rm -f $SCRIPTPATH/log.txt
+if [ -z $1 ]; then
+    echo "MAX number parallel process not set, exiting..."
+    exit
+else
+    MAX=$1
+fi
+
+rm -f $SCRIPTPATH/clientLog.txt
+rm -rf $SCRIPTPATH/clientErrors
+mkdir clientErrors
+JOBSARRAY=()
+TOTFILE=0
 PIDRUN=$$
-TOTFILE=$(find $SCRIPTPATH/graph/base | wc -l)
-COUNTPAR=0
+UPDATE=30
+echo -e "\n"
 for edgeList in $SCRIPTPATH/graph/base/*.edgelist; do
-    NAMEFILE=$( echo ${edgeList##*/} | cut -d'.' -f1 )
-    echo "STARTING $NAMEFILE at $(date)" >> $SCRIPTPATH/log.txt
-    if [ -f $SCRIPTPATH/emb/$NAMEFILE.emb ]; then
-        echo "$NAMEFILE.emb aleady exist, skipping vectorization..."
-    else
-        python $STRUCT2VECPATH/src/main.py --input $edgeList --output $SCRIPTPATH/emb/$NAMEFILE.emb --directed --dimensions 50 --OPT1 true --OPT2 true >> $SCRIPTPATH/log.txt 2>&1 &
-        while [ "$(jobs | grep "Running")" ]; do
-            progrBar $COUNTPAR $TOTFILE
-            sleep 15
-        done
-    fi
-    echo "DONE $NAMEFILE at $(date)" >> $SCRIPTPATH/log.txt
-    COUNTPAR=$(($COUNTPAR+1))
+    JOBSARRAY+=("$edgeList")
+    TOTFILE=$(($TOTFILE+1))
 done
+IND=0
+while true; do
+    if [ "$IND" -ge "$TOTFILE" ]; then
+        while [ "$(jobs | grep "Running" )" ]; do
+            PARNOW=$(($IND-$(jobs | wc -l)))
+            progrBar $PARNOW $TOTFILE
+            sleep $UPDATE
+        done
+        break
+    elif [ "$(jobs | grep "Running" | wc -l)" -lt "$MAX" ]; then
+        #echo "$IND out of $TOTFILE - JOBS RUNNING: $(jobs | wc -l)"
+        $SCRIPTPATH/runStruct2vecCLIENT.sh ${JOBSARRAY[$IND]} &
+        IND=$(($IND+1))
+    else
+        #echo "BUSY SITUATION - JOBS RUNNING: $(jobs | wc -l)"
+        PARNOW=$(($IND-$(jobs | wc -l)))
+        progrBar $PARNOW $TOTFILE
+        sleep $UPDATE
+    fi
+done
+echo -e "\nDONE!"
+exit

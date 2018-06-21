@@ -1,32 +1,16 @@
 #!/bin/bash
 SCRIPTPATH=$PWD
 
-rm -f $SCRIPTPATH/temp_result.txt
-
-if [ -z $1 ]; then
-    RESULT_PATH= $SCRIPTPATH/result.txt
-else
-    RESULT_PATH= $1
-fi
-
-if [ -f $RESULT_PATH ]; then
-    while read l ;
-    do
-        #if [[ $l = "" ]] || [[ $l = "Warning"* ]] || [[ $l = "Writing"* ]] || [[ $l = "Transforming"* ]] || [[ $l = "No main class given."* ]] || [[ $l = "[Call Graph]"* ]] || [[ $l = "Soot "* ]]; then
-        #    continue
-        #else
-        #    echo $l >> $SCRIPTPATH/temp_result.txt
-        #fi
-        if [[ $l = "RESULT "* ]]; then
-            echo $l >> $SCRIPTPATH/temp_result.txt
-        else
-            continue
-        fi
-    done < $SCRIPTPATH/result.txt
-    rm $SCRIPTPATH/result.txt
-    cat $SCRIPTPATH/temp_result.txt >> result.txt
-    rm $SCRIPTPATH/temp_result.txt
-else
-    echo "ERROR! result.txt not found, exiting..."
+MUTATION_FOLDER=$(cat config.txt | grep "MUTATION_FOLDER" | cut -d"=" -f2)
+if [ ! -d "$MUTATION_FOLDER" ]; then
+    echo "ERROR: Set the MUTATION_FOLDER variable in config.txt! Exiting..."
     exit
 fi
+
+MUTTOT=$( ls $MUTATION_FOLDER | wc -l )
+MUTLOSE=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (0)" | wc -l)
+MUTNOFO=$(cat result.txt | grep "MUT (true)" | grep "Total Success perc. (N.A.) METHOD-NOT-FOUND!" | wc -l)
+MUTGET=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (100)" | wc -l)
+MUTERR=$(cat errors.txt | grep "ERROR -> " | wc -l)
+MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO))
+echo "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)"

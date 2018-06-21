@@ -74,6 +74,19 @@ public abstract class CPG2vec {
         return toReturn;
     }
 
+    protected String createEdgeListJSONOnlyCPG () {
+        String toReturn = "";
+        for (CPGEdge tempEdge : this.cpg.getCPGEdges()) {
+            if (!(this.visitCPGid.contains((tempEdge.getSource().getId())))
+                    || !(this.visitCPGid.contains((tempEdge.getDest().getId())))) continue;
+            if (toReturn.equals(""))
+                toReturn = "\t\t["+this.getNodeNumber(tempEdge.getSource()) + ", " + this.mapEdgeLabel(tempEdge) + ", " + this.getNodeNumber(tempEdge.getDest()) + "]";
+            else
+                toReturn = toReturn + ",\n\t\t" + "["+this.getNodeNumber(tempEdge.getSource()) + ", " + this.mapEdgeLabel(tempEdge) + ", " + this.getNodeNumber(tempEdge.getDest()) + "]";
+        }
+        return toReturn;
+    }
+
     protected String createNodeLabelsListComplete () {
         String toReturn = "node label\n0 0";
         for (int i = 2; i < this.cpg.getSize(); i++) {
@@ -99,6 +112,26 @@ public abstract class CPG2vec {
             toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapStmtLabel(tempNode.getAstNode());
         }
         return toReturn;
+    }
+
+    protected String createNodeLabelsJSONOnlyCPG () {
+        String toReturn = "\"node_features\": [";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            if (toReturn.equals("\"node_features\": [")) toReturn = toReturn + mapNodeLabel(tempNode.getAstNode());
+            else toReturn = toReturn + ", " + mapNodeLabel(tempNode.getAstNode());
+        }
+        return toReturn +"]";
+    }
+
+    protected String createNodeLabelsJSONOnlyCPGStmts () {
+        String toReturn = "\"node_features\": [";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            if (toReturn.equals("\"node_features\": [")) toReturn = toReturn + mapStmtLabel(tempNode.getAstNode());
+            else toReturn = toReturn + ", " + mapStmtLabel(tempNode.getAstNode());
+        }
+        return toReturn +"]";
     }
 
     private int getNodeNumber (CPGNode node){
@@ -684,18 +717,18 @@ public abstract class CPG2vec {
 
     private String mapEdgeLabel (CPGEdge tempEdge){
         if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.AST_EDGE) {
-            return "A";
+            return "0";
         } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.CFG_EDGE_C) {
-            return "B";
+            return "1";
         } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.PDG_EDGE_C) {
-            return "C";
+            return "2";
         } else if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.PDG_EDGE_D) {
-            return "D";
+            return "3";
         } else {
             System.err.println("CPG2vec: Invalid edge from " + tempEdge.getSource().getId() + " to " + tempEdge.getDest().getId() + ", exiting...");
             System.exit(0);
         }
-        return "E";
+        return "-1";
     }
 
 
