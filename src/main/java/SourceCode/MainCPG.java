@@ -366,8 +366,9 @@ public class MainCPG {
                                 CPG2struc2vec s2v = new CPG2struc2vec(cpg,true);
                                 s2v.printEdgeListOnFile(nedoPath + "/extTool/struc2vec/graph/base/");
                                 //s2v.printNodeListOnFile(nedoPath + "/extTool/struc2vec/graph/label/");
-                                s2v.printNodeLabelsSPECIAL1(nedoPath + "/extTool/struc2vec/graph/labelSPEC1/");
-                                s2v.printNodeLabelsSPECIAL2(nedoPath + "/extTool/struc2vec/graph/labelSPEC2/");
+                                s2v.printNodeLabels_CONF1(nedoPath + "/extTool/struc2vec/graph/label_CONF1/");
+                                s2v.printNodeLabels_CONF2(nedoPath + "/extTool/struc2vec/graph/label_CONF2/");
+                                s2v.printNodeLabels_CONF3(nedoPath + "/extTool/struc2vec/graph/label_CONF3/");
                                 //s2v.printNodeListOnFile2(nedoPath + "/extTool/struc2vec/graph/label2/");
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
@@ -377,8 +378,9 @@ public class MainCPG {
                                 System.out.print("\tPrinting CPG in input format for CGMM...");
                                 CPG2CGMM cgmm = new CPG2CGMM(cpg,true);
                                 cgmm.printEdgeListOnFile(nedoPath + "/extTool/CGMM/graph/base/");
-                                cgmm.printNodeLabelsSPECIAL1(nedoPath + "/extTool/CGMM/graph/label/");
-                                cgmm.printNodeLabelsSPECIAL2(nedoPath + "/extTool/CGMM/graph/label2/");
+                                cgmm.printNodeLabels_CONF1(nedoPath + "/extTool/CGMM/graph/label_CONF1/");
+                                cgmm.printNodeLabels_CONF2(nedoPath + "/extTool/CGMM/graph/label_CONF2/");
+                                cgmm.printNodeLabels_CONF3(nedoPath + "/extTool/CGMM/graph/label_CONF3/");
                                 System.out.println("DONE!");
                             }
                             if (info.isSenFormat()){

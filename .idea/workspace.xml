@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3ec161ca-ea8e-4712-939c-8e21056c0139" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/extTool/senFormat/NPE_graphs.tar.xz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/extTool/senFormat/clean.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/GeneralScriptsFolder/RunSoot/run.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" afterDir="false" />
@@ -26,10 +25,12 @@
       <file leaf-file-name="MainCPG.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="369" column="51" selection-start-line="369" selection-start-column="51" selection-end-line="369" selection-end-column="51" />
+            <state relative-caret-position="462">
+              <caret line="368" column="105" selection-start-line="368" selection-start-column="105" selection-end-line="368" selection-end-column="105" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#8205#20013#0" expanded="true" />
+                <element signature="e#20012#20013#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -47,7 +48,7 @@
       <file leaf-file-name="CodePropertyGraph.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="100">
+            <state relative-caret-position="2288">
               <caret line="128" column="30" selection-start-line="128" selection-start-column="30" selection-end-line="128" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -70,7 +71,7 @@
       <file leaf-file-name="NedoAnalysisAST.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/NedoAnalysisAST.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
+            <state relative-caret-position="880">
               <caret line="48" column="32" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="32" />
             </state>
           </provider>
@@ -79,8 +80,8 @@
       <file leaf-file-name="CPG2struc2vec.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="174">
-              <caret line="48" column="31" selection-start-line="48" selection-start-column="31" selection-end-line="48" selection-end-column="31" />
+            <state relative-caret-position="680">
+              <caret line="67" column="68" selection-start-line="67" selection-start-column="68" selection-end-line="67" selection-end-column="68" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -91,8 +92,8 @@
       <file leaf-file-name="CPG2CGMM.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="38" column="52" selection-start-line="38" selection-start-column="52" selection-end-line="38" selection-end-column="52" />
+            <state relative-caret-position="482">
+              <caret line="24" column="70" selection-start-line="24" selection-start-column="60" selection-end-line="24" selection-end-column="70" />
             </state>
           </provider>
         </entry>
@@ -100,13 +101,16 @@
       <file leaf-file-name="CPG2vec.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="640">
-              <caret line="1154" column="76" selection-start-line="1154" selection-start-column="76" selection-end-line="1154" selection-end-column="76" />
+            <state relative-caret-position="-68">
+              <caret line="125" column="53" selection-start-line="125" selection-start-column="53" selection-end-line="125" selection-end-column="53" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="method#mapNodeLabel#0;class#CPG2vec#0" />
                 <element signature="method#mapNodeLabelFrequentToken1#0;class#CPG2vec#0" />
-                <element signature="e#35656#37158#0" />
-                <element signature="e#37164#37837#0" />
+                <element signature="method#mapNodeLabelFrequentToken2#0;class#CPG2vec#0" />
+                <element signature="method#mapNodeLabelFrequentToken3#0;class#CPG2vec#0" />
+                <element signature="method#mapStmtLabel#0;class#CPG2vec#0" />
+                <element signature="method#mapEdgeLabel#0;class#CPG2vec#0" />
               </folding>
             </state>
           </provider>
@@ -115,8 +119,8 @@
       <file leaf-file-name="CPG2SenFormat.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
+            <state relative-caret-position="88">
+              <caret line="4" column="44" selection-start-line="4" selection-start-column="44" selection-end-line="4" selection-end-column="44" />
             </state>
           </provider>
         </entry>
@@ -256,11 +260,11 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPGNode.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java" />
-        <option value="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" />
-        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" />
-        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java" />
-        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java" />
         <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java" />
+        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java" />
+        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java" />
+        <option value="$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java" />
+        <option value="$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java" />
       </list>
     </option>
   </component>
@@ -505,7 +509,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="32" width="1920" height="1048" extended-state="6" />
+    <frame x="0" y="-2" width="1920" height="1202" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3295964" />
@@ -517,7 +522,6 @@
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3288719" />
       <window_info id="Designer" order="2" />
       <window_info content_ui="combo" id="Project" order="0" weight="0.23175965" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32934782" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="4" />
@@ -529,6 +533,7 @@
       <window_info anchor="bottom" id="Messages" order="10" weight="0.32286996" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32934782" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -740,7 +745,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CodePropertyGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
+        <state relative-caret-position="2288">
           <caret line="128" column="30" selection-start-line="128" selection-start-column="30" selection-end-line="128" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -761,54 +766,59 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/NedoAnalysisAST.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
+        <state relative-caret-position="880">
           <caret line="48" column="32" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="32" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="48" column="31" selection-start-line="48" selection-start-column="31" selection-end-line="48" selection-end-column="31" />
+        <state relative-caret-position="88">
+          <caret line="4" column="44" selection-start-line="4" selection-start-column="44" selection-end-line="4" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-68">
+          <caret line="125" column="53" selection-start-line="125" selection-start-column="53" selection-end-line="125" selection-end-column="53" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="method#mapNodeLabel#0;class#CPG2vec#0" />
+            <element signature="method#mapNodeLabelFrequentToken1#0;class#CPG2vec#0" />
+            <element signature="method#mapNodeLabelFrequentToken2#0;class#CPG2vec#0" />
+            <element signature="method#mapNodeLabelFrequentToken3#0;class#CPG2vec#0" />
+            <element signature="method#mapStmtLabel#0;class#CPG2vec#0" />
+            <element signature="method#mapEdgeLabel#0;class#CPG2vec#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2CGMM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="38" column="52" selection-start-line="38" selection-start-column="52" selection-end-line="38" selection-end-column="52" />
+        <state relative-caret-position="482">
+          <caret line="24" column="70" selection-start-line="24" selection-start-column="60" selection-end-line="24" selection-end-column="70" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2vec.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2struc2vec.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="1154" column="76" selection-start-line="1154" selection-start-column="76" selection-end-line="1154" selection-end-column="76" />
+        <state relative-caret-position="680">
+          <caret line="67" column="68" selection-start-line="67" selection-start-column="68" selection-end-line="67" selection-end-column="68" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#mapNodeLabelFrequentToken1#0;class#CPG2vec#0" />
-            <element signature="e#35656#37158#0" />
-            <element signature="e#37164#37837#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/CPG2SenFormat.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/SourceCode/MainCPG.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="369" column="51" selection-start-line="369" selection-start-column="51" selection-end-line="369" selection-end-column="51" />
+        <state relative-caret-position="462">
+          <caret line="368" column="105" selection-start-line="368" selection-start-column="105" selection-end-line="368" selection-end-column="105" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#8205#20013#0" expanded="true" />
+            <element signature="e#20012#20013#0" expanded="true" />
           </folding>
         </state>
       </provider>

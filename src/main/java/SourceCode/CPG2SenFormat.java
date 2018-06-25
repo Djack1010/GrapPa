@@ -3,14 +3,11 @@ package SourceCode;
 import java.io.PrintWriter;
 
 public class CPG2SenFormat extends CPG2vec {
-    String nodeLabels2;
 
     public CPG2SenFormat(CodePropertyGraph cpg, boolean needDecr) {
         super(cpg,needDecr);
         //this.pathStru2vec = pathStruc2vec;
         this.edgeList=this.createEdgeListJSONOnlyCPG();
-        this.nodeLabels=this.createNodeLabelsJSONOnlyCPG();
-        this.nodeLabels2=this.createNodeLabelsJSONOnlyCPGStmts();
     }
 
     public void printGraphOnFile(String pathOutput) {
@@ -21,7 +18,7 @@ public class CPG2SenFormat extends CPG2vec {
             out.println("{\n\t\"targets\": [\n\t\t["+mut+"]\n\t],\n\t\"graph\": [");
             out.println(this.edgeList);
             out.println("\t],");
-            out.println("\t"+createNodeLabelsListSPECIAL1OnlyCPG());
+            out.println("\t"+createNodeLabelsJSONOnlyCPG());
             out.println("}");
             out.close();
         } catch (Exception e) {
@@ -37,7 +34,7 @@ public class CPG2SenFormat extends CPG2vec {
             out.println("{\n\t\"targets\": [\n\t\t["+mut+"]\n\t],\n\t\"graph\": [");
             out.println(this.edgeList);
             out.println("\t],");
-            out.println("\t"+createNodeLabelsListSPECIAL2OnlyCPG());
+            out.println("\t"+createNodeLabelsJSONOnlyCPGStmts());
             out.println("}");
             out.close();
         } catch (Exception e) {
