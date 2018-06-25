@@ -9,16 +9,16 @@ import java.util.Iterator;
 
 public abstract class CPG2vec {
     CodePropertyGraph cpg;
-    String pathNedo;
+    //String pathNedo;
     String edgeList;
     String nodeLabels;
     //int runValue;
     ArrayList<Integer> visitCPGid;
     boolean decr;
 
-    public CPG2vec(CodePropertyGraph cpg, String pathNedo, boolean needDecr) {
+    public CPG2vec(CodePropertyGraph cpg, boolean needDecr) {
         this.cpg = cpg;
-        this.pathNedo = pathNedo;
+        //this.pathNedo = pathNedo;
         this.decr = needDecr;
         this.visitCPGid = new ArrayList<Integer>();
         this.visitCPG(this.cpg.getCPGNodes().get(0));
@@ -40,7 +40,7 @@ public abstract class CPG2vec {
         String toReturn = "node adjacencyList";
         for (int i = 0; i < this.visitCPGid.size(); i++) {
             CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
-            toReturn = toReturn +"\n" + this.getNodeNumber(tempNode)+" " + tempNode.getId() +" ";
+            toReturn = toReturn +"\n" + this.getNodeNumber(tempNode)+ " ";
             for (CPGEdge tempEdge: tempNode.getEdgesIn()){
                 if (!(this.visitCPGid.contains((tempEdge.getSource().getId())))
                         || !(this.visitCPGid.contains((tempEdge.getDest().getId())))) continue;
@@ -94,6 +94,24 @@ public abstract class CPG2vec {
             toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapNodeLabel(tempNode.getAstNode());
         }
         return toReturn + "\n1 0";
+    }
+
+    protected String createNodeLabelsListSPECIAL1OnlyCPG() {
+        String toReturn = "node label";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapNodeLabelFrequentToken1(tempNode.getAstNode());
+        }
+        return toReturn;
+    }
+
+    protected String createNodeLabelsListSPECIAL2OnlyCPG() {
+        String toReturn = "node label";
+        for (int i = 0; i < this.visitCPGid.size(); i++) {
+            CPGNode tempNode = this.cpg.getCPGNodes().get(this.visitCPGid.get(i));
+            toReturn = toReturn + "\n" + this.getNodeNumber(tempNode) + " " + mapNodeLabelFrequentToken2(tempNode.getAstNode());
+        }
+        return toReturn;
     }
 
     protected String createNodeLabelsListOnlyCPG () {
@@ -674,6 +692,509 @@ public abstract class CPG2vec {
         }
         return -1;
     }
+
+    private String mapNodeLabelFrequentToken1(Node tempNode){
+        if (tempNode == null) {//case ENTRY and EXIT Node
+            return "0";
+        } else if (tempNode instanceof ALabelStatement) {
+            return "1";
+        } else if (tempNode instanceof ABreakpointStatement) {
+            return "2";
+        } else if (tempNode instanceof AEntermonitorStatement) {
+            return "3";
+        } else if (tempNode instanceof AExitmonitorStatement) {
+            return "4";
+        } else if (tempNode instanceof ATableswitchStatement) {
+            return "5";
+        } else if (tempNode instanceof ALookupswitchStatement) {
+            return "6";
+        } else if (tempNode instanceof AIdentityStatement) {
+            return "7";
+        } else if (tempNode instanceof AIdentityNoTypeStatement) {
+            return "8";
+        } else if (tempNode instanceof AAssignStatement) {
+            return "9";
+        } else if (tempNode instanceof AIfStatement) {
+            return "10";
+        } else if (tempNode instanceof AGotoStatement) {
+            return "11";
+        } else if (tempNode instanceof ANopStatement) {
+            return "12";
+        } else if (tempNode instanceof ARetStatement) {
+            return "13";
+        } else if (tempNode instanceof AReturnStatement) {
+            return "14";
+        } else if (tempNode instanceof AThrowStatement) {
+            return "15";
+        } else if (tempNode instanceof AInvokeStatement) {
+            return "16";
+        } else if (tempNode instanceof TIgnored) {
+            return "17";
+        } else if (tempNode instanceof TAbstract) {
+            return "18";
+        } else if (tempNode instanceof TFinal) {
+            return "19";
+        } else if (tempNode instanceof TNative) {
+            return "20";
+        } else if (tempNode instanceof TPublic) {
+            return "21";
+        } else if (tempNode instanceof TProtected) {
+            return "22";
+        } else if (tempNode instanceof TPrivate) {
+            return "23";
+        } else if (tempNode instanceof TStatic) {
+            return "24";
+        } else if (tempNode instanceof TSynchronized) {
+            return "25";
+        } else if (tempNode instanceof TTransient) {
+            return "26";
+        } else if (tempNode instanceof TVolatile) {
+            return "27";
+        } else if (tempNode instanceof TStrictfp) {
+            return "28";
+        } else if (tempNode instanceof TEnum) {
+            return "29";
+        } else if (tempNode instanceof TAnnotation) {
+            return "30";
+        } else if (tempNode instanceof TClass) {
+            return "31";
+        } else if (tempNode instanceof TInterface) {
+            return "32";
+        } else if (tempNode instanceof TVoid) {
+            return "33";
+        } else if (tempNode instanceof TBoolean) {
+            return "34";
+        } else if (tempNode instanceof TByte) {
+            return "35";
+        } else if (tempNode instanceof TShort) {
+            return "36";
+        } else if (tempNode instanceof TChar) {
+            return "37";
+        } else if (tempNode instanceof TInt) {
+            return "38";
+        } else if (tempNode instanceof TLong) {
+            return "39";
+        } else if (tempNode instanceof TFloat) {
+            return "40";
+        } else if (tempNode instanceof TDouble) {
+            return "41";
+        } else if (tempNode instanceof TNullType) {
+            return "42";
+        } else if (tempNode instanceof TUnknown) {
+            return "43";
+        } else if (tempNode instanceof TExtends) {
+            return "44";
+        } else if (tempNode instanceof TImplements) {
+            return "45";
+        } else if (tempNode instanceof TBreakpoint) {
+            return "46";
+        } else if (tempNode instanceof TCase) {
+            return "47";
+        } else if (tempNode instanceof TCatch) {
+            return "48";
+        } else if (tempNode instanceof TCmp) {
+            return "49";
+        } else if (tempNode instanceof TCmpg) {
+            return "50";
+        } else if (tempNode instanceof TCmpl) {
+            return "51";
+        } else if (tempNode instanceof TDefault) {
+            return "52";
+        } else if (tempNode instanceof TEntermonitor) {
+            return "53";
+        } else if (tempNode instanceof TExitmonitor) {
+            return "54";
+        } else if (tempNode instanceof TGoto) {
+            return "55";
+        } else if (tempNode instanceof TIf) {
+            return "56";
+        } else if (tempNode instanceof TInstanceof) {
+            return "57";
+        } else if (tempNode instanceof TInterfaceinvoke) {
+            return "58";
+        } else if (tempNode instanceof TLengthof) {
+            return "59";
+        } else if (tempNode instanceof TLookupswitch) {
+            return "60";
+        } else if (tempNode instanceof TNeg) {
+            return "61";
+        } else if (tempNode instanceof TNew) {
+            return "62";
+        } else if (tempNode instanceof TNewarray) {
+            return "63";
+        } else if (tempNode instanceof TNewmultiarray) {
+            return "64";
+        } else if (tempNode instanceof TNop) {
+            return "65";
+        } else if (tempNode instanceof TRet) {
+            return "66";
+        } else if (tempNode instanceof TReturn) {
+            return "67";
+        } else if (tempNode instanceof TSpecialinvoke) {
+            return "68";
+        } else if (tempNode instanceof TStaticinvoke) {
+            return "69";
+        } else if (tempNode instanceof TDynamicinvoke) {
+            return "70";
+        } else if (tempNode instanceof TTableswitch) {
+            return "71";
+        } else if (tempNode instanceof TThrow) {
+            return "72";
+        } else if (tempNode instanceof TThrows) {
+            return "73";
+        } else if (tempNode instanceof TVirtualinvoke) {
+            return "74";
+        } else if (tempNode instanceof TNull) {
+            return "75";
+        } else if (tempNode instanceof TFrom) {
+            return "76";
+        } else if (tempNode instanceof TTo) {
+            return "77";
+        } else if (tempNode instanceof TWith) {
+            return "78";
+        } else if (tempNode instanceof TCls) {
+            return "79";
+        } else if (tempNode instanceof TComma) {
+            return "80";
+        } else if (tempNode instanceof TLBrace) {
+            return "81";
+        } else if (tempNode instanceof TRBrace) {
+            return "82";
+        } else if (tempNode instanceof TSemicolon) {
+            return "83";
+        } else if (tempNode instanceof TLBracket) {
+            return "84";
+        } else if (tempNode instanceof TRBracket) {
+            return "85";
+        } else if (tempNode instanceof TLParen) {
+            return "86";
+        } else if (tempNode instanceof TRParen) {
+            return "87";
+        } else if (tempNode instanceof TColon) {
+            return "88";
+        } else if (tempNode instanceof TDot) {
+            return "89";
+        } else if (tempNode instanceof TQuote) {
+            return "90";
+        } else if (tempNode instanceof TColonEquals) {
+            return "91";
+        } else if (tempNode instanceof TEquals) {
+            return "92";
+        } else if (tempNode instanceof TAnd) {
+            return "93";
+        } else if (tempNode instanceof TOr) {
+            return "94";
+        } else if (tempNode instanceof TXor) {
+            return "95";
+        } else if (tempNode instanceof TMod) {
+            return "96";
+        } else if (tempNode instanceof TCmpeq) {
+            return "97";
+        } else if (tempNode instanceof TCmpne) {
+            return "98";
+        } else if (tempNode instanceof TCmpgt) {
+            return "99";
+        } else if (tempNode instanceof TCmpge) {
+            return "100";
+        } else if (tempNode instanceof TCmplt) {
+            return "101";
+        } else if (tempNode instanceof TCmple) {
+            return "102";
+        } else if (tempNode instanceof TShl) {
+            return "103";
+        } else if (tempNode instanceof TShr) {
+            return "104";
+        } else if (tempNode instanceof TUshr) {
+            return "105";
+        } else if (tempNode instanceof TPlus) {
+            return "106";
+        } else if (tempNode instanceof TMinus) {
+            return "107";
+        } else if (tempNode instanceof TMult) {
+            return "108";
+        } else if (tempNode instanceof TDiv) {
+            return "109";
+        } else if (tempNode instanceof TQuotedName) {
+            return "110";
+        //TFullIdentifier, TIdentifier, TAtIdentifier, TBoolConstant, TIntegerConstant, TFloatConstant, TStringConstant
+        } else if (tempNode.getClass().getSimpleName().startsWith("T")){
+            return "lab_"+tempNode.toString();
+        } else return "111";
+    }
+
+    private String mapNodeLabelFrequentToken2(Node tempNode){
+        if (tempNode == null) {//case ENTRY and EXIT Node
+            return "0";
+        } else if (tempNode instanceof ALabelStatement) {
+            return "1";
+        } else if (tempNode instanceof ABreakpointStatement) {
+            return "2";
+        } else if (tempNode instanceof AEntermonitorStatement) {
+            return "3";
+        } else if (tempNode instanceof AExitmonitorStatement) {
+            return "4";
+        } else if (tempNode instanceof ATableswitchStatement) {
+            return "5";
+        } else if (tempNode instanceof ALookupswitchStatement) {
+            return "6";
+        } else if (tempNode instanceof AIdentityStatement) {
+            return "7";
+        } else if (tempNode instanceof AIdentityNoTypeStatement) {
+            return "8";
+        } else if (tempNode instanceof AAssignStatement) {
+            return "9";
+        } else if (tempNode instanceof AIfStatement) {
+            return "10";
+        } else if (tempNode instanceof AGotoStatement) {
+            return "11";
+        } else if (tempNode instanceof ANopStatement) {
+            return "12";
+        } else if (tempNode instanceof ARetStatement) {
+            return "13";
+        } else if (tempNode instanceof AReturnStatement) {
+            return "14";
+        } else if (tempNode instanceof AThrowStatement) {
+            return "15";
+        } else if (tempNode instanceof AInvokeStatement) {
+            return "16";
+        } else if (tempNode instanceof TIgnored) {
+            return "17";
+        } else if (tempNode instanceof TAbstract) {
+            return "18";
+        } else if (tempNode instanceof TFinal) {
+            return "19";
+        } else if (tempNode instanceof TNative) {
+            return "20";
+        } else if (tempNode instanceof TPublic) {
+            return "21";
+        } else if (tempNode instanceof TProtected) {
+            return "22";
+        } else if (tempNode instanceof TPrivate) {
+            return "23";
+        } else if (tempNode instanceof TStatic) {
+            return "24";
+        } else if (tempNode instanceof TSynchronized) {
+            return "25";
+        } else if (tempNode instanceof TTransient) {
+            return "26";
+        } else if (tempNode instanceof TVolatile) {
+            return "27";
+        } else if (tempNode instanceof TStrictfp) {
+            return "28";
+        } else if (tempNode instanceof TEnum) {
+            return "29";
+        } else if (tempNode instanceof TAnnotation) {
+            return "30";
+        } else if (tempNode instanceof TClass) {
+            return "31";
+        } else if (tempNode instanceof TInterface) {
+            return "32";
+        } else if (tempNode instanceof TVoid) {
+            return "33";
+        } else if (tempNode instanceof TBoolean) {
+            return "34";
+        } else if (tempNode instanceof TByte) {
+            return "35";
+        } else if (tempNode instanceof TShort) {
+            return "36";
+        } else if (tempNode instanceof TChar) {
+            return "37";
+        } else if (tempNode instanceof TInt) {
+            return "38";
+        } else if (tempNode instanceof TLong) {
+            return "39";
+        } else if (tempNode instanceof TFloat) {
+            return "40";
+        } else if (tempNode instanceof TDouble) {
+            return "41";
+        } else if (tempNode instanceof TNullType) {
+            return "42";
+        } else if (tempNode instanceof TUnknown) {
+            return "43";
+        } else if (tempNode instanceof TExtends) {
+            return "44";
+        } else if (tempNode instanceof TImplements) {
+            return "45";
+        } else if (tempNode instanceof TBreakpoint) {
+            return "46";
+        } else if (tempNode instanceof TCase) {
+            return "47";
+        } else if (tempNode instanceof TCatch) {
+            return "48";
+        } else if (tempNode instanceof TCmp) {
+            return "49";
+        } else if (tempNode instanceof TCmpg) {
+            return "50";
+        } else if (tempNode instanceof TCmpl) {
+            return "51";
+        } else if (tempNode instanceof TDefault) {
+            return "52";
+        } else if (tempNode instanceof TEntermonitor) {
+            return "53";
+        } else if (tempNode instanceof TExitmonitor) {
+            return "54";
+        } else if (tempNode instanceof TGoto) {
+            return "55";
+        } else if (tempNode instanceof TIf) {
+            return "56";
+        } else if (tempNode instanceof TInstanceof) {
+            return "57";
+        } else if (tempNode instanceof TInterfaceinvoke) {
+            return "58";
+        } else if (tempNode instanceof TLengthof) {
+            return "59";
+        } else if (tempNode instanceof TLookupswitch) {
+            return "60";
+        } else if (tempNode instanceof TNeg) {
+            return "61";
+        } else if (tempNode instanceof TNew) {
+            return "62";
+        } else if (tempNode instanceof TNewarray) {
+            return "63";
+        } else if (tempNode instanceof TNewmultiarray) {
+            return "64";
+        } else if (tempNode instanceof TNop) {
+            return "65";
+        } else if (tempNode instanceof TRet) {
+            return "66";
+        } else if (tempNode instanceof TReturn) {
+            return "67";
+        } else if (tempNode instanceof TSpecialinvoke) {
+            return "68";
+        } else if (tempNode instanceof TStaticinvoke) {
+            return "69";
+        } else if (tempNode instanceof TDynamicinvoke) {
+            return "70";
+        } else if (tempNode instanceof TTableswitch) {
+            return "71";
+        } else if (tempNode instanceof TThrow) {
+            return "72";
+        } else if (tempNode instanceof TThrows) {
+            return "73";
+        } else if (tempNode instanceof TVirtualinvoke) {
+            return "74";
+        } else if (tempNode instanceof TNull) {
+            return "75";
+        } else if (tempNode instanceof TFrom) {
+            return "76";
+        } else if (tempNode instanceof TTo) {
+            return "77";
+        } else if (tempNode instanceof TWith) {
+            return "78";
+        } else if (tempNode instanceof TCls) {
+            return "79";
+        } else if (tempNode instanceof TComma) {
+            return "80";
+        } else if (tempNode instanceof TLBrace) {
+            return "81";
+        } else if (tempNode instanceof TRBrace) {
+            return "82";
+        } else if (tempNode instanceof TSemicolon) {
+            return "83";
+        } else if (tempNode instanceof TLBracket) {
+            return "84";
+        } else if (tempNode instanceof TRBracket) {
+            return "85";
+        } else if (tempNode instanceof TLParen) {
+            return "86";
+        } else if (tempNode instanceof TRParen) {
+            return "87";
+        } else if (tempNode instanceof TColon) {
+            return "88";
+        } else if (tempNode instanceof TDot) {
+            return "89";
+        } else if (tempNode instanceof TQuote) {
+            return "90";
+        } else if (tempNode instanceof TColonEquals) {
+            return "91";
+        } else if (tempNode instanceof TEquals) {
+            return "92";
+        } else if (tempNode instanceof TAnd) {
+            return "93";
+        } else if (tempNode instanceof TOr) {
+            return "94";
+        } else if (tempNode instanceof TXor) {
+            return "95";
+        } else if (tempNode instanceof TMod) {
+            return "96";
+        } else if (tempNode instanceof TCmpeq) {
+            return "97";
+        } else if (tempNode instanceof TCmpne) {
+            return "98";
+        } else if (tempNode instanceof TCmpgt) {
+            return "99";
+        } else if (tempNode instanceof TCmpge) {
+            return "100";
+        } else if (tempNode instanceof TCmplt) {
+            return "101";
+        } else if (tempNode instanceof TCmple) {
+            return "102";
+        } else if (tempNode instanceof TShl) {
+            return "103";
+        } else if (tempNode instanceof TShr) {
+            return "104";
+        } else if (tempNode instanceof TUshr) {
+            return "105";
+        } else if (tempNode instanceof TPlus) {
+            return "106";
+        } else if (tempNode instanceof TMinus) {
+            return "107";
+        } else if (tempNode instanceof TMult) {
+            return "108";
+        } else if (tempNode instanceof TDiv) {
+            return "109";
+        } else if (tempNode instanceof TQuotedName) {
+            return "110";
+        } else if (tempNode instanceof TFullIdentifier) {
+            return "111";
+        } else if (tempNode instanceof TIdentifier) {
+            return "112";
+        } else if (tempNode instanceof TAtIdentifier) {
+            return "113";
+        } else if (tempNode instanceof TBoolConstant || tempNode instanceof TIntegerConstant
+                || tempNode instanceof TFloatConstant || tempNode instanceof TStringConstant){
+            return "lab_"+tempNode.toString();
+        } else return "114";
+    }
+
+    /*
+    else if (tempNode instanceof TIgnored || tempNode instanceof TAbstract || tempNode instanceof TFinal
+                || tempNode instanceof TNative || tempNode instanceof TPublic || tempNode instanceof TProtected
+                || tempNode instanceof TPrivate || tempNode instanceof TStatic || tempNode instanceof TSynchronized
+                || tempNode instanceof TTransient || tempNode instanceof TVolatile || tempNode instanceof TStrictfp
+                || tempNode instanceof TEnum || tempNode instanceof TAnnotation || tempNode instanceof TClass
+                || tempNode instanceof TInterface || tempNode instanceof TVoid || tempNode instanceof TBoolean
+                || tempNode instanceof TByte || tempNode instanceof TShort || tempNode instanceof TChar
+                || tempNode instanceof TInt || tempNode instanceof TLong || tempNode instanceof TFloat
+                || tempNode instanceof TDouble || tempNode instanceof TNullType || tempNode instanceof TUnknown
+                || tempNode instanceof TExtends || tempNode instanceof TImplements || tempNode instanceof TBreakpoint
+                || tempNode instanceof TCase || tempNode instanceof TCatch || tempNode instanceof TCmp
+                || tempNode instanceof TCmpg || tempNode instanceof TCmpl || tempNode instanceof TDefault
+                || tempNode instanceof TEntermonitor || tempNode instanceof TExitmonitor || tempNode instanceof TGoto
+                || tempNode instanceof TIf || tempNode instanceof TInstanceof || tempNode instanceof TInterfaceinvoke
+                || tempNode instanceof TLengthof || tempNode instanceof TLookupswitch || tempNode instanceof TNeg
+                || tempNode instanceof TNew || tempNode instanceof TNewarray || tempNode instanceof TNewmultiarray
+                || tempNode instanceof TNop || tempNode instanceof TRet || tempNode instanceof TReturn
+                || tempNode instanceof TSpecialinvoke || tempNode instanceof TStaticinvoke
+                || tempNode instanceof TDynamicinvoke || tempNode instanceof TTableswitch || tempNode instanceof TThrow
+                || tempNode instanceof TThrows || tempNode instanceof TVirtualinvoke || tempNode instanceof TNull
+                || tempNode instanceof TFrom || tempNode instanceof TTo || tempNode instanceof TWith
+                || tempNode instanceof TCls || tempNode instanceof TComma || tempNode instanceof TLBrace
+                || tempNode instanceof TRBrace || tempNode instanceof TSemicolon || tempNode instanceof TLBracket
+                || tempNode instanceof TRBracket || tempNode instanceof TLParen || tempNode instanceof TRParen
+                || tempNode instanceof TColon || tempNode instanceof TDot || tempNode instanceof TQuote
+                || tempNode instanceof TColonEquals || tempNode instanceof TEquals || tempNode instanceof TAnd
+                || tempNode instanceof TOr || tempNode instanceof TXor || tempNode instanceof TMod
+                || tempNode instanceof TCmpeq || tempNode instanceof TCmpne || tempNode instanceof TCmpgt
+                || tempNode instanceof TCmpge || tempNode instanceof TCmplt || tempNode instanceof TCmple
+                || tempNode instanceof TShl || tempNode instanceof TShr || tempNode instanceof TUshr
+                || tempNode instanceof TPlus || tempNode instanceof TMinus || tempNode instanceof TMult
+                || tempNode instanceof TDiv || tempNode instanceof TQuotedName || tempNode instanceof TFullIdentifier
+                || tempNode instanceof TIdentifier || tempNode instanceof TAtIdentifier
+                || tempNode instanceof TBoolConstant || tempNode instanceof TIntegerConstant
+                || tempNode instanceof TFloatConstant || tempNode instanceof TStringConstant)
+            ) {
+     */
 
     private int mapStmtLabel (Node tempNode){
         if (tempNode == null) {//case ENTRY and EXIT Node

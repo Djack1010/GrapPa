@@ -138,15 +138,18 @@ function MutationHandler {
 
         echo "TARGET METHOD: $TARGETMETHOD" >> $SCRIPTPATH/log.txt
 
-        if [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" != "TARGET METHOD: toLongString:1685" ]; then
-            echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
-            continue
-        elif [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" == "TARGET METHOD: toLongString:1685" ]; then
-            EMERGENCYVAR="SET"
-            echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
+        #----------------------------------------------------------------------------------------
+        #CODE TO RESTORE COMPUTATION FROM SPECIFIC MUTANTS - FOR LONG (SUSPENDED) COMPUTATION
+        #----------------------------------------------------------------------------------------
+        #if [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" != "TARGET METHOD: toLongString:1685" ]; then
+            #echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
             #continue
-        fi
-        #exit
+        #elif [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" == "TARGET METHOD: toLongString:1685" ]; then
+            #EMERGENCYVAR="SET"
+            #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
+            #continue
+        #fi
+        #----------------------------------------------------------------------------------------
 
         #mvn -f $PROJECT_FOLDER clean
         #mvn -f $PROJECT_FOLDER compile

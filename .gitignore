@@ -36,6 +36,7 @@ sootOutput
 *.adjlist
 *.edgelist
 *.emb
+*.json
 
 #run file
 backup

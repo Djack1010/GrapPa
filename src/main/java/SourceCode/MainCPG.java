@@ -181,7 +181,7 @@ public class MainCPG {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.concurrent.MultiBackgroundInitializer"
+                    "org.apache.commons.lang3.AnnotationUtils"
                     //
                     //
                     //
@@ -193,7 +193,7 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
-            info.setClassToAnalyzed("org.apache.commons.lang3.concurrent.MultiBackgroundInitializer");
+            info.setClassToAnalyzed("org.apache.commons.lang3.AnnotationUtils");
             info.setMethodToAnalyzed("initializerNames:319");
             info.setStruc2vec();
         }else sootArgs=handleArgs(args);
@@ -363,27 +363,29 @@ public class MainCPG {
 
                             if (info.isStruc2vec()){
                                 System.out.print("\tPrinting CPG in input format for struct2vec...");
-                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,nedoPath,true);
-                                s2v.printEdgeListOnFile();
-                                s2v.printNodeListOnFile();
-                                s2v.printNodeListOnFile2();
+                                CPG2struc2vec s2v = new CPG2struc2vec(cpg,true);
+                                s2v.printEdgeListOnFile(nedoPath + "/extTool/struc2vec/graph/base/");
+                                //s2v.printNodeListOnFile(nedoPath + "/extTool/struc2vec/graph/label/");
+                                s2v.printNodeLabelsSPECIAL1(nedoPath + "/extTool/struc2vec/graph/labelSPEC1/");
+                                s2v.printNodeLabelsSPECIAL2(nedoPath + "/extTool/struc2vec/graph/labelSPEC2/");
+                                //s2v.printNodeListOnFile2(nedoPath + "/extTool/struc2vec/graph/label2/");
                                 System.out.println("DONE!");
                                 //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
                                 //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
                             }
                             if (info.isCGMM()){
                                 System.out.print("\tPrinting CPG in input format for CGMM...");
-                                CPG2CGMM cgmm = new CPG2CGMM(cpg,nedoPath,true);
-                                cgmm.printEdgeListOnFile();
-                                cgmm.printNodeListOnFile();
-                                cgmm.printNodeListOnFile2();
+                                CPG2CGMM cgmm = new CPG2CGMM(cpg,true);
+                                cgmm.printEdgeListOnFile(nedoPath + "/extTool/CGMM/graph/base/");
+                                cgmm.printNodeLabelsSPECIAL1(nedoPath + "/extTool/CGMM/graph/label/");
+                                cgmm.printNodeLabelsSPECIAL2(nedoPath + "/extTool/CGMM/graph/label2/");
                                 System.out.println("DONE!");
                             }
                             if (info.isSenFormat()){
                                 System.out.print("\tPrinting CPG in input format for SenFormat...");
-                                CPG2SenFormat sf = new CPG2SenFormat(cpg,nedoPath,true);
-                                sf.printGraphOnFile();
-                                sf.printGraphOnFile2();
+                                CPG2SenFormat sf = new CPG2SenFormat(cpg,true);
+                                sf.printGraphOnFile(nedoPath + "/extTool/senFormat/graph1/");
+                                sf.printGraphOnFile2(nedoPath + "/extTool/senFormat/graph2/");
                                 System.out.println("DONE!");
                             }
 
