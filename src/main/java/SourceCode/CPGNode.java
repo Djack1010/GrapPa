@@ -19,7 +19,7 @@ public class CPGNode {
     private String content;
     private Set<CPGEdge> edgesOut;
     private Set<CPGEdge> edgesIn;
-    private Node astNode;
+    private astNodeInfo astNode;
 
 
     public CPGNode(NodeTypes type, String name, String content, int nodeId, Node astNode){
@@ -29,7 +29,27 @@ public class CPGNode {
         this.nodeId=nodeId;
         this.edgesOut = new HashSet<CPGEdge>();
         this.edgesIn = new HashSet<CPGEdge>();
-        this.astNode = astNode;
+        if(astNode!=null) this.astNode=new astNodeInfo(astNode.getClass().getSimpleName(),astNode.toString());
+        else{//ENTRY and EXIT case
+            //ENTRY case
+            if (this.nodeId==0) this.astNode=new astNodeInfo("ENTRY","Entry node");
+            else if (this.nodeId==1) this.astNode=new astNodeInfo("EXIT","Exit node");
+            else {
+                System.err.println("ERROR in CPGNode constructor, astNode is null for " + this.nodeId + " " + this.name);
+                System.exit(0);
+            }
+
+        }
+    }
+
+    public CPGNode(NodeTypes type, String name, String content, int nodeId, String astNodeName, String astNodeContent){
+        this.nodeType = type;
+        this.content = content;
+        this.name = name;
+        this.nodeId=nodeId;
+        this.edgesOut = new HashSet<CPGEdge>();
+        this.edgesIn = new HashSet<CPGEdge>();
+        this.astNode=new astNodeInfo(astNodeName,astNodeContent);
     }
 
     public void addEdgeIn(CPGEdge edge){ this.edgesIn.add(edge); }
@@ -70,8 +90,19 @@ public class CPGNode {
 
     public String getNameId() { return this.name + "_" + this.nodeId; }
 
-    public Node getAstNode(){
-        return this.astNode;
+    public String getAstNodeClass(){
+        return this.astNode.classInstance;
+    }
+
+    public String getAstNodeContent(){
+        return this.astNode.token;
+    }
+
+    public String[] getAstNodeInfo(){
+        String[] toReturn = new String[2];
+        toReturn[0]=this.astNode.classInstance;
+        toReturn[1]=this.astNode.token;
+        return toReturn;
     }
 
     public void setTypeToCFG(){
@@ -86,6 +117,16 @@ public class CPGNode {
         }
         System.err.println("NODE " + this.getName() + "_" + this.getId() + " TYPE NOT AST_NODE, cannot use get Parent");
         return null;
+    }
+
+    private class astNodeInfo{
+        String classInstance;
+        String token;
+
+        public astNodeInfo(String ci, String t){
+            this.classInstance=ci;
+            this.token=t;
+        }
     }
 
     /* (non-Javadoc)

@@ -10,6 +10,7 @@ public class CPG2SenFormat extends CPG2vec {
         this.edgeList=this.createEdgeListJSONOnlyCPG();
     }
 
+    /*
     public void printGraphOnFile(String pathOutput) {
         try {
             PrintWriter out = new PrintWriter(pathOutput + this.cpg.getNameCPG() + ".json", "UTF-8");
@@ -41,5 +42,6 @@ public class CPG2SenFormat extends CPG2vec {
             e.printStackTrace();
         }
     }
+    */
 
 }

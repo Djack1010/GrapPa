@@ -3,13 +3,14 @@
 #v1.0 - 22/05/18
 
 function UsageInfo {
-    echo "USAGE: ./run.sh [ OP CLASS [ OP2 METHOD] | -allclasses [ -graph2vec TOOLNAME]]"
+    echo "USAGE: ./run.sh [ OP CLASS [ OP2 METHOD] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]"
     echo -e "Available OP = -targ | -mut"
     echo -e "Available OP2 = -meth"
     echo -e "\t-targ CLASS: run on a single CLASS file"
     echo -e "\t-mut CLASS: run on a mutated CLASS file"
     echo -e "\t-meth METHOD: run on a specific METHOD"
     echo -e "\t-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER"
+    echo -e "\t-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in DB_GRAPH_FOLDER"
     echo -e "\t-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)"
     echo -e "TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )"
     exit
@@ -71,6 +72,11 @@ function MutationHandler {
         MUTNAME="$MUTNAME_temp.java"
     else
         MUTNAME="$2.java"
+    fi
+    if [ -z $3 ]; then
+        MAINFILE="MainCPG"
+    else
+        MAINFILE=$3
     fi
     TOREPLACE=$( find $SOURCE_ANALYSIS_FOLDER -name "$MUTNAME")
     if [ -z "$TOREPLACE" ]; then
@@ -141,10 +147,10 @@ function MutationHandler {
         #----------------------------------------------------------------------------------------
         #CODE TO RESTORE COMPUTATION FROM SPECIFIC MUTANTS - FOR LONG (SUSPENDED) COMPUTATION
         #----------------------------------------------------------------------------------------
-        #if [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" != "TARGET METHOD: toLongString:1685" ]; then
+        #if [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" != "TARGET METHOD: readArgumentIndex:327" ]; then
             #echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
             #continue
-        #elif [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" == "TARGET METHOD: toLongString:1685" ]; then
+        #elif [ -z $EMERGENCYVAR ] && [ "TARGET METHOD: $TARGETMETHOD" == "TARGET METHOD: readArgumentIndex:327" ]; then
             #EMERGENCYVAR="SET"
             #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
             #continue
@@ -155,7 +161,7 @@ function MutationHandler {
         #mvn -f $PROJECT_FOLDER compile
         echo "GENERATING ORIGINAL GRAPH for $MUTNAME - $TARGETMETHOD"
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+            SourceCode.$MAINFILE -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
             -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         
         preAnalysisResult
@@ -168,7 +174,7 @@ function MutationHandler {
         #mvn -f $PROJECT_FOLDER compile
         echo "GENERATING MUTATED GRAPH for $MUTNAME - $TARGETMETHOD"
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+            SourceCode.$MAINFILE -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
             -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         rm $TOREPLACE
         cp $MUTFOLDER/$MUTNAME $TOREPLACE
@@ -204,12 +210,17 @@ CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
 SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
 JAVA_LIBS=$(cat config.txt | grep "JAVA_LIBS" | cut -d"=" -f2)
 JAVA7_HOME=$(cat config.txt | grep "JAVA7_HOME" | cut -d"=" -f2)
+#TODO not implemented yet, all files go to DBGRAPH in NEDO folder
+DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
 
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "ERROR: Set the PROJECT_FOLDER variable in config.txt! Exiting..."
     exit
 elif [ ! -d "$SOURCE_ANALYSIS_FOLDER" ]; then
     echo "ERROR: Set the SOURCE_ANALYSIS_FOLDER variable in config.txt! Exiting..."
+    exit
+elif [ ! -d "$DB_GRAPH_FOLDER" ]; then
+    echo "ERROR: Set the DB_GRAPH_FOLDER variable in config.txt! Exiting..."
     exit
 elif [ ! -d "$MUTATION_FOLDER" ]; then
     echo "ERROR: Set the MUTATION_FOLDER variable in config.txt! Exiting..."
@@ -257,6 +268,9 @@ else
     while [ $n -lt $# ]; do
         if [[ "${myArray[$n]}" == "-allclasses" ]]; then
             MODE="a"
+            n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-cpgtofile" ]]; then
+            MODE="f"
             n=$(($n+1))
         elif [[ "${myArray[$n]}" == "-mut" ]]; then
             MODE="m"
@@ -316,12 +330,32 @@ if [ "$MODE" == "a" ]; then
         JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
         THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
         echo "STARTING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
-        MutationHandler $MUTATION_FOLDER $THISCLASS $GRAPH2VECTOOL
+        MutationHandler $MUTATION_FOLDER $THISCLASS #$GRAPH2VECTOOL
+        echo "ENDING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
+        CLASPAR=$(($CLASPAR+1))
+    done
+elif [ "$MODE" == "f" ]; then
+    CLASPAR=0
+    CLASTOT=$(grep -o "\.java" <<< $JAVAFILELIST | wc -l)
+    MUTTOT=$( ls $MUTATION_FOLDER | wc -l )
+    MUTPAR=0
+    JAVAFILELIST=$(find $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER -name "*.java")
+    CLASTOT=$(grep -o "\.java" <<< $JAVAFILELIST | wc -l)
+    SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
+    for JavaFile in $JAVAFILELIST; do
+        echo "--------> PROGRESS: MUTANTS ($MUTPAR out of $MUTTOT) - CLASS ($CLASPAR out of $CLASTOT) <--------"
+        echo "PROGRESS: MUTANTS ($MUTPAR out of $MUTTOT) - CLASS ($CLASPAR out of $CLASTOT)" >> $SCRIPTPATH/log.txt
+        rm -rf sootOutput
+        #rm -rf $SOURCE_ANALYSIS_FOLDER/sootOutput
+        JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
+        THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
+        echo "STARTING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
+        MutationHandler $MUTATION_FOLDER $THISCLASS MainCPGtoFile
         echo "ENDING ANALYSIS FOR $JavaFileNEW at $(date)"  >> $SCRIPTPATH/log.txt
         CLASPAR=$(($CLASPAR+1))
     done
 elif [ "$MODE" == "m" ]; then 
-    MutationHandler $MUTATION_FOLDER $JCLASS $GRAPH2VECTOOL  
+    MutationHandler $MUTATION_FOLDER $JCLASS #$GRAPH2VECTOOL  
 elif [ "$MODE" == "t" ]; then
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \

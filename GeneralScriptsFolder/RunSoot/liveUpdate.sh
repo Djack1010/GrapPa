@@ -37,10 +37,10 @@ if [ ! -d "$MUTATION_FOLDER" ]; then
 fi
 
 #|| [ "$(ps aux | grep "./run.sh -targ" | wc -l )" -gt "1" ]
-if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ]; then
+if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ] || [ "$(ps aux | grep "./run.sh -cpgtofile" | wc -l )" -gt "1" ]; then
     MUTTOT=$( ls $MUTATION_FOLDER | wc -l )
     PIDRUN=$(pgrep "run.sh")
-    while [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ]; do
+    while [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ] || [ "$(ps aux | grep "./run.sh -cpgtofile" | wc -l )" -gt "1" ]; do
         MUTLOSE=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (0)" | wc -l)
         MUTNOFO=$(cat result.txt | grep "MUT (true)" | grep "Total Success perc. (N.A.) METHOD-NOT-FOUND!" | wc -l)
         #MUTLOSE=$(($MUTLOSE/2))
@@ -49,8 +49,9 @@ if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ]; then
         MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO+$MUTERR))
         echo -ne "$(cat log.txt | grep PROGRESS | tail -n1)\n"
         echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
+        #Use MUTPAR2 instead of MUTPAR if computation was stopped and is workin in recovering mode
         MUTPAR2=$(cat log.txt | grep PROGRESS | tail -n1 | cut -d'(' -f2 | cut -d' ' -f1)
-        progrBar $MUTPAR2 $MUTTOT
+        progrBar $MUTPAR $MUTTOT
         #echo -ne ""\\r
         sleep $SLEEPTIME
         echo -e "\033[3A"

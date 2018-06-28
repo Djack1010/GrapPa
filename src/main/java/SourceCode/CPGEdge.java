@@ -5,8 +5,6 @@ public class CPGEdge {
     public enum EdgeTypes {//fixed set of elements for variable Type
         AST_EDGE,
         CFG_EDGE_C,
-        //CFG_EDGE_T,
-        //CFG_EDGE_F,
         PDG_EDGE_C,
         PDG_EDGE_D
     }

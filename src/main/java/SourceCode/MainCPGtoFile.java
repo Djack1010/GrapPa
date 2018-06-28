@@ -1,5 +1,9 @@
 package SourceCode;
 
+import SourceCode.CPGEdge;
+import SourceCode.CPGNode;
+import SourceCode.CodePropertyGraph;
+import ppg.code.Code;
 import soot.*;
 import soot.options.Options;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -8,16 +12,20 @@ import soot.toolkits.graph.pdg.ProgramDependenceGraph;
 import soot.util.cfgcmd.CFGToDotGraph;
 import soot.util.dot.DotGraph;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
-public class MainCPG {
-
+public class MainCPGtoFile {
     //PATH
     final static String nedoPath ="/home/djack/IdeaProjects/nedo";
     final static infoExec info = new infoExec();
+
 
     private static class infoExec{
 
@@ -49,15 +57,6 @@ public class MainCPG {
 
         public void setMutMode(){ this.mutMode=true; }
         public boolean isMutMode(){ return this.mutMode; }
-
-        public void setStruc2vec(){ this.struc2vec=true; }
-        public boolean isStruc2vec(){ return this.struc2vec; }
-
-        public void setCGMM(){ this.CGMM=true; }
-        public boolean isCGMM(){ return this.CGMM; }
-
-        public void setSenFormat(){ this.senFormat=true; }
-        public boolean isSenFormat(){ return this.senFormat; }
 
         public void setOverloading(){ this.overloading=true; }
         public boolean isOverloading(){ return this.overloading; }
@@ -112,27 +111,6 @@ public class MainCPG {
                     i++;
                     info.setMethodToAnalyzed(args[i]);
                     break;
-                case "-graph2vec":
-                    i++;
-                    String[] toolArray = args[i].split(":");
-                    for (String t: toolArray){
-                        switch (t){
-                            case "struc2vec":
-                                info.setStruc2vec();
-                                break;
-                            case "CGMM":
-                                info.setCGMM();
-                                break;
-                            case "SenFormat":
-                                info.setSenFormat();
-                                break;
-                            default:
-                                System.err.println("Invalid vec tool " + args[i] + ", exiting...");
-                                System.exit(0);
-                                break;
-                        }
-                    }
-                    break;
                 default:
                     System.err.println("MainCPG:ERROR:Invalid arguments " + args[i] + ", exiting...");
                     System.exit(0);
@@ -162,24 +140,24 @@ public class MainCPG {
                     //"-pp",
                     "-cp",
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/alt-rt.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/charsets.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/deploy.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/javaws.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jce.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfr.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfxrt.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jsse.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/management-agent.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/plugin.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/resource.jar" +
-                    ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/rt.jar",
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/alt-rt.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/charsets.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/deploy.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/javaws.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jce.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfr.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfxrt.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jsse.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/management-agent.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/plugin.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/resource.jar" +
+                            ":/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/rt.jar",
                     //"-allow-phantom-refs",
                     "-process-dir",
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.AnnotationUtils"
+                    "org.apache.commons.lang3.text.ExtendedMessageFormat"
                     //
                     //
                     //
@@ -191,10 +169,8 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
-            info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
-            //info.setMethodToAnalyzed("initializerNames:319");
-            //info.setStruc2vec();
-            //info.setCGMM();
+            info.setClassToAnalyzed("org.apache.commons.text.ExtendedMessageFormat");
+            info.setMethodToAnalyzed("readArgumentIndex:327");
         }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
@@ -245,7 +221,7 @@ public class MainCPG {
                             if(methodLineTag.contains("Source Line Pos Tag: sline: ")){
                                 methodLineTag=methodLineTag.split(" sline: ")[1].split(" eline: ")[0];
                                 if( (methodLineTag.equals(info.getMethodToAnalyzed().split(":")[1])) ||
-                                         ( Math.abs(Integer.parseInt(methodLineTag)-Integer.parseInt(info.getMethodToAnalyzed().split(":")[1])) <= 2 ) ){
+                                        ( Math.abs(Integer.parseInt(methodLineTag)-Integer.parseInt(info.getMethodToAnalyzed().split(":")[1])) <= 2 ) ){
                                     info.setMethodFound();
                                     if(info.isOverloading()){
                                         System.err.println("OVERLOADING for method "+m.getName());
@@ -275,11 +251,11 @@ public class MainCPG {
 
                         if(info.isMutMode()){
                             int countMut = 1;
-                            checkAndCreateFolder(nedoPath + "/graphs/3_mut");
-                            File f = new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                            checkAndCreateFolder(nedoPath + "/graphDB/mutated");
+                            File f = new File(nedoPath + "/graphDB/mutated/" + nameMethod + "_" + countMut + ".nedo");
                             while(f.exists() && !f.isDirectory()) {
                                 countMut++;
-                                f= new File(nedoPath + "/graphs/3_mut/" + nameMethod + "_" + countMut + ".dot");
+                                f= new File(nedoPath + "/graphDB/mutated/" + nameMethod + "_" + countMut + ".nedo");
                             }
                             nameMethod=nameMethod+"_"+countMut;
                         }else{
@@ -288,18 +264,18 @@ public class MainCPG {
 
 
                         //De-comment for printing Jimple Code of Body method
-                        //StringWriter sw = new StringWriter();
-                        //PrintWriter pw = new PrintWriter(sw);
-                        //Printer.v().printTo(body, pw);
-                        //String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
-                        //try{
-                            //checkAndCreateFolder(nedoPath + "/graphs/JimpleCode");
-                            //PrintWriter out = new PrintWriter(nedoPath + "/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
-                            //out.println(inputString);
-                            //out.close();
-                        //} catch (Exception e) {
-                            //e.printStackTrace();
-                        //}
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        Printer.v().printTo(body, pw);
+                        String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
+                        try{
+                            checkAndCreateFolder(nedoPath + "/graphDB/JimpleCode");
+                            PrintWriter out = new PrintWriter(nedoPath + "/graphDB/JimpleCode/"+nameMethod+".txt", "UTF-8");
+                            out.println(inputString);
+                            out.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
 
                         try {
@@ -313,82 +289,31 @@ public class MainCPG {
                                 continue;
                             }
 
-                            //Print on file the cfg using CFGToDotGraph
-                            ExceptionalUnitGraph cfg = new ExceptionalUnitGraph(body);
-                            System.out.println("\tPrinting CFG on file");
-                            CFGToDotGraph cfgToDot = new CFGToDotGraph();
-                            DotGraph CFGdotGraph = cfgToDot.drawCFG(cfg, body);
-                            checkAndCreateFolder(nedoPath + "/graphs/CFGs");
-                            CFGdotGraph.plot(nedoPath + "/graphs/CFGs/" + nameMethod + ".dot");
-
-                            //Print on file the pdg using PDGToDotGraph
-                            ProgramDependenceGraph pdg = new HashMutablePDG(cfg);
-                            System.out.println("\tPrinting PDG on file");
-                            PDGToDotGraph pdgToDot = new PDGToDotGraph(pdg, nameMethod);
-                            DotGraph PDGdotGraph = pdgToDot.drawPDG();
-                            checkAndCreateFolder(nedoPath + "/graphs/PDGs");
-                            PDGdotGraph.plot(nedoPath + "/graphs/PDGs/" + nameMethod + ".dot");
-
                             //Print on file the cpg-part1 using CPGToDotGraph
-                            System.out.println("\tPrinting CPG=AST on file");
+                            System.out.println("\tCreating AST");
                             cpg.buildCPGphase("AST");
-                            CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
-                            DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
-                            checkAndCreateFolder(nedoPath + "/graphs/1");
-                            CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part2 using CPGToDotGraph
-                            System.out.println("\tPrinting CPG=AST+CFG on file");
+                            System.out.println("\tCreating CPG=AST+CFG");
                             cpg.buildCPGphase("CFG");
-                            CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                            DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
-                            checkAndCreateFolder(nedoPath + "/graphs/2");
-                            CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part3 using CPGToDotGraph
-                            System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
+                            System.out.println("\tCreating CPG=AST+CFG+PDG");
                             cpg.buildCPGphase("PDG");
-                            CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                            DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-                            if(info.isMutMode()){
-                                checkAndCreateFolder(nedoPath + "/graphs/3_mut");
-                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3_mut/" + nameMethod + ".dot");
-                            }else {
-                                checkAndCreateFolder(nedoPath + "/graphs/3");
-                                CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
+
+                            System.out.println("\tSaving complete CPG");
+                            String CPGGraph = cpg.getCPGtoString();
+                            try {
+                                PrintWriter out;
+                                if(info.isMutMode()) out = new PrintWriter( nedoPath + "/graphDB/mutated/" + nameMethod + ".nedo", "UTF-8");
+                                else out = new PrintWriter( nedoPath + "/graphDB/original/" + nameMethod + ".nedo", "UTF-8");
+                                    out.println(CPGGraph);
+                                out.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
 
                             System.out.println("\tALL DONE!");
-
-                            if (info.isStruc2vec()){
-                                System.out.print("\tPrinting CPG in input format for struct2vec...");
-                                //CPG2struc2vec s2v = new CPG2struc2vec(cpg,true);
-                                //s2v.printEdgeListOnFile(nedoPath + "/extTool/struc2vec/graph/base/");
-                                //s2v.printNodeListOnFile(nedoPath + "/extTool/struc2vec/graph/label/");
-                                //s2v.printNodeLabels_CONF1(nedoPath + "/extTool/struc2vec/graph/label_CONF1/");
-                                //s2v.printNodeLabels_CONF2(nedoPath + "/extTool/struc2vec/graph/label_CONF2/");
-                                //s2v.printNodeLabels_CONF3(nedoPath + "/extTool/struc2vec/graph/label_CONF3/");
-                                //s2v.printNodeLabels_CONF4(nedoPath + "/extTool/struc2vec/graph/label_CONF4/");
-                                //s2v.printNodeLabels_CONF5(nedoPath + "/extTool/struc2vec/graph/label_CONF5/");
-                                //s2v.printNodeListOnFile2(nedoPath + "/extTool/struc2vec/graph/label2/");
-                                System.out.println("DONE!");
-                                //if(cpg.getSize()==cpg.getCPGNodes().size())System.out.println("ALLRIGHT!");
-                                //else System.out.println(cpg.getSize()+" not equals to "+cpg.getCPGNodes().size());
-                            }
-                            if (info.isCGMM()){
-                                System.out.print("\tPrinting CPG in input format for CGMM...");
-                                CPG2CGMM cgmm = new CPG2CGMM(cpg,true);
-                                cgmm.printAdjListOnFile_COMPLETE(nedoPath + "/extTool/CGMM/graph/base_COM/");
-                                cgmm.printAdjListOnFile_STMTandTNodes(nedoPath + "/extTool/CGMM/graph/base_SeT/");
-                                System.out.println("DONE!");
-                            }
-                            if (info.isSenFormat()){
-                                System.out.print("\tPrinting CPG in input format for SenFormat...");
-                                //CPG2SenFormat sf = new CPG2SenFormat(cpg,true);
-                                //sf.printGraphOnFile(nedoPath + "/extTool/senFormat/graph1/");
-                                //sf.printGraphOnFile2(nedoPath + "/extTool/senFormat/graph2/");
-                                System.out.println("DONE!");
-                            }
 
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
@@ -397,9 +322,6 @@ public class MainCPG {
 
                     }
                 }
-
-                //System.err.println("Forcing exit...");
-                //System.exit(0);
 
             }//end internalTransfor
 
@@ -427,6 +349,8 @@ public class MainCPG {
         System.exit(1);
 
     }
+
+
 
     private static void checkAndCreateFolder(String folderPath){
         File directory = new File(folderPath);

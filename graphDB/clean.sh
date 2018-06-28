@@ -14,16 +14,10 @@ for Fold in $SCRIPTPATH/*; do
         done
     elif [ -d "${Fold}" ]; then
         cd $Fold
-        for dotFile in $Fold/*.dot; do
+        for dotFile in $Fold/*.nedo; do
             if [ -f $dotFile ]; then
                 echo "Removing $dotFile"
                 rm $dotFile
-            fi
-        done
-        for pdfFile in $Fold/*.pdf; do
-            if [ -f $pdfFile ]; then
-                echo "Removing $pdfFile"
-                rm $pdfFile
             fi
         done
     fi

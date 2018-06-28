@@ -17,6 +17,7 @@ import soot.toolkits.scalar.SimpleLocalUses;
 import soot.toolkits.scalar.SmartLocalDefs;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.*;
 import java.util.*;
 
@@ -38,6 +39,7 @@ public class CodePropertyGraph {
     Set<CPGEdge> cpgAllEdges;
     Map<Unit,Integer> mapUnitToStmtIndex;
     Set<Unit> skippedNops;
+    ArrayList<Integer> visitableCPGid;
     boolean bAST = false;
     boolean bCFG = false;
     boolean bPDG = false;
@@ -52,6 +54,7 @@ public class CodePropertyGraph {
         this.body=body;
         this.nameCPG = nameCPG;
         this.unitGraph = new ExceptionalUnitGraph(this.body);
+        this.visitableCPGid=new ArrayList<Integer>();
         if(this.unitGraph.getHeads().size()!=1){
            for(Unit unitHeads: this.unitGraph.getHeads()){
                if(unitHeads instanceof JNopStmt) continue;
@@ -103,16 +106,83 @@ public class CodePropertyGraph {
         this.visitedNode=new HashSet<PDGNode>();
     }
 
+    public CodePropertyGraph(String fileName) {
+        this.cpgAllNodes=new TreeMap<Integer, CPGNode>();
+        this.cpgAllEdges=new HashSet<CPGEdge>();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            //StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            this.nameCPG=line.split("\\s+")[0];
+            line = br.readLine();
+            String[] nodeInfo;
+            String edgeOut;
+            ArrayList<String> edgeList=new ArrayList<>();
+            while (line != null) {
+                //sb.append(line);
+                //sb.append(System.lineSeparator());
+                //NodeId-0 TypeNode-1 Name-2 Content-3 AstName-4 AstContent-5 (OutNodeId_1;TypeEdge_1)-6 ... (OutNodeId_n;TypeEdge_n)-n+5
+                nodeInfo=line.split("\\s+");
+                if(nodeInfo.length<6){
+                    System.err.println("ERROR parsing node, line contains too few informationat " + nodeInfo);
+                    System.exit(0);
+                }
+                int nodeId = Integer.parseInt(nodeInfo[0]);
+                //IF cpgAllNodes does not contain the NodeId, create a new CPGNode
+                if(!this.cpgAllNodes.containsKey(nodeId))
+                    this.cpgAllNodes.put(nodeId,
+                            new CPGNode(parseNodeTypes(nodeInfo[1]),nodeInfo[2],nodeInfo[3],Integer.parseInt(nodeInfo[0]), nodeInfo[4], nodeInfo[5]));
+                for(int i=6;i<nodeInfo.length;i++){
+                    edgeOut = nodeId+";"+nodeInfo[i].replace("(","").replace(")","");
+                    edgeList.add(edgeOut);
+                }
+                line = br.readLine();
+                System.err.println("Line "+nodeId);
+            }
+            for(String edge: edgeList){
+                String[] edgeInfo=edge.split(";");
+                if(edgeInfo.length!=3){
+                    System.err.println("ERROR parsing edge, " + edgeInfo);
+                    System.exit(0);
+                }
+                this.cpgAllEdges.add(new CPGEdge(parseEdgeTypes(edgeInfo[2]),
+                        this.getCPGNodes().get(Integer.parseInt(edgeInfo[0])), this.getCPGNodes().get(Integer.parseInt(edgeInfo[1]))));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private CPGNode.NodeTypes parseNodeTypes(String snt){
+        if(snt.equals("AST_NODE")) return CPGNode.NodeTypes.AST_NODE;
+        else if (snt.equals("EXTRA_NODE")) return CPGNode.NodeTypes.EXTRA_NODE;
+        else if (snt.equals("CFG_NODE")) return CPGNode.NodeTypes.CFG_NODE;
+        else{
+            System.err.println("ERROR parsing NodeTypes, undefined type " + snt);
+            System.exit(0);
+            return CPGNode.NodeTypes.AST_NODE;
+        }
+    }
+
+    private CPGEdge.EdgeTypes parseEdgeTypes(String snt){
+        if(snt.equals("AST_EDGE")) return CPGEdge.EdgeTypes.AST_EDGE;
+        else if (snt.equals("CFG_EDGE_C")) return CPGEdge.EdgeTypes.CFG_EDGE_C;
+        else if (snt.equals("PDG_EDGE_C")) return CPGEdge.EdgeTypes.PDG_EDGE_C;
+        else if (snt.equals("PDG_EDGE_D")) return CPGEdge.EdgeTypes.PDG_EDGE_D;
+        else{
+            System.err.println("ERROR parsing NodeTypes, undefined type " + snt);
+            System.exit(0);
+            return CPGEdge.EdgeTypes.AST_EDGE;
+        }
+    }
+
     public CPGNode getRootNode(){
         return this.CPGrootNode;
     }
 
     public CPGNode getASTrootNode(){
         return this.ASTrootNode;
-    }
-
-    public int getSize(){
-        return this.unId;
     }
 
     public int getStartCPGid() { return this.startCPGid; }
@@ -448,8 +518,8 @@ public class CodePropertyGraph {
 
                 }
                 if(toUnit instanceof JReturnStmt || toUnit instanceof JRetStmt ||
-                        this.cpgStmntNodes.get(indexTo).getAstNode() instanceof AReturnStatement ||
-                        this.cpgStmntNodes.get(indexTo).getAstNode() instanceof ARetStatement){
+                        this.cpgStmntNodes.get(indexTo).getAstNodeClass().equals("AReturnStatement") ||
+                        this.cpgStmntNodes.get(indexTo).getAstNodeClass().equals("ARetStatement") ){
                     this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,this.cpgStmntNodes.get(indexTo),this.cpgAllNodes.get(1)));
                 }
             }
@@ -517,39 +587,37 @@ public class CodePropertyGraph {
         boolean error = false;
         while(iteraUnit.hasNext() && index<this.cpgStmntNodes.size()){
             Unit tempUnit = iteraUnit.next();
-            Node tempNode = this.cpgStmntNodes.get(index).getAstNode();
+            String tempNode = this.cpgStmntNodes.get(index).getAstNodeClass();
             //System.err.println("Checking " + tempUnit + " and " + tempNode);
-            if(tempNode.toString().replaceAll("\\s","").equals(tempUnit.toString().replaceAll("\\s","")+";")){
+            if(tempNode.replaceAll("\\s","").equals(tempUnit.toString().replaceAll("\\s","")+";")){
                 this.mapUnitToStmtIndex.put(tempUnit,index);
             }else {
-                if (tempNode instanceof ALabelStatement && tempUnit instanceof JNopStmt) {
+                if (tempNode.equals("ALabelStatement") && tempUnit instanceof JNopStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof ABreakpointStatement && tempUnit instanceof JBreakpointStmt) {
+                } else if (tempNode.equals("ABreakpointStatement") && tempUnit instanceof JBreakpointStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AEntermonitorStatement && tempUnit instanceof JEnterMonitorStmt) {
+                } else if (tempNode.equals("AEntermonitorStatement") && tempUnit instanceof JEnterMonitorStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AExitmonitorStatement && tempUnit instanceof JExitMonitorStmt) {
+                } else if (tempNode.equals("AExitmonitorStatement") && tempUnit instanceof JExitMonitorStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof ATableswitchStatement && tempUnit instanceof JTableSwitchStmt) {
+                } else if (tempNode.equals("ATableswitchStatement") && tempUnit instanceof JTableSwitchStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
                     //this.skippedNops++;
-                } else if (tempNode instanceof ALookupswitchStatement && tempUnit instanceof JLookupSwitchStmt) {
-                    //System.err.println(tempNode.getClass().getName() + " is " + tempUnit.getClass().getName());
+                } else if (tempNode.equals("ALookupswitchStatement") && tempUnit instanceof JLookupSwitchStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
                     //System.exit(0);
-                } else if (tempNode instanceof AIdentityStatement && tempUnit instanceof JIdentityStmt) {
+                } else if (tempNode.equals("AIdentityStatement") && tempUnit instanceof JIdentityStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AIdentityNoTypeStatement) {
-                    System.err.println(tempNode.getClass().getName() + " is " + tempUnit.getClass().getName());
-                    System.exit(0);
-                } else if (tempNode instanceof AAssignStatement && tempUnit instanceof JAssignStmt) {
+                } else if (tempNode.equals("AIdentityNoTypeStatement") && tempUnit instanceof JIdentityStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AIfStatement && tempUnit instanceof JIfStmt) {
+                } else if (tempNode.equals("AAssignStatement") && tempUnit instanceof JAssignStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AGotoStatement && tempUnit instanceof JGotoStmt) {
+                } else if (tempNode.equals("AIfStatement") && tempUnit instanceof JIfStmt) {
+                    this.mapUnitToStmtIndex.put(tempUnit, index);
+                } else if (tempNode.equals("AGotoStatement") && tempUnit instanceof JGotoStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
                 } else if (tempUnit instanceof JNopStmt) {
-                    if(tempNode instanceof ANopStatement){
+                    if(tempNode.equals("ANopStatement")){
                         this.mapUnitToStmtIndex.put(tempUnit, index);
                     }else if(forcingMode){
                         //System.err.println(tempUnit.toString());
@@ -558,13 +626,13 @@ public class CodePropertyGraph {
                     }else{
                         error = true;
                     }
-                } else if (tempNode instanceof ARetStatement && tempUnit instanceof JRetStmt) {
+                } else if (tempNode.equals("ARetStatement") && tempUnit instanceof JRetStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AReturnStatement && tempUnit instanceof JReturnStmt) {
+                } else if (tempNode.equals("AReturnStatement") && (tempUnit instanceof JReturnStmt || tempUnit instanceof JReturnVoidStmt)) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AThrowStatement && tempUnit instanceof JThrowStmt) {
+                } else if (tempNode.equals("AThrowStatement") && tempUnit instanceof JThrowStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
-                } else if (tempNode instanceof AInvokeStatement && tempUnit instanceof JInvokeStmt) {
+                } else if (tempNode.equals("AInvokeStatement") && tempUnit instanceof JInvokeStmt) {
                     this.mapUnitToStmtIndex.put(tempUnit, index);
                 } else {
                     error = true;
@@ -572,8 +640,8 @@ public class CodePropertyGraph {
             }
             if(error){
                 System.err.println("ERROR!");
-                System.err.println("BODY stmts " + tempUnit.toString() + " not found in CPG");
-                System.err.println("It does not match " + tempNode.toString() + " exiting...");
+                System.err.println("BODY stmts " + tempUnit.getClass().getSimpleName() + " not found in CPG");
+                System.err.println("It does not match " + tempNode + " exiting...");
                 System.exit(0);
             }else{
                 index++;
@@ -589,6 +657,49 @@ public class CodePropertyGraph {
 
         }
         //System.err.println("FINE");
+    }
+
+    private void visitCPG(CPGNode node) {
+        if(this.visitableCPGid.contains(node.getId())) return;
+        this.visitableCPGid.add(node.getId());
+        if(node.getEdgesOut().isEmpty()) return;
+        else {
+            for(CPGEdge tempEdge: node.getEdgesOut()){
+                this.visitCPG(tempEdge.getDest());
+            }
+        }
+    }
+
+    public String getCPGtoString() {
+        if(this.visitableCPGid.isEmpty())this.visitCPG(this.getCPGNodes().get(0));
+        Collections.sort(this.visitableCPGid);
+        String toReturn = this.nameCPG + " " + this.visitableCPGid.size();
+        for (int i = 0; i < this.visitableCPGid.size(); i++) {
+            CPGNode tempNode = this.getCPGNodes().get(this.visitableCPGid.get(i));
+            toReturn = toReturn +"\n" + this.getSortedID(tempNode)+ " "
+                    + tempNode.getNodeTypeToString().replaceAll("\\s","") + " "
+                    + tempNode.getName().replaceAll("\\s","") + " "
+                    + tempNode.getContent().replaceAll("\\s","") + " "
+                    + tempNode.getAstNodeClass().replaceAll("\\s","") + " "
+                    + tempNode.getAstNodeContent().replaceAll("\\s","") + " ";
+            for (CPGEdge tempEdge: tempNode.getEdgesOut()){
+                if (!(this.visitableCPGid.contains((tempEdge.getSource().getId())))
+                        || !(this.visitableCPGid.contains((tempEdge.getDest().getId())))) continue;
+                toReturn = toReturn + "(" + this.getSortedID(tempEdge.getDest()) + ";" + tempEdge.getEdgeTypeToString() + ") ";
+            }
+        }
+        return toReturn;
+    }
+
+    private int getSortedID (CPGNode node){
+        if ((node.getId() == 0) || (node.getId() == 1)) return node.getId();
+        if(this.visitableCPGid.contains(node.getId())){
+            return this.visitableCPGid.indexOf(node.getId());
+        }else{
+            System.err.println("ERROR CPG2vec! Node " + node.getId() + " not found, exiting...");
+            System.exit(0);
+            return -1;
+        }
     }
 
 
