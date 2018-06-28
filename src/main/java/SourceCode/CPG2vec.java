@@ -134,17 +134,17 @@ public abstract class CPG2vec {
         else return node.getId();
     }
 
-    //259 Nodes
+    //259 Nodes - numered till 252
     //All AST nodes
     private String mapNodeLabel_COMPLETE(String[] tempNode){
         if (tempNode[0].equals("ENTRY") || tempNode[0].equals("EXIT")) {//case ENTRY and EXIT Node
             return "0";
         } else if (tempNode[0].equals("EOF")) {
-            return "256";
+            return "250";
         } else if (tempNode[0].equals("Start")) {
-            return "257";
+            return "251";
         } else if (tempNode[0].equals("AFile")) {
-            return "258";
+            return "252";
         } else if (tempNode[0].equals("AAbstractModifier")) {
             return "1";
         } else if (tempNode[0].equals("AFinalModifier")) {
@@ -225,6 +225,8 @@ public abstract class CPG2vec {
             return "39";
         } else if (tempNode[0].equals("ABooleanBaseType")) {
             return "40";
+        } else if (tempNode[0].equals("ACharBaseType")) {
+            return "41";
         } else if (tempNode[0].equals("AByteBaseType")) {
             return "42";
         } else if (tempNode[0].equals("AShortBaseType")) {
@@ -639,273 +641,271 @@ public abstract class CPG2vec {
             return "247";
         } else if (tempNode[0].equals("TQuotedName")) {
             return "248";
-        } else if (tempNode[0].equals("TFullIdentifier")) {
+        }else if (tempNode[0].equals("TAtIdentifier")) {
             return "249";
+        } else if (tempNode[0].equals("TFullIdentifier")) {
+            return "IDE_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TIdentifier")) {
-            return "250";
-        } else if (tempNode[0].equals("TAtIdentifier")) {
-            return "251";
+            return "IDE_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TBoolConstant")) {
-            return "252";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TIntegerConstant")){
-            return "253";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TFloatConstant")) {
-            return "254";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         }else if (tempNode[0].equals("TStringConstant")) {
-            return "255";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         } else {
-            System.err.println("CPG2vec: Invalid node " + tempNode.getClass().getSimpleName() + ", exiting...");
+            System.err.println("CPG2vec - COMPLETE: Invalid node " + tempNode[0] + ", exiting...");
             System.exit(0);
         }
         return "-1";
     }
 
-    //??? Nodes
+    //120 Nodes but numered till 113
     //STMTs node and TNodes
     private String mapNodeLabel_STMTandTNodes(String[] tempNode){
-        if (tempNode == null) {//case ENTRY and EXIT Node
+        if (tempNode[0].equals("ENTRY") || tempNode[0].equals("EXIT")) {//case ENTRY and EXIT Node
             return "0";
         } else if (tempNode[0].equals("ALabelStatement")) {
-            return "63";
+            return "1";
         } else if (tempNode[0].equals("ABreakpointStatement")) {
-            return "64";
+            return "2";
         } else if (tempNode[0].equals("AEntermonitorStatement")) {
-            return "65";
+            return "3";
         } else if (tempNode[0].equals("AExitmonitorStatement")) {
-            return "66";
+            return "4";
         } else if (tempNode[0].equals("ATableswitchStatement")) {
-            return "67";
+            return "5";
         } else if (tempNode[0].equals("ALookupswitchStatement")) {
-            return "68";
+            return "6";
         } else if (tempNode[0].equals("AIdentityStatement")) {
-            return "69";
+            return "7";
         } else if (tempNode[0].equals("AIdentityNoTypeStatement")) {
-            return "70";
+            return "8";
         } else if (tempNode[0].equals("AAssignStatement")) {
-            return "71";
+            return "9";
         } else if (tempNode[0].equals("AIfStatement")) {
-            return "72";
+            return "10";
         } else if (tempNode[0].equals("AGotoStatement")) {
-            return "73";
+            return "11";
         } else if (tempNode[0].equals("ANopStatement")) {
-            return "74";
+            return "12";
         } else if (tempNode[0].equals("ARetStatement")) {
-            return "75";
+            return "13";
         } else if (tempNode[0].equals("AReturnStatement")) {
-            return "76";
+            return "14";
         } else if (tempNode[0].equals("AThrowStatement")) {
-            return "77";
+            return "15";
         } else if (tempNode[0].equals("AInvokeStatement")) {
-            return "78";
+            return "16";
         } else if (tempNode[0].equals("ALabelName")) {
-            return "79";
+            return "17";
         } else if (tempNode[0].equals("TIgnored")) {
-            return "155";
+            return "18";
         } else if (tempNode[0].equals("TAbstract")) {
-            return "156";
+            return "19";
         } else if (tempNode[0].equals("TFinal")) {
-            return "157";
+            return "20";
         } else if (tempNode[0].equals("TNative")) {
-            return "158";
+            return "21";
         } else if (tempNode[0].equals("TPublic")) {
-            return "159";
+            return "22";
         } else if (tempNode[0].equals("TProtected")) {
-            return "160";
+            return "23";
         } else if (tempNode[0].equals("TPrivate")) {
-            return "161";
+            return "24";
         } else if (tempNode[0].equals("TStatic")) {
-            return "162";
+            return "25";
         } else if (tempNode[0].equals("TSynchronized")) {
-            return "163";
+            return "26";
         } else if (tempNode[0].equals("TTransient")) {
-            return "164";
+            return "27";
         } else if (tempNode[0].equals("TVolatile")) {
-            return "165";
+            return "28";
         } else if (tempNode[0].equals("TStrictfp")) {
-            return "166";
+            return "29";
         } else if (tempNode[0].equals("TEnum")) {
-            return "167";
+            return "30";
         } else if (tempNode[0].equals("TAnnotation")) {
-            return "168";
+            return "31";
         } else if (tempNode[0].equals("TClass")) {
-            return "169";
+            return "32";
         } else if (tempNode[0].equals("TInterface")) {
-            return "170";
+            return "33";
         } else if (tempNode[0].equals("TVoid")) {
-            return "171";
+            return "34";
         } else if (tempNode[0].equals("TBoolean")) {
-            return "172";
+            return "35";
         } else if (tempNode[0].equals("TByte")) {
-            return "173";
+            return "36";
         } else if (tempNode[0].equals("TShort")) {
-            return "174";
+            return "37";
         } else if (tempNode[0].equals("TChar")) {
-            return "175";
+            return "38";
         } else if (tempNode[0].equals("TInt")) {
-            return "176";
+            return "39";
         } else if (tempNode[0].equals("TLong")) {
-            return "177";
+            return "40";
         } else if (tempNode[0].equals("TFloat")) {
-            return "178";
+            return "41";
         } else if (tempNode[0].equals("TDouble")) {
-            return "179";
+            return "42";
         } else if (tempNode[0].equals("TNullType")) {
-            return "180";
+            return "43";
         } else if (tempNode[0].equals("TUnknown")) {
-            return "181";
+            return "44";
         } else if (tempNode[0].equals("TExtends")) {
-            return "182";
+            return "45";
         } else if (tempNode[0].equals("TImplements")) {
-            return "183";
+            return "46";
         } else if (tempNode[0].equals("TBreakpoint")) {
-            return "184";
+            return "47";
         } else if (tempNode[0].equals("TCase")) {
-            return "185";
+            return "48";
         } else if (tempNode[0].equals("TCatch")) {
-            return "186";
+            return "49";
         } else if (tempNode[0].equals("TCmp")) {
-            return "187";
+            return "50";
         } else if (tempNode[0].equals("TCmpg")) {
-            return "188";
+            return "51";
         } else if (tempNode[0].equals("TCmpl")) {
-            return "189";
+            return "52";
         } else if (tempNode[0].equals("TDefault")) {
-            return "190";
+            return "53";
         } else if (tempNode[0].equals("TEntermonitor")) {
-            return "191";
+            return "54";
         } else if (tempNode[0].equals("TExitmonitor")) {
-            return "192";
+            return "55";
         } else if (tempNode[0].equals("TGoto")) {
-            return "193";
+            return "56";
         } else if (tempNode[0].equals("TIf")) {
-            return "194";
+            return "57";
         } else if (tempNode[0].equals("TInstanceof")) {
-            return "195";
+            return "58";
         } else if (tempNode[0].equals("TInterfaceinvoke")) {
-            return "196";
+            return "59";
         } else if (tempNode[0].equals("TLengthof")) {
-            return "197";
+            return "60";
         } else if (tempNode[0].equals("TLookupswitch")) {
-            return "198";
+            return "61";
         } else if (tempNode[0].equals("TNeg")) {
-            return "199";
+            return "62";
         } else if (tempNode[0].equals("TNew")) {
-            return "200";
+            return "63";
         } else if (tempNode[0].equals("TNewarray")) {
-            return "201";
+            return "64";
         } else if (tempNode[0].equals("TNewmultiarray")) {
-            return "202";
+            return "65";
         } else if (tempNode[0].equals("TNop")) {
-            return "203";
+            return "66";
         } else if (tempNode[0].equals("TRet")) {
-            return "204";
+            return "67";
         } else if (tempNode[0].equals("TReturn")) {
-            return "205";
+            return "68";
         } else if (tempNode[0].equals("TSpecialinvoke")) {
-            return "206";
+            return "69";
         } else if (tempNode[0].equals("TStaticinvoke")) {
-            return "207";
+            return "70";
         } else if (tempNode[0].equals("TDynamicinvoke")) {
-            return "208";
+            return "71";
         } else if (tempNode[0].equals("TTableswitch")) {
-            return "209";
+            return "72";
         } else if (tempNode[0].equals("TThrow")) {
-            return "210";
+            return "73";
         } else if (tempNode[0].equals("TThrows")) {
-            return "211";
+            return "74";
         } else if (tempNode[0].equals("TVirtualinvoke")) {
-            return "212";
+            return "75";
         } else if (tempNode[0].equals("TNull")) {
-            return "213";
+            return "76";
         } else if (tempNode[0].equals("TFrom")) {
-            return "214";
+            return "77";
         } else if (tempNode[0].equals("TTo")) {
-            return "215";
+            return "78";
         } else if (tempNode[0].equals("TWith")) {
-            return "216";
+            return "79";
         } else if (tempNode[0].equals("TCls")) {
-            return "217";
+            return "80";
         } else if (tempNode[0].equals("TComma")) {
-            return "218";
+            return "81";
         } else if (tempNode[0].equals("TLBrace")) {
-            return "219";
+            return "82";
         } else if (tempNode[0].equals("TRBrace")) {
-            return "220";
+            return "83";
         } else if (tempNode[0].equals("TSemicolon")) {
-            return "221";
+            return "84";
         } else if (tempNode[0].equals("TLBracket")) {
-            return "222";
+            return "85";
         } else if (tempNode[0].equals("TRBracket")) {
-            return "223";
+            return "86";
         } else if (tempNode[0].equals("TLParen")) {
-            return "224";
+            return "87";
         } else if (tempNode[0].equals("TRParen")) {
-            return "225";
+            return "88";
         } else if (tempNode[0].equals("TColon")) {
-            return "226";
+            return "89";
         } else if (tempNode[0].equals("TDot")) {
-            return "227";
+            return "90";
         } else if (tempNode[0].equals("TQuote")) {
-            return "228";
+            return "91";
         } else if (tempNode[0].equals("TColonEquals")) {
-            return "229";
+            return "92";
         } else if (tempNode[0].equals("TEquals")) {
-            return "230";
+            return "93";
         } else if (tempNode[0].equals("TAnd")) {
-            return "231";
+            return "94";
         } else if (tempNode[0].equals("TOr")) {
-            return "232";
+            return "95";
         } else if (tempNode[0].equals("TXor")) {
-            return "233";
+            return "96";
         } else if (tempNode[0].equals("TMod")) {
-            return "234";
+            return "97";
         } else if (tempNode[0].equals("TCmpeq")) {
-            return "235";
+            return "98";
         } else if (tempNode[0].equals("TCmpne")) {
-            return "236";
+            return "99";
         } else if (tempNode[0].equals("TCmpgt")) {
-            return "237";
+            return "100";
         } else if (tempNode[0].equals("TCmpge")) {
-            return "238";
+            return "101";
         } else if (tempNode[0].equals("TCmplt")) {
-            return "239";
+            return "102";
         } else if (tempNode[0].equals("TCmple")) {
-            return "240";
+            return "103";
         } else if (tempNode[0].equals("TShl")) {
-            return "241";
+            return "104";
         } else if (tempNode[0].equals("TShr")) {
-            return "242";
+            return "105";
         } else if (tempNode[0].equals("TUshr")) {
-            return "243";
+            return "106";
         } else if (tempNode[0].equals("TPlus")) {
-            return "244";
+            return "107";
         } else if (tempNode[0].equals("TMinus")) {
-            return "245";
+            return "108";
         } else if (tempNode[0].equals("TMult")) {
-            return "246";
+            return "109";
         } else if (tempNode[0].equals("TDiv")) {
-            return "247";
+            return "110";
         } else if (tempNode[0].equals("TQuotedName")) {
-            return "248";
-        } else if (tempNode[0].equals("TFullIdentifier")) {
-            return "249";
-        } else if (tempNode[0].equals("TIdentifier")) {
-            return "250";
+            return "111";
         } else if (tempNode[0].equals("TAtIdentifier")) {
-            return "251";
+            return "112";
+        } else if (tempNode[0].equals("TFullIdentifier")) {
+            return "IDE_"+tempNode[1].replaceAll("_",".");
+        } else if (tempNode[0].equals("TIdentifier")) {
+            return "IDE_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TBoolConstant")) {
-            return "252";
-        } else if (tempNode[0].equals("TIntegerConstant")) {
-            return "253";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
+        } else if (tempNode[0].equals("TIntegerConstant")){
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         } else if (tempNode[0].equals("TFloatConstant")) {
-            return "254";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         }else if (tempNode[0].equals("TStringConstant")) {
-            return "255";
+            return "LIT_"+tempNode[1].replaceAll("_",".");
         } else {
-            System.err.println("CPG2vec: Invalid node " + tempNode.getClass().getSimpleName() + ", exiting...");
-            System.exit(0);
+            return "113";
         }
-        return "-1";
     }
 
     /*
@@ -947,41 +947,7 @@ public abstract class CPG2vec {
             ) {
      */
 
-    private int mapStmtLabel (String[] tempNode){
-        if (tempNode == null) {//case ENTRY and EXIT Node
-            return 0;
-        } else if (tempNode[0].equals("ALabelStatement")) {
-            return 1;
-        } else if (tempNode[0].equals("ABreakpointStatement")) {
-            return 4;
-        } else if (tempNode[0].equals("ATableswitchStatement")) {
-            return 5;
-        } else if (tempNode[0].equals("ALookupswitchStatement") ){
-            return 6;
-        } else if (tempNode[0].equals("AIdentityStatement")) {
-            return 7;
-        } else if (tempNode[0].equals("AIdentityNoTypeStatement")) {
-            return 8;
-        } else if (tempNode[0].equals("AAssignStatement")) {
-            return 9;
-        } else if (tempNode[0].equals("AIfStatement") ){
-            return 10;
-        } else if (tempNode[0].equals("AGotoStatement")) {
-            return 11;
-        } else if (tempNode[0].equals("ANopStatement") ){
-            return 12;
-        } else if (tempNode[0].equals("ARetStatement")) {
-            return 13;
-        } else if (tempNode[0].equals("AReturnStatement")) {
-            return 14;
-        } else if (tempNode[0].equals("AThrowStatement")) {
-            return 15;
-        } else if (tempNode[0].equals("AInvokeStatement")) {
-            return 16;
-        } else {
-            return 17;
-        }
-    }
+
 
     private String mapEdgeLabel (CPGEdge tempEdge){
         if (tempEdge.getEdgeType() == CPGEdge.EdgeTypes.AST_EDGE) {
@@ -1053,6 +1019,43 @@ public abstract class CPG2vec {
     */
 
 /*
+
+    private int mapStmtLabel (String[] tempNode){
+        if (tempNode == null) {//case ENTRY and EXIT Node
+            return 0;
+        } else if (tempNode[0].equals("ALabelStatement")) {
+            return 1;
+        } else if (tempNode[0].equals("ABreakpointStatement")) {
+            return 4;
+        } else if (tempNode[0].equals("ATableswitchStatement")) {
+            return 5;
+        } else if (tempNode[0].equals("ALookupswitchStatement") ){
+            return 6;
+        } else if (tempNode[0].equals("AIdentityStatement")) {
+            return 7;
+        } else if (tempNode[0].equals("AIdentityNoTypeStatement")) {
+            return 8;
+        } else if (tempNode[0].equals("AAssignStatement")) {
+            return 9;
+        } else if (tempNode[0].equals("AIfStatement") ){
+            return 10;
+        } else if (tempNode[0].equals("AGotoStatement")) {
+            return 11;
+        } else if (tempNode[0].equals("ANopStatement") ){
+            return 12;
+        } else if (tempNode[0].equals("ARetStatement")) {
+            return 13;
+        } else if (tempNode[0].equals("AReturnStatement")) {
+            return 14;
+        } else if (tempNode[0].equals("AThrowStatement")) {
+            return 15;
+        } else if (tempNode[0].equals("AInvokeStatement")) {
+            return 16;
+        } else {
+            return 17;
+        }
+    }
+
     private int mapNodeLabel (String[] tempNode){
         if (tempNode[0] == null) {//case ENTRY and EXIT Node
             return 0;

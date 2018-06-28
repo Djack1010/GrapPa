@@ -155,6 +155,14 @@ function MutationHandler {
             #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
             #continue
         #fi
+        #if [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" != "MUTANT 91 out of 322" ]; then
+            #echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
+            #continue
+        #elif [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" == "MUTANT 91 out of 322" ]; then
+            #EMERGENCYVAR="SET"
+            #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
+            #continue
+        #fi
         #----------------------------------------------------------------------------------------
 
         #mvn -f $PROJECT_FOLDER clean
@@ -362,5 +370,6 @@ elif [ "$MODE" == "t" ]; then
         -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$JCLASS $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
     preAnalysisResult
 fi
+
 echo "ENDING run.sh SCRIPT"
 exit

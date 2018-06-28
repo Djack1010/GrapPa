@@ -24,16 +24,16 @@ public class CPGNode {
 
     public CPGNode(NodeTypes type, String name, String content, int nodeId, Node astNode){
         this.nodeType = type;
-        this.content = content;
-        this.name = name;
+        this.content = content.replaceAll("\\s","");
+        this.name = name.replaceAll("\\s","");
         this.nodeId=nodeId;
         this.edgesOut = new HashSet<CPGEdge>();
         this.edgesIn = new HashSet<CPGEdge>();
-        if(astNode!=null) this.astNode=new astNodeInfo(astNode.getClass().getSimpleName(),astNode.toString());
+        if(astNode!=null) this.astNode=new astNodeInfo(astNode.getClass().getSimpleName().replaceAll("\\s",""),astNode.toString().replaceAll("\\s",""));
         else{//ENTRY and EXIT case
             //ENTRY case
-            if (this.nodeId==0) this.astNode=new astNodeInfo("ENTRY","Entry node");
-            else if (this.nodeId==1) this.astNode=new astNodeInfo("EXIT","Exit node");
+            if (this.nodeId==0) this.astNode=new astNodeInfo("ENTRY","Entry_node");
+            else if (this.nodeId==1) this.astNode=new astNodeInfo("EXIT","Exit_node");
             else {
                 System.err.println("ERROR in CPGNode constructor, astNode is null for " + this.nodeId + " " + this.name);
                 System.exit(0);

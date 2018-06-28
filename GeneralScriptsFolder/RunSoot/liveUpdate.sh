@@ -1,9 +1,15 @@
 #!/bin/bash
 
 if [ -z $1 ]; then
+    GAP=0
+else
+    GAP=$1
+fi
+
+if [ -z $2 ]; then
     SLEEPTIME=20
 else
-    SLEEPTIME=$1
+    SLEEPTIME=$2
 fi
 
 function progrBar {
@@ -46,9 +52,9 @@ if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ] || [ "$(ps aux
         #MUTLOSE=$(($MUTLOSE/2))
         MUTGET=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (100)" | wc -l)
         MUTERR=$(cat errors.txt | grep "ERROR -> " | wc -l)
-        MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO+$MUTERR))
+        MUTPAR=$(($MUTGET+$MUTLOSE+$MUTNOFO+$MUTERR+$GAP))
         echo -ne "$(cat log.txt | grep PROGRESS | tail -n1)\n"
-        echo -ne "FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
+        echo -ne "GAP: $GAP FAIL: $MUTLOSE - NOTFOUND: $MUTNOFO ERROR: $MUTERR SUCC: $MUTGET ($MUTPAR out of $MUTTOT)\n"
         #Use MUTPAR2 instead of MUTPAR if computation was stopped and is workin in recovering mode
         MUTPAR2=$(cat log.txt | grep PROGRESS | tail -n1 | cut -d'(' -f2 | cut -d' ' -f1)
         progrBar $MUTPAR $MUTTOT

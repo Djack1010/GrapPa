@@ -136,7 +136,7 @@ public class CodePropertyGraph {
                     edgeList.add(edgeOut);
                 }
                 line = br.readLine();
-                System.err.println("Line "+nodeId);
+                //System.err.println("Line "+nodeId);
             }
             for(String edge: edgeList){
                 String[] edgeInfo=edge.split(";");
@@ -677,11 +677,11 @@ public class CodePropertyGraph {
         for (int i = 0; i < this.visitableCPGid.size(); i++) {
             CPGNode tempNode = this.getCPGNodes().get(this.visitableCPGid.get(i));
             toReturn = toReturn +"\n" + this.getSortedID(tempNode)+ " "
-                    + tempNode.getNodeTypeToString().replaceAll("\\s","") + " "
-                    + tempNode.getName().replaceAll("\\s","") + " "
-                    + tempNode.getContent().replaceAll("\\s","") + " "
-                    + tempNode.getAstNodeClass().replaceAll("\\s","") + " "
-                    + tempNode.getAstNodeContent().replaceAll("\\s","") + " ";
+                    + tempNode.getNodeTypeToString() + " "
+                    + tempNode.getName() + " "
+                    + tempNode.getContent() + " "
+                    + tempNode.getAstNodeClass() + " "
+                    + tempNode.getAstNodeContent() + " ";
             for (CPGEdge tempEdge: tempNode.getEdgesOut()){
                 if (!(this.visitableCPGid.contains((tempEdge.getSource().getId())))
                         || !(this.visitableCPGid.contains((tempEdge.getDest().getId())))) continue;

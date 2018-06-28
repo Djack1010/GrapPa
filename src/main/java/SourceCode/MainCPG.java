@@ -192,9 +192,9 @@ public class MainCPG {
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
             info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
-            //info.setMethodToAnalyzed("initializerNames:319");
+            //info.setMethodToAnalyzed("abbreviate:6460");
             //info.setStruc2vec();
-            //info.setCGMM();
+            info.setCGMM();
         }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
@@ -288,18 +288,18 @@ public class MainCPG {
 
 
                         //De-comment for printing Jimple Code of Body method
-                        //StringWriter sw = new StringWriter();
-                        //PrintWriter pw = new PrintWriter(sw);
-                        //Printer.v().printTo(body, pw);
-                        //String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
-                        //try{
-                            //checkAndCreateFolder(nedoPath + "/graphs/JimpleCode");
-                            //PrintWriter out = new PrintWriter(nedoPath + "/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
-                            //out.println(inputString);
-                            //out.close();
-                        //} catch (Exception e) {
-                            //e.printStackTrace();
-                        //}
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        Printer.v().printTo(body, pw);
+                        String inputString = "public class WrapClass \n{\n" + sw.toString() + "}";
+                        try{
+                            checkAndCreateFolder(nedoPath + "/graphs/JimpleCode");
+                            PrintWriter out = new PrintWriter(nedoPath + "/graphs/JimpleCode/"+nameMethod+".txt", "UTF-8");
+                            out.println(inputString);
+                            out.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
 
                         try {
@@ -356,6 +356,16 @@ public class MainCPG {
                             }else {
                                 checkAndCreateFolder(nedoPath + "/graphs/3");
                                 CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
+                            }
+
+                            String CPGGraph = cpg.getCPGtoString();
+                            try {
+                                PrintWriter out;
+                                out = new PrintWriter( nedoPath + "/graphs/example/" + nameMethod + ".nedo", "UTF-8");
+                                out.println(CPGGraph);
+                                out.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
 
                             System.out.println("\tALL DONE!");

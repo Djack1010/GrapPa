@@ -14,7 +14,8 @@ public class LoadCPG {
         String filePath=null;
 
         if (args.length == 0) {
-            filePath="/home/djack/IdeaProjects/nedo/graphDB/original/MainTest_foo_0.nedo";
+            filePath="/home/djack/IdeaProjects/nedo/graphs/example/MainTest_foo_0.nedo";
+            info.setCGMM();
         }else{
             int i=0;
             while(i<args.length){
@@ -59,7 +60,9 @@ public class LoadCPG {
             System.exit(0);
         }
 
+        System.out.print("Loading CPG... ");
         CodePropertyGraph cpg = new CodePropertyGraph(filePath);
+        System.out.println(cpg.getNameCPG()+" COMPLETE!");
 
         if (info.isStruc2vec()){
             System.out.print("\tPrinting CPG in input format for struct2vec...");
