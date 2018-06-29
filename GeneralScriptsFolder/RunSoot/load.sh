@@ -119,13 +119,13 @@ else
     done
 fi
 
-echo -e "\nSTARTING load.sh SCRIPT with DB_GRAPH_FOLDER as $DB_GRAPH_FOLDER"
+echo -e "STARTING load.sh SCRIPT with DB_GRAPH_FOLDER as $DB_GRAPH_FOLDER"
 if [ ! -z "$GRAPH2VECTOOL" ]; then
-    echo "GRAPH2VEC tools: $GRAPH2VECTOOL"
+    echo -e "GRAPH2VEC tools: $GRAPH2VECTOOL"
 fi
 
 PIDRUN=$$
-echo "\n\n" #for progrBar
+echo -e "\n" #for progrBar
 
 #Only one mode for now
 if [ "$MODE" == "b" ]; then

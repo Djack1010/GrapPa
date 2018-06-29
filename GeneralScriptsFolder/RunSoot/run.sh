@@ -37,7 +37,7 @@ function preAnalysisResult {
             AnalysisResult $SCRIPTPATH/result.txt
         else
             echo "EXIT WITH ERROR, check errors.txt file"
-            AnalysisResult $SCRIPTPATH/result.txt
+            #AnalysisResult $SCRIPTPATH/result.txt
             exit
         fi
     fi
@@ -155,10 +155,10 @@ function MutationHandler {
             #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
             #continue
         #fi
-        #if [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" != "MUTANT 91 out of 322" ]; then
+        #if [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" != "MUTANT 241 out of 441" ]; then
             #echo "Skipped, already computed..." >> $SCRIPTPATH/log.txt
             #continue
-        #elif [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" == "MUTANT 91 out of 322" ]; then
+        #elif [ -z $EMERGENCYVAR ] && [ "MUTANT $n out of ${mutArray[0]}" == "MUTANT 241 out of 441" ]; then
             #EMERGENCYVAR="SET"
             #echo "Skipped, not work..." >> $SCRIPTPATH/log.txt
             #continue

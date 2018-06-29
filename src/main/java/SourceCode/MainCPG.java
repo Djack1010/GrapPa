@@ -416,6 +416,7 @@ public class MainCPG {
         }));
 
         //run Soot
+        //RunSootThread runSoot = new RunSootThread("RunSootThread",sootArgs);
         try {
             //System.err.print("ARGUMENTS: ");
             //for(int i=0; i<sootArgs.length;i++){
@@ -424,6 +425,9 @@ public class MainCPG {
             //System.err.println();
             Options.v().set_keep_line_number(true);
             soot.Main.main(sootArgs);
+            //runSoot.run();
+            //runSoot.join(60);
+            //if(runSoot.isAlive())throw new SootExecMyException("Time limit for Soot execution!");
         } catch (OutOfMemoryError e) {
             System.out.println("ERROR -> OutOfMemoryError: " + e);
             System.exit(0);
@@ -431,12 +435,39 @@ public class MainCPG {
             System.out.println("ERROR -> NullPointerException: " + ex);
             System.exit(0);
         }
+        /*
+        catch (SootExecMyException exxx) {
+            //System.out.println("ERRORONE, è na borgia... " + exxx);
+            //runSoot.myStop();
+            System.exit(0);
+        }*/
 
         //stats.printStats();
         stats.printStatsShort();
         System.exit(1);
 
     }
+
+    /*
+    private static class RunSootThread extends Thread{
+        private String name;
+        private String[] inputArgs;
+
+        RunSootThread(String name, String[] inputArgs) {
+            this.inputArgs=inputArgs;
+        }
+
+        @Override
+        public void run() {
+            soot.Main.main(this.inputArgs);
+        }
+
+        public void myStop() {
+            this.interrupt();
+        }
+
+    }
+    */
 
     private static void checkAndCreateFolder(String folderPath){
         File directory = new File(folderPath);

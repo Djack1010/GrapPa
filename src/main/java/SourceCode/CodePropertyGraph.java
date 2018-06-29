@@ -75,35 +75,31 @@ public class CodePropertyGraph {
         RunPDGThread createPDG = new RunPDGThread("thread4PDG", this.unitGraph);
         try{
             createPDG.start();// It just run HashMutablePDG(this.unitGraph) in a new thread
-            createPDG.join(3000);
+            createPDG.join(180000);
             if(createPDG.isAlive())throw new ConstructPDGException("Time limit for constructing PDG exceeded!");
             this.pdg = createPDG.getPDG();
         }catch(Exception e){
             System.err.println("Thread exception catched: " + e);
             if (e instanceof ConstructPDGException){
-                System.err.print("PDG not created, trying to force PDG creation....");
+                System.err.println(e);
                 createPDG.myStop();
-                BriefUnitGraph newUnitGraph = new BriefUnitGraph(this.body);
-                if(newUnitGraph.getHeads().size()==1) {
-                    this.pdg = new HashMutablePDG(newUnitGraph);
-                    System.err.println("SUCCESS!");
-                }else System.err.println("FAILED!");
             }else{
-                System.err.print("Aborting....");
+                System.err.print(e+" -> Aborting....");
                 System.exit(0);
             }
         }
         if(createPDG.isAlive()) createPDG.stop();
         if(this.pdg==null){
-            System.err.print("PDG still null, failing to construct CPG...");
+            System.err.print("PDG still null, failing to construct CPG... ");
+        } else {
+            this.cpgStmntNodes = new LinkedList<CPGNode>();
+            this.cpgAllNodes = new TreeMap<Integer, CPGNode>();
+            this.cpgAllEdges = new HashSet<CPGEdge>();
+            this.indexesLabelStmnt = new HashSet<Integer>();
+            this.skippedNops = new HashSet<Unit>();
+            this.visitedStmt = new HashSet<Unit>();
+            this.visitedNode = new HashSet<PDGNode>();
         }
-        this.cpgStmntNodes=new LinkedList<CPGNode>();
-        this.cpgAllNodes=new TreeMap<Integer, CPGNode>();
-        this.cpgAllEdges=new HashSet<CPGEdge>();
-        this.indexesLabelStmnt= new HashSet<Integer>();
-        this.skippedNops= new HashSet<Unit>();
-        this.visitedStmt=new HashSet<Unit>();
-        this.visitedNode=new HashSet<PDGNode>();
     }
 
     public CodePropertyGraph(String fileName) {
@@ -272,13 +268,45 @@ public class CodePropertyGraph {
 
         RunPDGThread(String name, UnitGraph cfg) {
             this.cfg = cfg;
-            this.pdg = pdg;
+            this.pdg = null;
             this.threadName = name;
         }
 
         @Override
         public void run() {
             this.pdg = new HashMutablePDG(cfg);
+        }
+
+        public void myStop() {
+            this.interrupt();
+        }
+
+        public ProgramDependenceGraph getPDG(){
+            return this.pdg;
+        }
+    }
+
+    private class RunBUGThread extends Thread{
+        private String threadName;
+        private BriefUnitGraph bug;
+        private Body tbody;
+        ProgramDependenceGraph pdg;
+
+        RunBUGThread(String name, Body tbody) {
+            this.bug = null;
+            this.pdg=null;
+            this.threadName = name;
+            this.tbody=tbody;
+        }
+
+        @Override
+        public void run() {
+            this.bug = new BriefUnitGraph(this.tbody);
+            if(this.bug!=null && this.bug.getHeads().size()==1) {
+                this.pdg = new HashMutablePDG(this.bug);
+            }else{
+                this.pdg=null;
+            }
         }
 
         public void myStop() {

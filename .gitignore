@@ -35,6 +35,8 @@ sootOutput
 *.edgelist
 *.emb
 *.json
+CounterIDE
+CounterLIT
 
 #run file
 backup
