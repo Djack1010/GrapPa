@@ -10,7 +10,7 @@ function UsageInfo {
     echo -e "\t-mut CLASS: run on a mutated CLASS file"
     echo -e "\t-meth METHOD: run on a specific METHOD"
     echo -e "\t-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER"
-    echo -e "\t-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in DB_GRAPH_FOLDER"
+    echo -e "\t-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in nedoFolder/graphDB"
     echo -e "\t-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)"
     echo -e "TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )"
     exit

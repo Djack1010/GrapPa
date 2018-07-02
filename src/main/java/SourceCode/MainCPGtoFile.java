@@ -12,9 +12,7 @@ import soot.toolkits.graph.pdg.ProgramDependenceGraph;
 import soot.util.cfgcmd.CFGToDotGraph;
 import soot.util.dot.DotGraph;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ import java.util.Map;
 
 public class MainCPGtoFile {
     //PATH
-    final static String nedoPath ="/home/djack/IdeaProjects/nedo";
+    static String nedoPath;
     final static infoExec info = new infoExec();
 
 
@@ -126,6 +124,26 @@ public class MainCPGtoFile {
     }
 
     public static void main(String[] args) {
+
+        try(BufferedReader br = new BufferedReader(new FileReader("my.properties"))) {
+            String line = br.readLine();
+            while (line != null) {
+                if (line.contains("projects.basedir=")){
+                    nedoPath=line.split("=")[1];
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Exception: "+ e);
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (nedoPath==null){
+            System.err.println("nedoPath equals null, exiting...");
+            System.exit(0);
+        }
 
         String[] sootArgs=null;
 

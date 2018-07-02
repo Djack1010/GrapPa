@@ -16,7 +16,8 @@ import java.util.*;
 public class MainCPG {
 
     //PATH
-    final static String nedoPath ="/home/djack/IdeaProjects/nedo";
+    static String nedoPath=null;
+    //final static String nedoPath ="/home/djack/IdeaProjects/nedo";
     final static infoExec info = new infoExec();
 
     private static class infoExec{
@@ -147,7 +148,39 @@ public class MainCPG {
         }else return myArrayArgs;
     }
 
+    public static class getNedoPath{
+        InputStream isnp;
+
+        public getNedoPath(){
+            this.isnp=this.getClass().getResourceAsStream("my.properties");
+        }
+
+        public InputStream getInputStreamProperties(){
+            return this.isnp;
+        }
+    }
+
     public static void main(String[] args) {
+
+        try(BufferedReader br = new BufferedReader(new FileReader("my.properties"))) {
+            String line = br.readLine();
+            while (line != null) {
+                if (line.contains("projects.basedir=")){
+                    nedoPath=line.split("=")[1];
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Exception: "+ e);
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (nedoPath==null){
+            System.err.println("nedoPath equals null, exiting...");
+            System.exit(0);
+        }
 
         String[] sootArgs=null;
 
