@@ -87,6 +87,10 @@ public class MainCPGtoFile {
                     myArrayArgs[j]=args[i];
                     j++;
                     break;
+                case "-pf":
+                    i++;
+                    nedoPath=args[i];
+                    break;
                 case "-mainClass":
                     i++;
                     myArrayArgs[j]=args[i];
@@ -124,26 +128,6 @@ public class MainCPGtoFile {
     }
 
     public static void main(String[] args) {
-
-        try(BufferedReader br = new BufferedReader(new FileReader("my.properties"))) {
-            String line = br.readLine();
-            while (line != null) {
-                if (line.contains("projects.basedir=")){
-                    nedoPath=line.split("=")[1];
-                }
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            System.err.println("Exception: "+ e);
-            System.exit(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (nedoPath==null){
-            System.err.println("nedoPath equals null, exiting...");
-            System.exit(0);
-        }
 
         String[] sootArgs=null;
 
@@ -187,6 +171,7 @@ public class MainCPGtoFile {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
+            nedoPath ="/home/djack/IdeaProjects/nedo";
             info.setClassToAnalyzed("org.apache.commons.text.ExtendedMessageFormat");
             info.setMethodToAnalyzed("readArgumentIndex:327");
         }else sootArgs=handleArgs(args);

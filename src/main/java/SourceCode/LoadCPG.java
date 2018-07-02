@@ -11,29 +11,10 @@ public class LoadCPG {
 
     public static void main(String[] args) {
 
-        try(BufferedReader br = new BufferedReader(new FileReader("my.properties"))) {
-            String line = br.readLine();
-            while (line != null) {
-                if (line.contains("projects.basedir=")){
-                    nedoPath=line.split("=")[1];
-                }
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            System.err.println("Exception: "+ e);
-            System.exit(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (nedoPath==null){
-            System.err.println("nedoPath equals null, exiting...");
-            System.exit(0);
-        }
-
         String filePath=null;
 
         if (args.length == 0) {
+            nedoPath ="/home/djack/IdeaProjects/nedo";
             filePath="/home/djack/IdeaProjects/nedo/graphs/example/MainTest_foo_0.nedo";
             info.setCGMM();
         }else{
@@ -43,6 +24,10 @@ public class LoadCPG {
                     case "-cp":
                         i++;
                         filePath=args[i];
+                        break;
+                    case "-pf":
+                        i++;
+                        nedoPath=args[i];
                         break;
                     case "-graph2vec":
                         i++;

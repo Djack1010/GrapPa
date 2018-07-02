@@ -17,7 +17,6 @@ public class MainCPG {
 
     //PATH
     static String nedoPath=null;
-    //final static String nedoPath ="/home/djack/IdeaProjects/nedo";
     final static infoExec info = new infoExec();
 
     private static class infoExec{
@@ -91,6 +90,10 @@ public class MainCPG {
                     myArrayArgs[j]=args[i];
                     j++;
                     break;
+                case "-pf":
+                    i++;
+                    nedoPath=args[i];
+                    break;
                 case "-mainClass":
                     i++;
                     myArrayArgs[j]=args[i];
@@ -162,26 +165,6 @@ public class MainCPG {
 
     public static void main(String[] args) {
 
-        try(BufferedReader br = new BufferedReader(new FileReader("my.properties"))) {
-            String line = br.readLine();
-            while (line != null) {
-                if (line.contains("projects.basedir=")){
-                    nedoPath=line.split("=")[1];
-                }
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            System.err.println("Exception: "+ e);
-            System.exit(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (nedoPath==null){
-            System.err.println("nedoPath equals null, exiting...");
-            System.exit(0);
-        }
-
         String[] sootArgs=null;
 
         if (args.length == 0) {
@@ -224,6 +207,7 @@ public class MainCPG {
                     //"-no-bodies-for-excluded",
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
+            nedoPath ="/home/djack/IdeaProjects/nedo";
             info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
             //info.setMethodToAnalyzed("abbreviate:6460");
             //info.setStruc2vec();
