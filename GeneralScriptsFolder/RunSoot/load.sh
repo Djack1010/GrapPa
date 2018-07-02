@@ -39,13 +39,13 @@ function progrBar {
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-rm -rf $SCRIPTPATH/loadBackup
-mkdir $SCRIPTPATH/loadBackup
+rm -rf $SCRIPTPATH/backupLoad
+mkdir $SCRIPTPATH/backupLoad
 if [ -f $SCRIPTPATH/loadErrors.txt ]; then
-    mv $SCRIPTPATH/loadErrors.txt $SCRIPTPATH/loadBackup/loadErrors.txt
+    mv $SCRIPTPATH/loadErrors.txt $SCRIPTPATH/backupLoad/loadErrors.txt
 fi
 if [ -f $SCRIPTPATH/loadLog.txt ]; then
-    mv $SCRIPTPATH/loadLog.txt $SCRIPTPATH/loadBackup/loadLog.txt
+    mv $SCRIPTPATH/loadLog.txt $SCRIPTPATH/backupLoad/loadLog.txt
 fi
 
 if [ ! -f config.txt ]; then
@@ -77,8 +77,8 @@ elif [ ! -f "$SOOT_JAR" ]; then
 fi
 
 MYCP_JAVA=".:$CLASS_FOLDER:$SOOT_JAR"
-#mvn -f $PROJECT_FOLDER clean
-#mvn -f $PROJECT_FOLDER compile
+mvn -f $PROJECT_FOLDER clean
+mvn -f $PROJECT_FOLDER compile
 if [ ! -d "$CLASS_FOLDER" ]; then
     echo "ERROR: Set the CLASS_FOLDER variable in config.txt! Exiting..."
     exit

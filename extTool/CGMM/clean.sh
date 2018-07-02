@@ -5,3 +5,6 @@ for f in $(find $SCRIPTLOC -name '*.adjlist' -or -name '*.emb' -or -name '*.txt'
     echo "Removing $f"
     rm $f; 
 done
+
+rm -rf $SCRIPTLOC/graph/info
+rm -f $SCRIPTLOC/graph/err.log

@@ -54,7 +54,10 @@ if [ "$ARG3" == "c" ]; then
     rm -f $SCRIPTPATH/CounterIDE
     touch $SCRIPTPATH/CounterIDE
     rm -f $SCRIPTPATH/CounterLIT
-    touch $SCRIPTPATH/CounterLI
+    touch $SCRIPTPATH/CounterLIT
+    if [ -d $SCRIPTPATH/info ];then 
+        rm -r $SCRIPTPATH/info
+    fi
 elif [ "$ARG3" == "r" ]; then
     echo "SET: replace mode"
     RPH="SET"
@@ -69,6 +72,9 @@ else
     touch $SCRIPTPATH/CounterIDE
     rm -f $SCRIPTPATH/CounterLIT
     touch $SCRIPTPATH/CounterLIT
+    if [ -d $SCRIPTPATH/info ];then 
+        rm -r $SCRIPTPATH/info
+    fi
     RPH="SET"
 fi
 
@@ -101,12 +107,11 @@ function progrBar {
     echo ""
 }
 
-echo -e "\n" #for progrBar
-
 FTOT=$(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4" | wc -l)
 FNOW=0
 PIDRUN=$$
 if [ "$CPH" ]; then
+    echo -e "\n" #for progrBar
     for f in $(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4") ; do
         if [ ! -f "$f" ]; then
             continue
@@ -118,12 +123,16 @@ if [ "$CPH" ]; then
                 #echo $REMOVENAME
                 #TEMPLINE=$(echo "$l" | sed -e "s/$REMOVENAME //g")
                 #echo $TEMPLINE
-                TEMPLINE4GREP=$(echo $TLABEL | sed -e 's/\./\\\./g; s/\$/\\\$/g; s/\*/\\*/g; s/\[/\\[/g; s/\]/\\]/g')
+                TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
                 #echo $TEMPLINE4GREP
                 #echo "$TEMPLINE"
-                LABSTORED=$( cat $SCRIPTPATH/CounterIDE | grep ${TEMPLINE4GREP}_ )
+                LABSTORED=$( cat $SCRIPTPATH/CounterIDE | grep -F ${TLABEL}_ )
                 #echo "1. $TLABEL - $TEMPLINE4GREP - $LABSTORED"
                 if [ "$LABSTORED" ] ; then
+                    if [ "$(echo $LABSTORED | wc -w)" -gt "1" ]; then
+                        echo "ERRORE, too many lines found in CounterLIT..." >&2
+                        echo "1. $TLABEL - $TEMPLINE4GREP - $LABSTORED" >&2
+                    fi
                     NUM=$( echo $LABSTORED | cut -d'_' -f3 )
                     NUM=$(($NUM+1))
                     sed -i "/${TEMPLINE4GREP}_/d" $SCRIPTPATH/CounterIDE
@@ -135,10 +144,13 @@ if [ "$CPH" ]; then
                 fi
             elif [ "$(echo "$l" | grep " LIT_")" ]; then
                 TLABEL=$(echo "$l" | cut -d' ' -f2 )
-                TEMPLINE4GREP=$(echo $TLABEL | sed -e 's/\./\\\./g; s/\$/\\\$/g; s/\*/\\*/g; s/\[/\\[/g; s/\]/\\]/g')
-                LABSTORED=$( cat $SCRIPTPATH/CounterLIT | grep ${TEMPLINE4GREP}_ )
+                TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
+                LABSTORED=$( cat $SCRIPTPATH/CounterLIT | grep -F ${TLABEL}_ )
                 if [ "$LABSTORED" ] ; then
-                    #echo "1. $TEMPLINE - $TEMPLINE4GREP - $LABSTORED"
+                    if [ "$(echo $LABSTORED | wc -w)" -gt "1" ]; then
+                        echo "ERRORE, too many lines found in CounterLIT..." >&2
+                        echo "1. $TLABEL - $TEMPLINE4GREP - $LABSTORED" >&2
+                    fi
                     NUM=$( echo $LABSTORED | cut -d'_' -f3 )
                     NUM=$(($NUM+1))
                     sed -i "/${TEMPLINE4GREP}_/d" $SCRIPTPATH/CounterLIT
@@ -157,17 +169,43 @@ if [ "$CPH" ]; then
     done
     sort -nr -t_ -k3 "${SCRIPTPATH}/CounterIDE" -o "${SCRIPTPATH}/CounterIDE"
     sort -nr -t_ -k3 "${SCRIPTPATH}/CounterLIT" -o "${SCRIPTPATH}/CounterLIT"
+    echo "CHECKING COUNTER OPERATION..."
+    while read l; do
+        LAB=$(echo ${l} | cut -d'_' -f2)
+        NUM=$(cat $SCRIPTPATH/CounterLIT | grep -F _${LAB}_ | wc -l)
+        if [ "$NUM" -gt "1" ]; then
+            echo "More than one for $LAB" >&2
+            ERRC="SET"
+        fi
+    done < $SCRIPTPATH/CounterLIT
+    while read l; do
+        LAB=$(echo ${l} | cut -d'_' -f2)
+        NUM=$(cat $SCRIPTPATH/CounterIDE | grep -F _${LAB}_ | wc -l)
+        if [ "$NUM" -gt "1" ]; then
+            echo "More than one for $LAB" >&2
+            ERRC="SET"
+        fi
+    done < $SCRIPTPATH/CounterIDE
+    if [ "$ERRC" ];then
+        echo "FINISHED with error..."
+    else
+        echo "FINISHED SUCCESFULLY!"
+    fi
 fi
 
+echo -e ""
+
 if [ "$RPH" ]; then
+    echo -e "\n" #for progrBar
     IND=0
     LINE=0
     TOTLINE=$(($(cat $SCRIPTPATH/CounterIDE | wc -l)+$(cat $SCRIPTPATH/CounterLIT | wc -l)))
     LABNUM=$STARTLAB
     while read l; do
         #echo "$(echo $l | cut -d'_' -f2)_$LAB" >> $SCRIPTPATH/mapNodeLabel
-        LAB=$(echo $l | cut -d'_' -f2 | sed -e 's/\./\\\./g; s/\*/\\*/g; s/\[/\\[/g; s/\]/\\]/g')
-        sed -i "s/IDE_$LAB /$LABNUM /g" $SCRIPTPATH/$INPUTFOLDER/*.$ARG4
+        LAB=$(echo $l | cut -d'_' -f2)
+        TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$LAB")
+        sed -i "s/IDE_$TEMPLINE4GREP /$LABNUM /g" $SCRIPTPATH/$INPUTFOLDER/*.$ARG4
         progrBar $LINE $TOTLINE
         LINE=$(($LINE+1))
         if [ "$IND" == "$FIRSTOCC_IDE" ]; then
@@ -180,8 +218,9 @@ if [ "$RPH" ]; then
     IND=0
     while read l; do
         #echo "$(echo $l | cut -d'_' -f2)_$LAB" >> $SCRIPTPATH/mapNodeLabel
-        LAB=$(echo $l | cut -d'_' -f2 | sed -e 's/\./\\\./g; s/\*/\\*/g; s/\[/\\[/g; s/\]/\\]/g')
-        sed -i "s/LIT_$LAB /$LABNUM /g" $SCRIPTPATH/$INPUTFOLDER/*.$ARG4
+        LAB=$(echo $l | cut -d'_' -f2)
+        TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$LAB")
+        sed -i "s/LIT_$TEMPLINE4GREP /$LABNUM /g" $SCRIPTPATH/$INPUTFOLDER/*.$ARG4
         progrBar $LINE $TOTLINE
         LINE=$(($LINE+1))
         if [ "$IND" == "$FIRSTOCC_LIT" ]; then
@@ -193,19 +232,25 @@ if [ "$RPH" ]; then
     done < $SCRIPTPATH/CounterLIT
 
     echo -e "GREATEST LABEL USED: $LABNUM"
-fi
 
-echo "FINAL CHECK..."
-for nf in $(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4") ; do
-    if [ "$(cat $nf | grep "IDE" )" ] || [ "$(cat $nf | grep "LIT" )" ]; then 
-        echo "ERROR, something still in $nf"
-        ERR="SET"
+    echo "FINAL CHECK..."
+    for nf in $(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4") ; do
+        if [ "$(cat $nf | grep "IDE" )" ] || [ "$(cat $nf | grep "LIT" )" ]; then 
+            echo "ERROR, something still in $nf" >&2
+            ERRF="SET" >&2
+        fi
+    done
+    if [ "$ERRF" ]; then
+        echo "FINISHED with error..."
+    else
+        echo "FINISHED SUCCESFULLY!"
+        if [ ! -d $SCRIPTPATH/info ];then 
+            mkdir $SCRIPTPATH/info
+        fi
+        cp $SCRIPTPATH/CounterLIT $SCRIPTPATH/info/CounterLIT
+        cp $SCRIPTPATH/CounterIDE $SCRIPTPATH/info/CounterIDE
+        echo "INPUT: (${INPUTFOLDER}); GREATEST LABEL USED: (${LABNUM}); TOP $FIRSTOCC_IDE IDE and TOP $FIRSTOCC_LIT LIT selected " >> $SCRIPTPATH/info/info.txt
     fi
-done
-if [ "$ERR" ]; then
-    echo "FINISHED with error..."
-else
-    echo "FINISHED SUCCESFULLY!"
 fi
 
 exit

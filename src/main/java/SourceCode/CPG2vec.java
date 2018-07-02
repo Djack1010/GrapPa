@@ -644,17 +644,17 @@ public abstract class CPG2vec {
         }else if (tempNode[0].equals("TAtIdentifier")) {
             return "249";
         } else if (tempNode[0].equals("TFullIdentifier")) {
-            return "IDE_"+tempNode[1].replaceAll("_",".");
+            return "IDE_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TIdentifier")) {
-            return "IDE_"+tempNode[1].replaceAll("_",".");
+            return "IDE_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TBoolConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TIntegerConstant")){
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TFloatConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         }else if (tempNode[0].equals("TStringConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else {
             System.err.println("CPG2vec - COMPLETE: Invalid node " + tempNode[0] + ", exiting...");
             System.exit(0);
@@ -892,17 +892,17 @@ public abstract class CPG2vec {
         } else if (tempNode[0].equals("TAtIdentifier")) {
             return "112";
         } else if (tempNode[0].equals("TFullIdentifier")) {
-            return "IDE_"+tempNode[1].replaceAll("_",".");
+            return "IDE_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TIdentifier")) {
-            return "IDE_"+tempNode[1].replaceAll("_",".");
+            return "IDE_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TBoolConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TIntegerConstant")){
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else if (tempNode[0].equals("TFloatConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         }else if (tempNode[0].equals("TStringConstant")) {
-            return "LIT_"+tempNode[1].replaceAll("_",".");
+            return "LIT_"+tempNode[1].replaceAll("_","us").replaceAll("\\\\","bs");
         } else {
             return "113";
         }
