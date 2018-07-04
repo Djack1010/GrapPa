@@ -151,18 +151,6 @@ public class MainCPG {
         }else return myArrayArgs;
     }
 
-    public static class getNedoPath{
-        InputStream isnp;
-
-        public getNedoPath(){
-            this.isnp=this.getClass().getResourceAsStream("my.properties");
-        }
-
-        public InputStream getInputStreamProperties(){
-            return this.isnp;
-        }
-    }
-
     public static void main(String[] args) {
 
         String[] sootArgs=null;

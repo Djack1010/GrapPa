@@ -135,7 +135,7 @@ if [ "$MODE" == "b" ]; then
         progrBar $PARFILE $TOTFILE
         if [ -f $NEDOFILE ]; then
             $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-                SourceCode.LoadCPG -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
+                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
         fi
         if [ -f $SCRIPTPATH/loadErrors.txt ] && [ "$(cat $SCRIPTPATH/loadErrors.txt)" ]; then
             echo "ERROR!!! Look 'loadErrors.txt' for more information, exiting..."
@@ -148,7 +148,7 @@ if [ "$MODE" == "b" ]; then
         progrBar $PARFILE $TOTFILE
         if [ -f $NEDOFILE ]; then
             $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-                SourceCode.LoadCPG -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
+                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
         fi
         if [ -f $SCRIPTPATH/loadErrors.txt ] && [ "$(cat $SCRIPTPATH/loadErrors.txt)" ]; then
             echo "ERROR!!! Look 'loadErrors.txt' for more information, exiting..."
