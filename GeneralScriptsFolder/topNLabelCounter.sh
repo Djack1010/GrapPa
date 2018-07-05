@@ -190,6 +190,9 @@ if [ "$CPH" ]; then
         echo "FINISHED with error..."
     else
         echo "FINISHED SUCCESFULLY!"
+        if [ -f $SCRIPTPATH/suggTopN.sh ]; then
+            $SCRIPTPATH/suggTopN.sh 95
+        fi
     fi
 fi
 
