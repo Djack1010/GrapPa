@@ -190,6 +190,9 @@ if [ "$CPH" ]; then
         echo "FINISHED with error..."
     else
         echo "FINISHED SUCCESFULLY!"
+        if [ -f $SCRIPTPATH/suggTopN.sh ]; then
+            $SCRIPTPATH/suggTopN.sh
+        fi
     fi
 fi
 
@@ -250,6 +253,9 @@ if [ "$RPH" ]; then
         cp $SCRIPTPATH/CounterLIT $SCRIPTPATH/info/CounterLIT
         cp $SCRIPTPATH/CounterIDE $SCRIPTPATH/info/CounterIDE
         echo "INPUT: (${INPUTFOLDER}); GREATEST LABEL USED: (${LABNUM}); TOP $FIRSTOCC_IDE IDE and TOP $FIRSTOCC_LIT LIT selected " >> $SCRIPTPATH/info/info.txt
+        if [ -f $SCRIPTPATH/suggTopN.sh ]; then
+            $SCRIPTPATH/suggTopN.sh >> $SCRIPTPATH/info/info.txt
+        fi
     fi
 fi
 
