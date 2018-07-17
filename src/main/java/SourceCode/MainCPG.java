@@ -26,6 +26,7 @@ public class MainCPG {
         boolean CGMM;
         boolean senFormat;
 
+        boolean simply;
         boolean overloading;
         boolean methodFound;
         String classToAnalyzed;
@@ -39,6 +40,7 @@ public class MainCPG {
             this.overloading=false;
             this.methodFound=false;
             this.methodToAnalyzed=null;
+            this.simply=false;
         }
 
         public String getClassToAnalyzed(){ return this.classToAnalyzed; }
@@ -64,6 +66,9 @@ public class MainCPG {
 
         public void setMethodFound(){ this.methodFound=true; }
         public boolean isMethodFound(){ return this.methodFound; }
+
+        public void setSimply() { this.simply=true; }
+        public boolean isSimply() { return this.simply; }
 
     }
 
@@ -137,6 +142,9 @@ public class MainCPG {
                         }
                     }
                     break;
+                case "-simply":
+                    info.setSimply();
+                    break;
                 default:
                     System.err.println("MainCPG:ERROR:Invalid arguments " + args[i] + ", exiting...");
                     System.exit(0);
@@ -199,7 +207,7 @@ public class MainCPG {
             info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
             //info.setMethodToAnalyzed("abbreviate:6460");
             //info.setStruc2vec();
-            info.setCGMM();
+            //info.setCGMM();
         }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
@@ -335,24 +343,25 @@ public class MainCPG {
                             PDGdotGraph.plot(nedoPath + "/graphs/PDGs/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part1 using CPGToDotGraph
-                            System.out.println("\tPrinting CPG=AST on file");
+                            //System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
-                            CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
-                            DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
-                            checkAndCreateFolder(nedoPath + "/graphs/1");
-                            CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
+                            //CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
+                            //DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
+                            //checkAndCreateFolder(nedoPath + "/graphs/1");
+                            //CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part2 using CPGToDotGraph
-                            System.out.println("\tPrinting CPG=AST+CFG on file");
+                            //System.out.println("\tPrinting CPG=AST+CFG on file");
                             cpg.buildCPGphase("CFG");
-                            CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
-                            DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
-                            checkAndCreateFolder(nedoPath + "/graphs/2");
-                            CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
+                            //CPGToDotGraph cpgToDotCFG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
+                            //DotGraph CPGdotGraphCFG = cpgToDotCFG.drawCPG();
+                            //checkAndCreateFolder(nedoPath + "/graphs/2");
+                            //CPGdotGraphCFG.plot(nedoPath + "/graphs/2/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part3 using CPGToDotGraph
                             System.out.println("\tPrinting CPG=AST+CFG+PDG on file");
                             cpg.buildCPGphase("PDG");
+                            if(info.isSimply()) cpg.simplifyGraph();
                             CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getRootNode(), m.getName());
                             DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
                             if(info.isMutMode()){
@@ -363,15 +372,15 @@ public class MainCPG {
                                 CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + nameMethod + ".dot");
                             }
 
-                            String CPGGraph = cpg.getCPGtoString();
-                            try {
-                                PrintWriter out;
-                                out = new PrintWriter( nedoPath + "/graphs/example/" + nameMethod + ".nedo", "UTF-8");
-                                out.println(CPGGraph);
-                                out.close();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            //String CPGGraph = cpg.getCPGtoString();
+                            //try {
+                                //PrintWriter out;
+                                //out = new PrintWriter( nedoPath + "/graphs/example/" + nameMethod + ".nedo", "UTF-8");
+                                //out.println(CPGGraph);
+                                //out.close();
+                            //} catch (Exception e) {
+                                //e.printStackTrace();
+                            //}
 
                             System.out.println("\tALL DONE!");
 

@@ -20,9 +20,11 @@ public class CPGNode {
     private Set<CPGEdge> edgesOut;
     private Set<CPGEdge> edgesIn;
     private astNodeInfo astNode;
+    private boolean visited;
 
 
     public CPGNode(NodeTypes type, String name, String content, int nodeId, Node astNode){
+        this.visited=false;
         this.nodeType = type;
         this.content = content.replaceAll("\\s","");
         this.name = name.replaceAll("\\s","");
@@ -87,6 +89,12 @@ public class CPGNode {
     public int getId(){
         return this.nodeId;
     }
+
+    public void setId(int id) { this.nodeId = id;}
+
+    public boolean isVisited() { return this.visited; }
+
+    public void setVisited(boolean set) { this.visited=set; }
 
     public String getNameId() { return this.name + "_" + this.nodeId; }
 

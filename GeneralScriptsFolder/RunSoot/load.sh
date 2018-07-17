@@ -111,6 +111,9 @@ else
                 GRAPH2VECTOOL="-graph2vec ${myArray[$n]}"
                 n=$(($n+1))
             fi
+        elif [ "${myArray[$n]}" == "-simply" ];then
+            n=$(($n+1))
+            SIMPLY="-simply"
         elif [[ "${myArray[$n]}" == "-help" ]]; then
             UsageInfo
         else
@@ -135,7 +138,7 @@ if [ "$MODE" == "b" ]; then
         progrBar $PARFILE $TOTFILE
         if [ -f $NEDOFILE ]; then
             $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
+                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
         fi
         if [ -f $SCRIPTPATH/loadErrors.txt ] && [ "$(cat $SCRIPTPATH/loadErrors.txt)" ]; then
             echo "ERROR!!! Look 'loadErrors.txt' for more information, exiting..."
@@ -148,7 +151,7 @@ if [ "$MODE" == "b" ]; then
         progrBar $PARFILE $TOTFILE
         if [ -f $NEDOFILE ]; then
             $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
+                SourceCode.LoadCPG -pf $PROJECT_FOLDER -cp $NEDOFILE $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/loadErrors.txt 1>> $SCRIPTPATH/loadLog.txt
         fi
         if [ -f $SCRIPTPATH/loadErrors.txt ] && [ "$(cat $SCRIPTPATH/loadErrors.txt)" ]; then
             echo "ERROR!!! Look 'loadErrors.txt' for more information, exiting..."

@@ -29,6 +29,9 @@ public class LoadCPG {
                         i++;
                         nedoPath=args[i];
                         break;
+                    case "-simply":
+                        info.setSimply();
+                        break;
                     case "-graph2vec":
                         i++;
                         String[] toolArray = args[i].split(":");
@@ -67,6 +70,7 @@ public class LoadCPG {
 
         System.out.print("Loading CPG... ");
         CodePropertyGraph cpg = new CodePropertyGraph(filePath);
+        if(info.isSimply())cpg.simplifyGraph();
         System.out.println(cpg.getNameCPG()+" COMPLETE!");
 
         if (info.isStruc2vec()){
@@ -87,7 +91,7 @@ public class LoadCPG {
         if (info.isCGMM()){
             System.out.print("\tPrinting CPG in input format for CGMM...");
             CPG2CGMM cgmm = new CPG2CGMM(cpg,true);
-            cgmm.printAdjListOnFile_COMPLETE(nedoPath + "/extTool/CGMM/graph/base_COM/");
+            //cgmm.printAdjListOnFile_COMPLETE(nedoPath + "/extTool/CGMM/graph/base_COM/");
             cgmm.printAdjListOnFile_STMTandTNodes(nedoPath + "/extTool/CGMM/graph/base_SeT/");
             System.out.println("DONE!");
         }
@@ -111,11 +115,13 @@ public class LoadCPG {
         boolean struc2vec;
         boolean CGMM;
         boolean senFormat;
+        boolean simply;
 
         public infoExec(){
             this.struc2vec=false;
             this.CGMM=false;
             this.senFormat=false;
+            this.simply=false;
         }
 
         public void setStruc2vec(){ this.struc2vec=true; }
@@ -126,6 +132,9 @@ public class LoadCPG {
 
         public void setSenFormat(){ this.senFormat=true; }
         public boolean isSenFormat(){ return this.senFormat; }
+
+        public void setSimply() { this.simply=true; }
+        public boolean isSimply() { return this.simply; }
 
     }
 

@@ -170,7 +170,7 @@ function MutationHandler {
         echo "GENERATING ORIGINAL GRAPH for $MUTNAME - $TARGETMETHOD"
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.$MAINFILE -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+            -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$2 -targetMethod $TARGETMETHOD $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         
         preAnalysisResult
 
@@ -183,7 +183,7 @@ function MutationHandler {
         echo "GENERATING MUTATED GRAPH for $MUTNAME - $TARGETMETHOD"
         $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
             SourceCode.$MAINFILE -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-            -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 -targetMethod $TARGETMETHOD $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+            -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -mutationClass $JPACK.$2 -targetMethod $TARGETMETHOD $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         rm $TOREPLACE
         cp $MUTFOLDER/$MUTNAME $TOREPLACE
         echo "Restored $TOREPLACE!"  >> $SCRIPTPATH/log.txt
@@ -314,6 +314,9 @@ else
                 LOOK4METH=${myArray[$n]}
                 n=$(($n+1))
             fi
+        elif [ "${myArray[$n]}" == "-simply" ];then
+            n=$(($n+1))
+            SIMPLY="-simply"
         elif [[ "${myArray[$n]}" == "-help" ]]; then
             UsageInfo
         else
@@ -367,7 +370,7 @@ elif [ "$MODE" == "m" ]; then
 elif [ "$MODE" == "t" ]; then
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-        -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$JCLASS $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+        -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$JCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
     preAnalysisResult
 fi
 

@@ -103,6 +103,7 @@ public class CodePropertyGraph {
     }
 
     public CodePropertyGraph(String fileName) {
+        this.visitableCPGid=new ArrayList<Integer>();
         this.cpgAllNodes=new TreeMap<Integer, CPGNode>();
         this.cpgAllEdges=new HashSet<CPGEdge>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -174,14 +175,14 @@ public class CodePropertyGraph {
     }
 
     public CPGNode getRootNode(){
-        return this.CPGrootNode;
+        return this.cpgAllNodes.get(0);
     }
 
-    public CPGNode getASTrootNode(){
-        return this.ASTrootNode;
-    }
+    //private CPGNode getASTrootNode(){
+        //return this.ASTrootNode;
+    //}
 
-    public int getStartCPGid() { return this.startCPGid; }
+    //public int getStartCPGid() { return this.startCPGid; }
 
     public String getNameCPG() { return this.nameCPG; }
 
@@ -286,6 +287,7 @@ public class CodePropertyGraph {
         }
     }
 
+    /*
     private class RunBUGThread extends Thread{
         private String threadName;
         private BriefUnitGraph bug;
@@ -317,6 +319,7 @@ public class CodePropertyGraph {
             return this.pdg;
         }
     }
+    */
 
     public void buildCPGphase(String phase){
         if(phase.equals("AST") && !bAST) generateAST();
@@ -598,9 +601,9 @@ public class CodePropertyGraph {
 
     public Set<CPGEdge> getCPGEdges() { return this.cpgAllEdges; }
 
-    public LinkedList<CPGNode> getStmntNodes(){
-        return this.cpgStmntNodes;
-    }
+    //public LinkedList<CPGNode> getStmntNodes(){
+        //return this.cpgStmntNodes;
+    //}
 
     public void mapUnitToStmtNodes(Body body){
         boolean forcingMode = false;
@@ -700,6 +703,10 @@ public class CodePropertyGraph {
 
     public String getCPGtoString() {
         if(this.visitableCPGid.isEmpty())this.visitCPG(this.getCPGNodes().get(0));
+        else{
+            this.visitableCPGid.clear();
+            this.visitCPG(this.getCPGNodes().get(0));
+        }
         Collections.sort(this.visitableCPGid);
         String toReturn = this.nameCPG + " " + this.visitableCPGid.size();
         for (int i = 0; i < this.visitableCPGid.size(); i++) {
@@ -730,9 +737,72 @@ public class CodePropertyGraph {
         }
     }
 
+    public void simplifyGraph(){
+        this.clearVisit();
+        visitGraphToSimplify(this.cpgAllNodes.get(0));
+        CPGNode entryNode = this.cpgAllNodes.get(0);
+        this.clearVisit();
+        this.cpgAllNodes.clear();
+        this.renumeredCPG(entryNode, 2);
+    }
+
+    private int renumeredCPG(CPGNode node, int num) {
+        if(node.isVisited()) return num;
+        else node.setVisited(true);
+        if(node.getId()==0 || node.getId()==1){
+            this.cpgAllNodes.put(node.getId(),node);
+        }
+        else{
+            node.setId(num);
+            this.cpgAllNodes.put(num,node);
+            num++;
+        }
+        int toReturn = num;
+        for(CPGEdge edge: node.getEdgesOut()){
+            toReturn=renumeredCPG(edge.getDest(),toReturn);
+        }
+        return toReturn;
+    }
 
 
+    private void visitGraphToSimplify(CPGNode node){
+        if(node.isVisited()) return;
+        else node.setVisited(true);
+        List<CPGEdge> toRemove = new ArrayList<CPGEdge>();
+        List<CPGNode> toAdd = new ArrayList<CPGNode>();
+        for(CPGEdge edge: node.getEdgesOut()){
+            if(edge.getEdgeType() == CPGEdge.EdgeTypes.CFG_EDGE_C) visitGraphToSimplify(edge.getDest());
+            else if(edge.getEdgeType() == CPGEdge.EdgeTypes.AST_EDGE) {
+                deleteIntermediateNodes(edge.getDest(), toAdd);
+                toRemove.add(edge);
+            }
+        }
+        node.getEdgesOut().removeAll(toRemove);
+        for(CPGNode tempNode: toAdd){
+            this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.AST_EDGE,node,tempNode));
+        }
+    }
 
+    private void deleteIntermediateNodes(CPGNode now, List<CPGNode> toAdd){
+        if(now.getEdgesOut().isEmpty()){
+            now.getEdgesIn().clear();
+            toAdd.add(now);
+        }else{
+            for(CPGEdge edge: now.getEdgesOut()){
+                this.cpgAllEdges.remove(edge);
+                deleteIntermediateNodes(edge.getDest(), toAdd);
+            }
+            now.getEdgesOut().clear();
+            now.getEdgesIn().clear();
+        }
+    }
+
+    public void clearVisit(){
+        for (Map.Entry<Integer, CPGNode> entry : this.cpgAllNodes.entrySet())
+        {
+            entry.getValue().setVisited(false);
+        }
+    }
 
 }
 
