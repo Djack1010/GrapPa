@@ -1,5 +1,6 @@
 #!/bin/bash
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+PIDRUN=$$
 
 echo "ARGUMENTS REQUIRED (enter for default [XXX]):"
 echo "0) Input Folder []"
@@ -78,17 +79,22 @@ else
     RPH="SET"
 fi
 
+rm -f /var/lock/lockCounterIDE${PIDRUN}
+touch /var/lock/lockCounterIDE${PIDRUN}
+rm -f /var/lock/lockCounterLIT${PIDRUN}
+touch /var/lock/lockCounterLIT${PIDRUN}
+
 #PIDRUN=$$
 # echo -e "\033[2A"
 function progrBar {
     #[##################################################] (100%)
     echo -e "\033[3A"
-    PAR=$1
+    PAR=$(($1-$(jobs | grep "Running" | wc -l)))
     TOT=$2
     PER=$(bc <<< "scale = 2; ($PAR / $TOT) * 100")
     TEMPPER=$( echo $PER | cut -d'.' -f1)
     COUNT=0
-    echo "PROGRESS: $PAR out of $TOT"
+    echo "PROGRESS: $PAR out of $TOT - RUNNING: $(jobs | grep "Running" | wc -l)"
     echo -ne "["
     while [ "$TEMPPER" -gt "0" ]; do
         TEMPPER=$(($TEMPPER-2))
@@ -107,26 +113,20 @@ function progrBar {
     echo ""
 }
 
-FTOT=$(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4" | wc -l)
-FNOW=0
-PIDRUN=$$
-if [ "$CPH" ]; then
-    echo -e "\n" #for progrBar
-    for f in $(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4") ; do
-        if [ ! -f "$f" ]; then
-            continue
-        fi
-        while read l; do
-            if [ "$(echo "$l" | grep " IDE_" )" ]; then
-                TLABEL=$(echo "$l" | cut -d' ' -f2 )
-                #REMOVENAME=$(echo "$l" | cut -d' ' -f1)
-                #echo $REMOVENAME
-                #TEMPLINE=$(echo "$l" | sed -e "s/$REMOVENAME //g")
-                #echo $TEMPLINE
-                TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
-                #echo $TEMPLINE4GREP
-                #echo "$TEMPLINE"
-                LABSTORED=$( cat $SCRIPTPATH/CounterIDE | grep -F ${TLABEL}_ )
+function counterSubProcess {
+    while read l; do
+        if [ "$(echo "$l" | grep " IDE_" )" ]; then
+            TLABEL=$(echo "$l" | cut -d' ' -f2 )
+            #REMOVENAME=$(echo "$l" | cut -d' ' -f1)
+            #echo $REMOVENAME
+            #TEMPLINE=$(echo "$l" | sed -e "s/$REMOVENAME //g")
+            #echo $TEMPLINE
+            TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
+            #echo $TEMPLINE4GREP
+            #echo "$TEMPLINE"
+            (
+                flock 200
+                LABSTORED=$( cat $2/CounterIDE | grep -F ${TLABEL}_ )
                 #echo "1. $TLABEL - $TEMPLINE4GREP - $LABSTORED"
                 if [ "$LABSTORED" ] ; then
                     if [ "$(echo $LABSTORED | wc -w)" -gt "1" ]; then
@@ -135,17 +135,20 @@ if [ "$CPH" ]; then
                     fi
                     NUM=$( echo $LABSTORED | cut -d'_' -f3 )
                     NUM=$(($NUM+1))
-                    sed -i "/${TEMPLINE4GREP}_/d" $SCRIPTPATH/CounterIDE
-                    echo $TLABEL"_"$NUM >> $SCRIPTPATH/CounterIDE
+                    sed -i "/${TEMPLINE4GREP}_/d" $2/CounterIDE
+                    echo $TLABEL"_"$NUM >> $2/CounterIDE
                     #echo "UPDATED!"
                 else
-                    echo -e $TLABEL"_1" >> $SCRIPTPATH/CounterIDE
+                    echo -e $TLABEL"_1" >> $2/CounterIDE
                     #echo "NEW!"
                 fi
-            elif [ "$(echo "$l" | grep " LIT_")" ]; then
-                TLABEL=$(echo "$l" | cut -d' ' -f2 )
-                TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
-                LABSTORED=$( cat $SCRIPTPATH/CounterLIT | grep -F ${TLABEL}_ )
+            ) 200>/var/lock/lockCounterIDE$3
+        elif [ "$(echo "$l" | grep " LIT_")" ]; then
+            TLABEL=$(echo "$l" | cut -d' ' -f2 )
+            TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
+            (
+                flock 200
+                LABSTORED=$( cat $2/CounterLIT | grep -F ${TLABEL}_ )
                 if [ "$LABSTORED" ] ; then
                     if [ "$(echo $LABSTORED | wc -w)" -gt "1" ]; then
                         echo "ERRORE, too many lines found in CounterLIT..." >&2
@@ -153,19 +156,49 @@ if [ "$CPH" ]; then
                     fi
                     NUM=$( echo $LABSTORED | cut -d'_' -f3 )
                     NUM=$(($NUM+1))
-                    sed -i "/${TEMPLINE4GREP}_/d" $SCRIPTPATH/CounterLIT
-                    echo $TLABEL"_"$NUM >> $SCRIPTPATH/CounterLIT
+                    sed -i "/${TEMPLINE4GREP}_/d" $2/CounterLIT
+                    echo $TLABEL"_"$NUM >> $2/CounterLIT
                     #echo "UPDATED!"
                 else
-                    echo -e $TLABEL"_1" >> $SCRIPTPATH/CounterLIT
+                    echo -e $TLABEL"_1" >> $2/CounterLIT
                     #echo "NEW!"
                 fi
+            ) 200>/var/lock/lockCounterLIT$3
+        else
+            continue
+        fi
+    done <$1
+}
+
+FTOT=$(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4" | wc -l)
+FNOW=0
+#------------SET VARIABLE-------------
+MAXJOBS=4
+UPDATE=1
+#-------------------------------------
+if [ "$CPH" ]; then
+    echo -e "\n" #for progrBar
+    for f in $(find $SCRIPTPATH/$INPUTFOLDER -name "*.$ARG4") ; do
+        if [ ! -f "$f" ]; then
+            continue
+        fi
+        while true; do
+            if [ "$(jobs | grep "Running" | wc -l)" -lt "$MAXJOBS" ]; then
+                #echo "$IND out of $KNUM - JOBS RUNNING: $(jobs | wc -l)"
+                counterSubProcess $f $SCRIPTPATH ${PIDRUN} &
+                break
             else
-                continue
+                #echo "BUSY SITUATION - JOBS RUNNING: $(jobs | wc -l)"
+                progrBar $FNOW $FTOT
+                sleep $UPDATE
             fi
-        done <$f
+        done
         FNOW=$(($FNOW+1))
         progrBar $FNOW $FTOT
+    done
+    while [ "$(jobs | grep "Running" )" ]; do
+        progrBar $FNOW $FTOT
+        sleep $UPDATE
     done
     sort -nr -t_ -k3 "${SCRIPTPATH}/CounterIDE" -o "${SCRIPTPATH}/CounterIDE"
     sort -nr -t_ -k3 "${SCRIPTPATH}/CounterLIT" -o "${SCRIPTPATH}/CounterLIT"
