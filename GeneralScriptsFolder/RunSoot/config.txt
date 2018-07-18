@@ -1,10 +1,13 @@
-PROJECT_FOLDER=/home/djack/IdeaProjects/nedo
-CLASS_FOLDER=/home/djack/IdeaProjects/nedo/target/classes
-SOOT_JAR=/home/djack/IdeaProjects/nedo/extLib/soot-2.5.0.jar
+#### In square brackets the default, if variable unset
+PROJECT_FOLDER=<set_nedo_root_folder - ["SCRIPTPATH/../.."]>
+CLASS_FOLDER=<set_nedo_classes_root_folder - ["PROJECT_FOLDER/targer/classes"]>
+SOOT_JAR=<set_soot_jar_path - ["PROJECT_FOLDER/extLib/soot-2.5.0.jar"]>
+JAVA7_HOME=<set_java7_path - ["PROJECT_FOLDER/extLib/jdk1.7.0_80"]>
+JAVA_LIBS=<set_java_lib_path - [all .jar files in "PROJECT_FOLDER/extLib/jdk1.7.0_80/jre/lib"]>
+
+#### NEXT VARIABLES MUST TO SET
 SOURCE_ANALYSIS_FOLDER=/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java
 PACKAG_ANALYSIS_FOLDER=/org/apache/commons/lang3
-MUTATION_FOLDER=/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/AnalysisFactory/java.lang.NullPointerException
+MUTATION_FOLDER=/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/AnalysisFactory
 DEFAULT_MAIN_CLASS=MainTest
-DB_GRAPH_FOLDER=/home/djack/Desktop/Test_Folder/GRAPHs/java.lang.IndexOutOfBoundsException/graphDB
-JAVA_LIBS=/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/alt-rt.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/charsets.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/deploy.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/javaws.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jce.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfr.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jfxrt.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/jsse.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/management-agent.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/plugin.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/resource.jar:/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80/jre/lib/rt.jar
-JAVA7_HOME=/home/djack/Dropbox/thesis/external_material/jdk1.7.0_80
+DB_GRAPH_FOLDER=/home/djack/Desktop/Test_Folder/BUG_DB/java.lang.NullPointerException/graphDB

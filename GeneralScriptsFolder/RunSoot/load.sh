@@ -48,6 +48,10 @@ if [ -f $SCRIPTPATH/loadLog.txt ]; then
     mv $SCRIPTPATH/loadLog.txt $SCRIPTPATH/backupLoad/loadLog.txt
 fi
 
+if [ "$1" == "-help" ]; then
+    UsageInfo
+fi
+
 if [ ! -f config.txt ]; then
     echo "ERROR! File config.txt not found! Exiting..."
     exit
@@ -86,7 +90,7 @@ fi
 
 if [ "$#" -eq 0 ]; then
     #IF necessary for future features
-    MODE="b"
+    echo "TODO: not implemented yet"
 else
     MODE="b"
     myArray=( "$@" )

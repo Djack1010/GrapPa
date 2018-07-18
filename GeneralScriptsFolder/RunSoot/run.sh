@@ -191,7 +191,7 @@ function MutationHandler {
     done  
 }
 
-SCRIPTPATH=$PWD
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 rm -rf $SCRIPTPATH/backup
 mkdir $SCRIPTPATH/backup
 if [ -f $SCRIPTPATH/result.txt ]; then
@@ -204,20 +204,43 @@ if [ -f $SCRIPTPATH/log.txt ]; then
     mv $SCRIPTPATH/log.txt $SCRIPTPATH/backup/log.txt
 fi
 
+if [ "$1" == "-help" ]; then
+    UsageInfo
+fi
+
 if [ ! -f config.txt ]; then
     echo "ERROR! File config.txt not found! Exiting..."
     exit
 fi
 
-PROJECT_FOLDER=$(cat config.txt | grep "PROJECT_FOLDER" | cut -d"=" -f2)
+# Default path
+PROJECT_FOLDER=$SCRIPTPATH/../..
+CLASS_FOLDER=$PROJECT_FOLDER/target/classes
+SOOT_JAR=$PROJECT_FOLDER/extLib/soot-2.5.0.jar
+JAVA7_HOME=$PROJECT_FOLDER/extLib/jdk1.7.0_80
+if [ ! -d "$JAVA7_HOME" ]; then
+    JAVA7_HOME=$(cat config.txt | grep "JAVA7_HOME" | cut -d"=" -f2)
+    JAVA_LIBS=$(cat config.txt | grep "JAVA_LIBS" | cut -d"=" -f2)
+else
+    for lib in $(find $PROJECT_FOLDER/extLib/jdk1.7.0_80/jre/lib -maxdepth 1 -name "*.jar"); do 
+        JAVA_LIBS="${JAVA_LIBS}${lib}:"
+    done
+    JAVA_LIBS=${JAVA_LIBS::-1}
+fi
+
+if [ ! -d "$PROJECT_FOLDER/../nedo" ]; then
+    PROJECT_FOLDER=$(cat config.txt | grep "PROJECT_FOLDER" | cut -d"=" -f2)
+fi
+if [ ! -d "$CLASS_FOLDER" ]; then
+    CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
+fi
+if [ ! -f "$SOOT_JAR" ]; then
+    SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
+fi
 SOURCE_ANALYSIS_FOLDER=$(cat config.txt | grep "SOURCE_ANALYSIS_FOLDER" | cut -d"=" -f2)
 PACKAG_ANALYSIS_FOLDER=$(cat config.txt | grep "PACKAG_ANALYSIS_FOLDER" | cut -d"=" -f2)
 MUTATION_FOLDER=$(cat config.txt | grep "MUTATION_FOLDER" | cut -d"=" -f2)
 DEFAULT_MAIN_CLASS=$(cat config.txt | grep "DEFAULT_MAIN_CLASS" | cut -d"=" -f2)
-CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
-SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
-JAVA_LIBS=$(cat config.txt | grep "JAVA_LIBS" | cut -d"=" -f2)
-JAVA7_HOME=$(cat config.txt | grep "JAVA7_HOME" | cut -d"=" -f2)
 #TODO not implemented yet, all files go to DBGRAPH in NEDO folder
 DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
 
