@@ -12,6 +12,10 @@ else
     SLEEPTIME=$2
 fi
 
+if [ ! -z "$3" ]; then
+    PIDRUN=$3
+fi
+
 function progrBar {
     #[##################################################] (100%)
     PAR=$1
@@ -45,7 +49,9 @@ fi
 #|| [ "$(ps aux | grep "./run.sh -targ" | wc -l )" -gt "1" ]
 if [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ] || [ "$(ps aux | grep "./run.sh -cpgtofile" | wc -l )" -gt "1" ]; then
     MUTTOT=$( ls $MUTATION_FOLDER | wc -l )
-    PIDRUN=$(pgrep "run.sh")
+    if [ -z "$PIDRUN" ]; then
+        PIDRUN=$(pgrep "run.sh")
+    fi
     while [ "$(ps aux | grep "./run.sh -allclasses" | wc -l )" -gt "1" ] || [ "$(ps aux | grep "./run.sh -cpgtofile" | wc -l )" -gt "1" ]; do
         MUTLOSE=$(cat result.txt | grep "MUT (true)" | grep "Success perc. (0)" | wc -l)
         MUTNOFO=$(cat result.txt | grep "MUT (true)" | grep "Total Success perc. (N.A.) METHOD-NOT-FOUND!" | wc -l)
