@@ -213,7 +213,7 @@ if [ ! -f config.txt ]; then
     exit
 fi
 
-# Default path
+# Default paths
 PROJECT_FOLDER=$SCRIPTPATH/../..
 CLASS_FOLDER=$PROJECT_FOLDER/target/classes
 SOOT_JAR=$PROJECT_FOLDER/extLib/soot-2.5.0.jar

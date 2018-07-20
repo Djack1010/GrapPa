@@ -57,11 +57,31 @@ if [ ! -f config.txt ]; then
     exit
 fi
 
+# Default paths
+PROJECT_FOLDER=$SCRIPTPATH/../..
+CLASS_FOLDER=$PROJECT_FOLDER/target/classes
+SOOT_JAR=$PROJECT_FOLDER/extLib/soot-2.5.0.jar
+JAVA7_HOME=$PROJECT_FOLDER/extLib/jdk1.7.0_80
+if [ ! -d "$JAVA7_HOME" ]; then
+    JAVA7_HOME=$(cat config.txt | grep "JAVA7_HOME" | cut -d"=" -f2)
+    JAVA_LIBS=$(cat config.txt | grep "JAVA_LIBS" | cut -d"=" -f2)
+else
+    for lib in $(find $PROJECT_FOLDER/extLib/jdk1.7.0_80/jre/lib -maxdepth 1 -name "*.jar"); do 
+        JAVA_LIBS="${JAVA_LIBS}${lib}:"
+    done
+    JAVA_LIBS=${JAVA_LIBS::-1}
+fi
+
+if [ ! -d "$PROJECT_FOLDER/../nedo" ]; then
+    PROJECT_FOLDER=$(cat config.txt | grep "PROJECT_FOLDER" | cut -d"=" -f2)
+fi
+if [ ! -d "$CLASS_FOLDER" ]; then
+    CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
+fi
+if [ ! -f "$SOOT_JAR" ]; then
+    SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
+fi
 DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
-CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
-JAVA7_HOME=$(cat config.txt | grep "JAVA7_HOME" | cut -d"=" -f2)
-SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
-PROJECT_FOLDER=$(cat config.txt | grep "PROJECT_FOLDER" | cut -d"=" -f2)
 
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "ERROR: Set the PROJECT_FOLDER variable in config.txt! Exiting..."
