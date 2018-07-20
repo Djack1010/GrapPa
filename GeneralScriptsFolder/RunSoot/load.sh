@@ -75,14 +75,9 @@ fi
 if [ ! -d "$PROJECT_FOLDER/../nedo" ]; then
     PROJECT_FOLDER=$(cat config.txt | grep "PROJECT_FOLDER" | cut -d"=" -f2)
 fi
-if [ ! -d "$CLASS_FOLDER" ]; then
-    CLASS_FOLDER=$(cat config.txt | grep "CLASS_FOLDER" | cut -d"=" -f2)
-fi
 if [ ! -f "$SOOT_JAR" ]; then
     SOOT_JAR=$(cat config.txt | grep "SOOT_JAR" | cut -d"=" -f2)
 fi
-DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
-
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "ERROR: Set the PROJECT_FOLDER variable in config.txt! Exiting..."
     exit
@@ -98,7 +93,7 @@ MYCP_JAVA=".:$CLASS_FOLDER:$SOOT_JAR"
 mvn -f $PROJECT_FOLDER clean
 mvn -f $PROJECT_FOLDER compile
 if [ ! -d "$CLASS_FOLDER" ]; then
-    echo "ERROR: Set the CLASS_FOLDER variable in config.txt! Exiting..."
+    echo "ERROR: CLASS_FOLDER not found! Exiting..."
     exit
 fi
 
