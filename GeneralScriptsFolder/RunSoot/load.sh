@@ -86,9 +86,6 @@ DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "ERROR: Set the PROJECT_FOLDER variable in config.txt! Exiting..."
     exit
-elif [ ! -d "$DB_GRAPH_FOLDER/original" ] || [ ! -d "$DB_GRAPH_FOLDER/mutated" ]; then
-    echo "ERROR: The DB_GRAPH_FOLDER does not contain subfolders 'original' and 'mutated'! Exiting..."
-    exit
 elif [ ! -d "$JAVA7_HOME" ]; then
     echo "ERROR: Set the JAVA7_HOME variable in config.txt! Exiting..."
     exit
@@ -148,6 +145,9 @@ if [ -z "$DB_GRAPH_FOLDER" ]; then
 fi
 if [ ! -d "$DB_GRAPH_FOLDER" ]; then
     echo "ERROR: Set the DB_GRAPH_FOLDER variable in config.txt! Exiting..."
+    exit
+elif [ ! -d "$DB_GRAPH_FOLDER/original" ] || [ ! -d "$DB_GRAPH_FOLDER/mutated" ]; then
+    echo "ERROR: The DB_GRAPH_FOLDER does not contain subfolders 'original' and 'mutated'! Exiting..."
     exit
 fi
 
