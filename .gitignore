@@ -9,8 +9,6 @@
 workspace.xml
 
 # Package Files #
-*.jar
-!extLib/*.jar
 *.war
 *.nar
 *.ear
