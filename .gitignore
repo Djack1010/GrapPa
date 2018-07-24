@@ -10,7 +10,7 @@ workspace.xml
 
 # Package Files #
 *.jar
-!extLib/soot-2.5.0.jar
+!extLib/*.jar
 *.war
 *.nar
 *.ear
