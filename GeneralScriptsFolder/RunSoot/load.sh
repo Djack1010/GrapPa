@@ -147,8 +147,15 @@ elif [ ! -d "$DB_GRAPH_FOLDER/original" ] || [ ! -d "$DB_GRAPH_FOLDER/mutated" ]
 fi
 
 echo -e "STARTING load.sh SCRIPT with DB_GRAPH_FOLDER as $DB_GRAPH_FOLDER"
-if [ ! -z "$GRAPH2VECTOOL" ]; then
+if [ -z "$GRAPH2VECTOOL" ]; then
+    echo -e "GRAPH2VEC tools: None"
+else
     echo -e "GRAPH2VEC tools: $GRAPH2VECTOOL"
+fi
+if [ -z "$SIMPLY" ]; then
+    echo -e "SIMPLY mode: OFF"
+else
+    echo -e "SIMPLY mode: ON"
 fi
 
 PIDRUN=$$

@@ -79,10 +79,11 @@ else
     RPH="SET"
 fi
 
-rm -f /var/lock/lockCounterIDE${PIDRUN}
-touch /var/lock/lockCounterIDE${PIDRUN}
-rm -f /var/lock/lockCounterLIT${PIDRUN}
-touch /var/lock/lockCounterLIT${PIDRUN}
+mkdir -p ~/.mylock
+rm -f ~/.mylock/lockCounterIDE${PIDRUN}
+touch ~/.mylock/lockCounterIDE${PIDRUN}
+rm -f ~/.mylock/lockCounterLIT${PIDRUN}
+touch ~/.mylock/lockCounterLIT${PIDRUN}
 
 #PIDRUN=$$
 # echo -e "\033[2A"
@@ -142,7 +143,7 @@ function counterSubProcess {
                     echo -e $TLABEL"_1" >> $2/CounterIDE
                     #echo "NEW!"
                 fi
-            ) 200>/var/lock/lockCounterIDE$3
+            ) 200>~/.mylock/lockCounterIDE$3
         elif [ "$(echo "$l" | grep " LIT_")" ]; then
             TLABEL=$(echo "$l" | cut -d' ' -f2 )
             TEMPLINE4GREP=$(sed 's/[^^]/[&]/g; s/\^/\\^/g' <<<"$TLABEL")
@@ -163,7 +164,7 @@ function counterSubProcess {
                     echo -e $TLABEL"_1" >> $2/CounterLIT
                     #echo "NEW!"
                 fi
-            ) 200>/var/lock/lockCounterLIT$3
+            ) 200>~/.mylock/lockCounterLIT$3
         else
             continue
         fi

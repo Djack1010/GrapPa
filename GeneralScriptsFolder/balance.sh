@@ -33,28 +33,22 @@ function progrBar {
     echo ""
 }
 
-MUT=$(($(ls $SCRIPTPATH/base_COM | wc -l)-$(ls $SCRIPTPATH/base_COM | grep "_0" | wc -l)))
-MUT2=$(($(ls $SCRIPTPATH/base_SeT | wc -l)-$(ls $SCRIPTPATH/base_SeT | grep "_0" | wc -l)))
-if [ "$MUT" != "$MUT2" ]; then
-    echo "ERROR! base_COM and base_SeT files do not match in number"
-    exit
-fi
-ORI=$(($(ls $SCRIPTPATH/base_COM | wc -l)-$MUT))
-echo "TOT: $(ls $SCRIPTPATH/base_COM | wc -l) MUT: $MUT ORI: $ORI"
+MUT=$(($(ls $SCRIPTPATH/base_SeT | wc -l)-$(ls $SCRIPTPATH/base_SeT | grep "_0" | wc -l)))
+ORI=$(($(ls $SCRIPTPATH/base_SeT | wc -l)-$MUT))
+echo "TOT: $(ls $SCRIPTPATH/base_SeT | wc -l) MUT: $MUT ORI: $ORI"
 DIFF=$(($MUT-$ORI))
 IND=0
 echo -e "DIFF: $DIFF\n\n"
 while [ "$IND" != "$DIFF" ]; do
     PASS=0
     while [ "$PASS" == "0" ]; do
-        FILETOMOVE=$(ls $SCRIPTPATH/generic/base_COM | shuf -n 1)
-        if [ "$(find $SCRIPTPATH/base_COM -name "$FILETOMOVE")" ]; then
+        FILETOMOVE=$(ls $SCRIPTPATH/generic/base_SeT | shuf -n 1)
+        if [ "$(find $SCRIPTPATH/base_SeT -name "$FILETOMOVE")" ]; then
             continue
         else
             PASS=1
         fi
     done
-    cp $SCRIPTPATH/generic/base_COM/$FILETOMOVE $SCRIPTPATH/base_COM
     cp $SCRIPTPATH/generic/base_SeT/$FILETOMOVE $SCRIPTPATH/base_SeT
     progrBar $IND $DIFF
     IND=$(($IND+1))
