@@ -3,9 +3,10 @@
 #v1.0 - 22/05/18
 
 function UsageInfo {
-    echo "USAGE: ./load.sh [ -dgf PATH_DB_GRAPH_FOLDER ] [ -graph2vec TOOLNAME ]"
+    echo "USAGE: ./load.sh [ -dgf PATH_DB_GRAPH_FOLDER ] [ -graph2vec TOOLNAME ] [ -simply ]"
     echo -e "If '-dgf' not set, needs to be set DB_GRAPH_FOLDER in Config.txt!"
     echo -e "\t-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)"
+    echo -e "\t-simply: load CPG graph and simplify them"
     echo -e "TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )"
     exit
 }
