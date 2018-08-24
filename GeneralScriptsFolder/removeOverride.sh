@@ -1,5 +1,9 @@
 #!/bin/bash
-SCRIPTPATH=$PWD
+if [ -z "$1" ]; then
+    SCRIPTPATH=$PWD
+else
+    SCRIPTPATH=$1
+fi
 rm -f $SCRIPTPATH/temp_find.txt
 find $SCRIPTPATH -name '*.java' >> $SCRIPTPATH/temp_find.txt
 TOT=$(wc -l < $SCRIPTPATH/temp_find.txt)

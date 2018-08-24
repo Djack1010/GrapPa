@@ -2,10 +2,12 @@
 #Created by Giacomo Iadarola
 #v1.0 - 22/05/18
 
+BASERESULT=0
+
 function UsageInfo {
     echo "USAGE: ./run.sh [ OP CLASS [ OP2 METHOD] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]"
-    echo -e "Available OP = -targ | -mut"
-    echo -e "Available OP2 = -meth"
+    echo -e "Available OP = -targ | -mut | -analysis "
+    echo -e "Available OP2 = -meth | -depen"
     echo -e "\t-targ CLASS: run on a single CLASS file"
     echo -e "\t-mut CLASS: run on a mutated CLASS file"
     echo -e "\t-meth METHOD: run on a specific METHOD"
@@ -36,9 +38,12 @@ function preAnalysisResult {
             cat $SCRIPTPATH/result.txt | grep "ERROR -> NullPointerException: " >> $SCRIPTPATH/errors.txt
             AnalysisResult $SCRIPTPATH/result.txt
         else
-            echo "EXIT WITH ERROR, check errors.txt file"
+            echo "EXIT WITH ERROR, check errors.txt file!"
+            mv $SCRIPTPATH/result.txt $SCRIPTPATH/result${BASERESULT}.txt
+            touch $SCRIPTPATH/result.txt
+            BASERESULT=$(($BASERESULT+1))
             #AnalysisResult $SCRIPTPATH/result.txt
-            exit
+            #exit
         fi
     fi
 }
@@ -240,6 +245,7 @@ MUTATION_FOLDER=$(cat config.txt | grep "MUTATION_FOLDER" | cut -d"=" -f2)
 DEFAULT_MAIN_CLASS=$(cat config.txt | grep "DEFAULT_MAIN_CLASS" | cut -d"=" -f2)
 #TODO not implemented yet, all files go to DBGRAPH in NEDO folder
 DB_GRAPH_FOLDER=$(cat config.txt | grep "DB_GRAPH_FOLDER" | cut -d"=" -f2)
+CGMM_FOLDER=$(cat config.txt | grep "CGMM_FOLDER" | cut -d"=" -f2)
 
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "ERROR: Set the PROJECT_FOLDER variable in config.txt! Exiting..."
@@ -249,6 +255,9 @@ elif [ ! -d "$SOURCE_ANALYSIS_FOLDER" ]; then
     exit
 elif [ ! -d "$DB_GRAPH_FOLDER" ]; then
     echo "ERROR: Set the DB_GRAPH_FOLDER variable in config.txt! Exiting..."
+    exit
+elif [ ! -d "$CGMM_FOLDER" ]; then
+    echo "ERROR: Set the CGMM_FOLDER variable in config.txt! Exiting..."
     exit
 elif [ ! -d "$MUTATION_FOLDER" ]; then
     echo "ERROR: Set the MUTATION_FOLDER variable in config.txt! Exiting..."
@@ -300,6 +309,9 @@ else
         elif [[ "${myArray[$n]}" == "-cpgtofile" ]]; then
             MODE="f"
             n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-analysis" ]]; then
+            MODE="n"
+            n=$(($n+1))
         elif [[ "${myArray[$n]}" == "-mut" ]]; then
             MODE="m"
             n=$(($n+1))
@@ -324,6 +336,14 @@ else
                 UsageInfo
             else
                 GRAPH2VECTOOL="-graph2vec ${myArray[$n]}"
+                n=$(($n+1))
+            fi
+        elif [ "${myArray[$n]}" == "-depen" ];then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                JAVAFILEDEP=":${myArray[$n]}"
                 n=$(($n+1))
             fi
         elif [ "${myArray[$n]}" == "-meth" ];then
@@ -388,10 +408,49 @@ elif [ "$MODE" == "f" ]; then
 elif [ "$MODE" == "m" ]; then 
     MutationHandler $MUTATION_FOLDER $JCLASS #$GRAPH2VECTOOL  
 elif [ "$MODE" == "t" ]; then
+    if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
+        $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
+        MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
+        echo -e $MAINTESTFILE > $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java
+    fi
     $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
         SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
         -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$JCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
     preAnalysisResult
+elif [ "$MODE" == "n" ]; then
+    #SIMPLY="-simply"
+    #GRAPH2VECTOOL="-graph2vec CGMM"
+    #if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
+    #    $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
+    #    MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
+    #    echo -e $MAINTESTFILE > $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java
+    #fi
+    #JAVAFILELIST=$(find $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER -name "*.java")
+    #SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
+    #LIMIT=0
+    #for JavaFile in $JAVAFILELIST; do
+    #    JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
+    #    THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
+    #    echo "ANALYSIS for $THISCLASS"
+    #    $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
+    #        SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+    #        -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:${JAVA_LIBS}${JAVAFILEDEP} \
+    #        -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+    #    preAnalysisResult
+    #done
+    #$PROJECT_FOLDER/GeneralScriptsFolder/AUTOtopNLabelCounter.sh $PROJECT_FOLDER/extTool/CGMM/graph/ base_SeT
+    #if [ ! -f $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData ]; then
+    #    echo "ERROR, file temp_passData not found, exiting..."
+    #    exit
+    #else
+    #    LABNUM=$(cat $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData)
+    #    rm $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData
+    #fi
+    LABNUM=618
+    $CGMM_FOLDER/clean.sh
+    $CGMM_FOLDER/run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n SeTNull4lightAll -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
+    #CHECK NAME RESULT/VECTOR
+    #$CGMM_FOLDER/MLPBinaryClassific.py
 fi
 
 echo "ENDING run.sh SCRIPT"

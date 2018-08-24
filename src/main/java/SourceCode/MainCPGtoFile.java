@@ -34,6 +34,7 @@ public class MainCPGtoFile {
 
         boolean overloading;
         boolean methodFound;
+        boolean simply;
         String classToAnalyzed;
         String methodToAnalyzed;
 
@@ -45,6 +46,7 @@ public class MainCPGtoFile {
             this.overloading=false;
             this.methodFound=false;
             this.methodToAnalyzed=null;
+            this.simply=false;
         }
 
         public String getClassToAnalyzed(){ return this.classToAnalyzed; }
@@ -61,6 +63,9 @@ public class MainCPGtoFile {
 
         public void setMethodFound(){ this.methodFound=true; }
         public boolean isMethodFound(){ return this.methodFound; }
+
+        public void setSimply() { this.simply=true; }
+        public boolean isSimply() { return this.simply; }
 
     }
 
@@ -113,6 +118,9 @@ public class MainCPGtoFile {
                     i++;
                     info.setMethodToAnalyzed(args[i]);
                     break;
+                case "-simply":
+                    info.setSimply();
+                    break;
                 default:
                     System.err.println("MainCPG:ERROR:Invalid arguments " + args[i] + ", exiting...");
                     System.exit(0);
@@ -159,7 +167,7 @@ public class MainCPGtoFile {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.text.ExtendedMessageFormat"
+                    //"org.apache.commons.lang3.text.ExtendedMessageFormat"
                     //
                     //
                     //
@@ -172,8 +180,8 @@ public class MainCPGtoFile {
                     //"org.apache.commons.lang3.AnnotationUtils"//,
             };
             nedoPath ="/home/djack/IdeaProjects/nedo";
-            info.setClassToAnalyzed("org.apache.commons.text.ExtendedMessageFormat");
-            info.setMethodToAnalyzed("readArgumentIndex:327");
+            info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
+            //info.setMethodToAnalyzed("readArgumentIndex:327");
         }else sootArgs=handleArgs(args);
 
         final MainStats stats = new MainStats();
@@ -305,6 +313,7 @@ public class MainCPGtoFile {
                             cpg.buildCPGphase("PDG");
 
                             System.out.println("\tSaving complete CPG");
+                            if(info.isSimply())cpg.simplifyGraph();
                             String CPGGraph = cpg.getCPGtoString();
                             try {
                                 PrintWriter out;

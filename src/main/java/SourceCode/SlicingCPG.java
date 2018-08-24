@@ -2,12 +2,12 @@ package SourceCode;
 
 import soot.util.dot.DotGraph;
 
-import java.io.*;
+import java.io.File;
 
-public class LoadCPG {
+public class SlicingCPG {
 
     static String nedoPath;
-    final static infoExec info = new infoExec();
+    final static SlicingCPG.infoExec info = new SlicingCPG.infoExec();
 
     public static void main(String[] args) {
 
@@ -43,9 +43,6 @@ public class LoadCPG {
                                 case "CGMM":
                                     info.setCGMM();
                                     break;
-                                case "SenFormat":
-                                    info.setSenFormat();
-                                    break;
                                 default:
                                     System.err.println("Invalid vec tool " + args[i] + ", exiting...");
                                     System.exit(0);
@@ -73,6 +70,28 @@ public class LoadCPG {
         if(info.isSimply())cpg.simplifyGraph();
         System.out.println(cpg.getNameCPG()+" COMPLETE!");
 
+        File directory = new File("/home/djack/Desktop/cheSucc");
+        if (! directory.exists()){
+            directory.mkdirs();
+        }
+
+        System.out.print("Printing "+cpg.getNameCPG()+"... ");
+        CPGToDotGraph cpgToDotPDGORI = new CPGToDotGraph(cpg.getCPGNodes().get(0), cpg.getNameCPG());
+        DotGraph CPGdotGraphPDGORI = cpgToDotPDGORI.drawCPG();
+        CPGdotGraphPDGORI.plot("/home/djack/Desktop/cheSucc/ORIGINAL:" + cpg.getNameCPG() + ".dot");
+        System.out.println(cpg.getNameCPG()+" COMPLETE!");
+
+        cpg.generateSlicingCPG();
+
+        for(CodePropertyGraph tempCPG: cpg.getSlicingsCPG()){
+            System.out.print("Printing "+tempCPG.getNameCPG()+"... ");
+            CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(tempCPG.getCPGNodes().get(0), tempCPG.getNameCPG());
+            DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
+            CPGdotGraphPDG.plot("/home/djack/Desktop/cheSucc/" + tempCPG.getNameCPG() + ".dot");
+            System.out.println(cpg.getNameCPG()+" COMPLETE!");
+        }
+
+
         if (info.isStruc2vec()){
             System.out.print("\tPrinting CPG in input format for struct2vec...");
             //CPG2struc2vec s2v = new CPG2struc2vec(cpg,true);
@@ -95,17 +114,13 @@ public class LoadCPG {
             cgmm.printAdjListOnFile_STMTandTNodes(nedoPath + "/extTool/CGMM/graph/base_SeT/");
             System.out.println("DONE!");
         }
-        if (info.isSenFormat()){
-            System.out.print("\tPrinting CPG in input format for SenFormat...");
-            //CPG2SenFormat sf = new CPG2SenFormat(cpg,true);
-            //sf.printGraphOnFile(nedoPath + "/extTool/senFormat/graph1/");
-            //sf.printGraphOnFile2(nedoPath + "/extTool/senFormat/graph2/");
-            System.out.println("DONE!");
-        }
+
 
         //CPGToDotGraph cpgToDotPDG = new CPGToDotGraph(cpg.getCPGNodes().get(0), cpg.getNameCPG());
         //DotGraph CPGdotGraphPDG = cpgToDotPDG.drawCPG();
-        //CPGdotGraphPDG.plot(nedoPath + "/graphs/3/" + cpg.getNameCPG() + ".dot");
+        //CPGdotGraphPDG.plot(nedoPath + "/graphs/3a/" + cpg.getNameCPG() + ".dot");
+
+        System.out.println("ALL DONE!");
 
     }
 
@@ -136,5 +151,4 @@ public class LoadCPG {
         public boolean isSimply() { return this.simply; }
 
     }
-
 }

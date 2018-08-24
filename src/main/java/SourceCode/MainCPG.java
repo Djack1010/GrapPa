@@ -191,7 +191,7 @@ public class MainCPG {
                     "/home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java/org/apache/commons/lang3",//IF /home/djack/Desktop/Test_Folder/LANG3.4-MutGenerator/ApacheLang/src/main/java gets a NULL POINTER EXCEPTION...
                     //"-main-class",
                     "org.apache.commons.lang3.MainTest",
-                    "org.apache.commons.lang3.AnnotationUtils"
+                    //"org.apache.commons.lang3.AnnotationUtils"
                     //
                     //
                     //
@@ -205,6 +205,7 @@ public class MainCPG {
             };
             nedoPath ="/home/djack/IdeaProjects/nedo";
             info.setClassToAnalyzed("org.apache.commons.lang3.MainTest");
+            info.setSimply();
             //info.setMethodToAnalyzed("abbreviate:6460");
             //info.setStruc2vec();
             //info.setCGMM();
@@ -345,10 +346,10 @@ public class MainCPG {
                             //Print on file the cpg-part1 using CPGToDotGraph
                             //System.out.println("\tPrinting CPG=AST on file");
                             cpg.buildCPGphase("AST");
-                            //CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
-                            //DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
-                            //checkAndCreateFolder(nedoPath + "/graphs/1");
-                            //CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
+                            CPGToDotGraph cpgToDotAST = new CPGToDotGraph(cpg.getASTrootNode(), m.getName());
+                            DotGraph CPGdotGraphAST = cpgToDotAST.drawCPG();
+                            checkAndCreateFolder(nedoPath + "/graphs/1");
+                            CPGdotGraphAST.plot(nedoPath + "/graphs/1/" + nameMethod + ".dot");
 
                             //Print on file the cpg-part2 using CPGToDotGraph
                             //System.out.println("\tPrinting CPG=AST+CFG on file");
@@ -402,7 +403,7 @@ public class MainCPG {
                             if (info.isCGMM()){
                                 System.out.print("\tPrinting CPG in input format for CGMM...");
                                 CPG2CGMM cgmm = new CPG2CGMM(cpg,true);
-                                cgmm.printAdjListOnFile_COMPLETE(nedoPath + "/extTool/CGMM/graph/base_COM/");
+                                //cgmm.printAdjListOnFile_COMPLETE(nedoPath + "/extTool/CGMM/graph/base_COM/");
                                 cgmm.printAdjListOnFile_STMTandTNodes(nedoPath + "/extTool/CGMM/graph/base_SeT/");
                                 System.out.println("DONE!");
                             }

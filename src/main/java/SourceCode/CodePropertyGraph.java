@@ -40,6 +40,7 @@ public class CodePropertyGraph {
     Map<Unit,Integer> mapUnitToStmtIndex;
     Set<Unit> skippedNops;
     ArrayList<Integer> visitableCPGid;
+    Set<CodePropertyGraph> slicingsCPG=null;
     boolean bAST = false;
     boolean bCFG = false;
     boolean bPDG = false;
@@ -151,6 +152,88 @@ public class CodePropertyGraph {
         }
     }
 
+    public CodePropertyGraph(CodePropertyGraph cpg4slicing, String name) {
+        //COPIARE il cpg4slicing solo i nodi markati!
+        this.cpgAllNodes = new TreeMap<Integer, CPGNode>();
+        this.cpgAllEdges = new HashSet<CPGEdge>();
+        this.nameCPG=cpg4slicing.nameCPG + ":SL" + cpg4slicing.getSlicingsCPG().size() +":" + name;
+        this.cpgAllNodes.put(0,new CPGNode(CPGNode.NodeTypes.EXTRA_NODE,"ENTRY","Entry node",0, null));
+        this.cpgAllNodes.put(1,new CPGNode(CPGNode.NodeTypes.EXTRA_NODE,"EXIT","Exit node",1, null));
+        Set<Integer> visitedNodeId = new HashSet<>();
+        copyCPG4Slicing(this.cpgAllNodes.get(0),cpg4slicing.getCPGNodes().get(0), visitedNodeId);
+        this.clearVisit();
+        CPGNode entryNode = this.cpgAllNodes.get(0);
+        this.cpgAllNodes.clear();
+        this.renumeredCPG(entryNode, 2);
+    }
+
+
+    private void copyCPG4Slicing(CPGNode slicingNode, CPGNode originalNode, Set<Integer> visitedId){
+        if(originalNode.getAstNodeClass().equals("ALabelStatement") && slicingNode.getAstNodeClass().equals("AGotoStatement")){
+            CPGNode labNode;
+            if(this.cpgAllNodes.containsKey(originalNode.getId())){
+                labNode=this.cpgAllNodes.get(originalNode.getId());
+                CPGEdge gotoLabEdge=new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,slicingNode,labNode);
+                if(!this.cpgAllEdges.contains(gotoLabEdge))this.cpgAllEdges.add(gotoLabEdge);
+            }
+            else{
+                labNode = new CPGNode(originalNode);
+                this.cpgAllNodes.put(labNode.getId(),labNode);
+                this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,slicingNode,labNode));
+            }
+        }
+        if(originalNode.getNodeType()== CPGNode.NodeTypes.EXTRA_NODE && originalNode.getId()==1) {
+            this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C, slicingNode, this.cpgAllNodes.get(1)));
+            return;
+        }else if(visitedId.contains(originalNode.getId())){
+            if(originalNode.isMarked())
+                this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,slicingNode,this.cpgAllNodes.get(originalNode.getId())));
+            else if (slicingNode.getNodeType()!= CPGNode.NodeTypes.EXTRA_NODE)
+                this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,slicingNode,this.cpgAllNodes.get(1)));
+            return;
+        } else visitedId.add(originalNode.getId());
+        if(!originalNode.isMarked()){
+            for(CPGEdge tempEdge: originalNode.getEdgesOut()){
+                if(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.CFG_EDGE_C){
+                    copyCPG4Slicing(slicingNode,tempEdge.getDest(), visitedId);
+                }
+            }
+        }else{
+            CPGNode newNode;
+            if(this.cpgAllNodes.containsKey(originalNode.getId())){
+                newNode = this.cpgAllNodes.get(originalNode.getId());
+            }else {
+                newNode = new CPGNode(originalNode);
+                this.cpgAllNodes.put(newNode.getId(),newNode);
+            }
+            for(CPGEdge tempEdge: originalNode.getEdgesIn()){
+                if(!(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.CFG_EDGE_C)){
+                    CPGNode sourceNode;
+                    if(!this.getCPGNodes().containsKey(tempEdge.getSource().getId())){
+                        sourceNode = new CPGNode(tempEdge.getSource());
+                        this.cpgAllNodes.put(sourceNode.getId(),sourceNode);
+                    }else{
+                        sourceNode=this.getCPGNodes().get(tempEdge.getSource().getId());
+                    }
+                    this.cpgAllEdges.add(new CPGEdge(tempEdge.getEdgeType(),sourceNode,newNode));
+                }
+            }
+            for(CPGEdge tempEdge: originalNode.getEdgesOut()){
+                if(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.AST_EDGE){
+                    CPGNode tempNode=new CPGNode(tempEdge.getDest());
+                    this.cpgAllNodes.put(tempNode.getId(),tempNode);
+                    this.cpgAllEdges.add(new CPGEdge(tempEdge.getEdgeType(),newNode,tempNode));
+                }
+            }
+            this.cpgAllEdges.add(new CPGEdge(CPGEdge.EdgeTypes.CFG_EDGE_C,slicingNode,newNode));
+            for(CPGEdge tempEdge: originalNode.getEdgesOut()){
+                if(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.CFG_EDGE_C){
+                    copyCPG4Slicing(newNode,tempEdge.getDest(), visitedId);
+                }
+            }
+        }
+    }
+
     private CPGNode.NodeTypes parseNodeTypes(String snt){
         if(snt.equals("AST_NODE")) return CPGNode.NodeTypes.AST_NODE;
         else if (snt.equals("EXTRA_NODE")) return CPGNode.NodeTypes.EXTRA_NODE;
@@ -178,9 +261,9 @@ public class CodePropertyGraph {
         return this.cpgAllNodes.get(0);
     }
 
-    //private CPGNode getASTrootNode(){
-        //return this.ASTrootNode;
-    //}
+    public CPGNode getASTrootNode(){
+        return this.ASTrootNode;
+    }
 
     //public int getStartCPGid() { return this.startCPGid; }
 
@@ -190,6 +273,8 @@ public class CodePropertyGraph {
         if(this.pdg==null)return false;
         else return true;
     }
+
+    public Set<CodePropertyGraph> getSlicingsCPG() { return this.slicingsCPG; }
 
     //public boolean isNeededManualCheck(){ return this.needsManualCheck;}
 
@@ -758,8 +843,12 @@ public class CodePropertyGraph {
             num++;
         }
         int toReturn = num;
+        Map<Integer,CPGNode> sortedChildNode = new TreeMap<Integer, CPGNode>();
         for(CPGEdge edge: node.getEdgesOut()){
-            toReturn=renumeredCPG(edge.getDest(),toReturn);
+            sortedChildNode.put(edge.getDest().getId(),edge.getDest());
+        }
+        for(Map.Entry<Integer, CPGNode> recFun : sortedChildNode.entrySet()) {
+            toReturn=renumeredCPG(recFun.getValue(),toReturn);
         }
         return toReturn;
     }
@@ -801,6 +890,58 @@ public class CodePropertyGraph {
         for (Map.Entry<Integer, CPGNode> entry : this.cpgAllNodes.entrySet())
         {
             entry.getValue().setVisited(false);
+        }
+    }
+
+    public void clearMarkedSlicing(){
+        for (Map.Entry<Integer, CPGNode> entry : this.cpgAllNodes.entrySet())
+        {
+            entry.getValue().setMarked(false);
+        }
+    }
+
+    public void generateSlicingCPG(){
+        this.clearVisit();
+        if(this.slicingsCPG==null)this.slicingsCPG=new HashSet<CodePropertyGraph>();
+        else {
+            System.err.println("slicingsCPG not null, exiting...");
+            System.exit(0);
+        }
+        iterateForSlicingCPG(this.cpgAllNodes.get(0));
+    }
+
+    private void iterateForSlicingCPG(CPGNode node){
+        if(node.isVisited()) return;
+        else node.setVisited(true);
+        if(!(node.getNodeType()== CPGNode.NodeTypes.EXTRA_NODE)){
+            this.clearMarkedSlicing();
+            slicingCPG(node);
+            CodePropertyGraph tempCPG=new CodePropertyGraph(this, node.getName());
+            this.slicingsCPG.add(tempCPG);
+        }
+        for(CPGEdge tempEdge: node.getEdgesOut()){
+            if(tempEdge.getEdgeType() == CPGEdge.EdgeTypes.CFG_EDGE_C){
+                iterateForSlicingCPG(tempEdge.getDest());
+            }
+        }
+    }
+
+    private void slicingCPG(CPGNode criterion){
+        if(criterion.isMarked()) return;
+        else criterion.setMarked(true);
+        for(CPGEdge tempEdge: criterion.getEdgesOut()){
+            if(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.PDG_EDGE_C || tempEdge.getEdgeType()== CPGEdge.EdgeTypes.PDG_EDGE_D){
+                slicingCPG(tempEdge.getDest());
+            }else if(criterion.getAstNodeClass().equals("AGotoStatement")
+                    && tempEdge.getEdgeType()== CPGEdge.EdgeTypes.CFG_EDGE_C
+                    && tempEdge.getDest().getAstNodeClass().equals("ALabelStatement")){
+                slicingCPG(tempEdge.getDest());
+            }
+        }
+        for(CPGEdge tempEdge: criterion.getEdgesIn()){
+            if(tempEdge.getEdgeType()== CPGEdge.EdgeTypes.PDG_EDGE_C || tempEdge.getEdgeType()== CPGEdge.EdgeTypes.PDG_EDGE_D){
+                slicingCPG(tempEdge.getSource());
+            }
         }
     }
 

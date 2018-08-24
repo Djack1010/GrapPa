@@ -21,10 +21,12 @@ public class CPGNode {
     private Set<CPGEdge> edgesIn;
     private astNodeInfo astNode;
     private boolean visited;
+    private boolean markedSlicing;
 
 
     public CPGNode(NodeTypes type, String name, String content, int nodeId, Node astNode){
         this.visited=false;
+        this.markedSlicing=false;
         this.nodeType = type;
         this.content = content.replaceAll("\\s","");
         this.name = name.replaceAll("\\s","");
@@ -45,6 +47,8 @@ public class CPGNode {
     }
 
     public CPGNode(NodeTypes type, String name, String content, int nodeId, String astNodeName, String astNodeContent){
+        this.visited=false;
+        this.markedSlicing=false;
         this.nodeType = type;
         this.content = content;
         this.name = name;
@@ -52,6 +56,18 @@ public class CPGNode {
         this.edgesOut = new HashSet<CPGEdge>();
         this.edgesIn = new HashSet<CPGEdge>();
         this.astNode=new astNodeInfo(astNodeName,astNodeContent);
+    }
+
+    public CPGNode (CPGNode nodeToClone){
+        this.visited=false;
+        this.markedSlicing=false;
+        this.nodeType = nodeToClone.getNodeType();
+        this.content = nodeToClone.getContent();
+        this.name = nodeToClone.getName();
+        this.nodeId=nodeToClone.getId();
+        this.edgesOut = new HashSet<CPGEdge>();
+        this.edgesIn = new HashSet<CPGEdge>();
+        this.astNode=new astNodeInfo(nodeToClone.getAstNodeClass(),nodeToClone.getAstNodeContent());
     }
 
     public void addEdgeIn(CPGEdge edge){ this.edgesIn.add(edge); }
@@ -95,6 +111,10 @@ public class CPGNode {
     public boolean isVisited() { return this.visited; }
 
     public void setVisited(boolean set) { this.visited=set; }
+
+    public boolean isMarked() { return this.markedSlicing; }
+
+    public void setMarked(boolean set) { this.markedSlicing=set; }
 
     public String getNameId() { return this.name + "_" + this.nodeId; }
 
