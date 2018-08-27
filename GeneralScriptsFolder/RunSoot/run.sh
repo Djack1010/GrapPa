@@ -360,6 +360,7 @@ else
         elif [[ "${myArray[$n]}" == "-help" ]]; then
             UsageInfo
         else
+            echo "INVALID INPUT: ${myArray[$n]}"
             UsageInfo
         fi       
     done
@@ -418,39 +419,39 @@ elif [ "$MODE" == "t" ]; then
         -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:$JAVA_LIBS -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$JCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
     preAnalysisResult
 elif [ "$MODE" == "n" ]; then
-    #SIMPLY="-simply"
-    #GRAPH2VECTOOL="-graph2vec CGMM"
-    #if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
-    #    $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
-    #    MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
-    #    echo -e $MAINTESTFILE > $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java
-    #fi
-    #JAVAFILELIST=$(find $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER -name "*.java")
-    #SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
-    #LIMIT=0
-    #for JavaFile in $JAVAFILELIST; do
-    #    JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
-    #    THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
-    #    echo "ANALYSIS for $THISCLASS"
-    #    $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
-    #        SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
-    #        -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:${JAVA_LIBS}${JAVAFILEDEP} \
-    #        -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
-    #    preAnalysisResult
-    #done
-    #$PROJECT_FOLDER/GeneralScriptsFolder/AUTOtopNLabelCounter.sh $PROJECT_FOLDER/extTool/CGMM/graph/ base_SeT
-    #if [ ! -f $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData ]; then
-    #    echo "ERROR, file temp_passData not found, exiting..."
-    #    exit
-    #else
-    #    LABNUM=$(cat $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData)
-    #    rm $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData
-    #fi
-    LABNUM=618
-    $CGMM_FOLDER/clean.sh
-    $CGMM_FOLDER/run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n SeTNull4lightAll -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
-    #CHECK NAME RESULT/VECTOR
-    #$CGMM_FOLDER/MLPBinaryClassific.py
+    SIMPLY="-simply"
+    GRAPH2VECTOOL="-graph2vec CGMM"
+    if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
+        $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
+        MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
+        echo -e $MAINTESTFILE > $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java
+    fi
+    JAVAFILELIST=$(find $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER -name "*.java")
+    SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
+    LIMIT=0
+    for JavaFile in $JAVAFILELIST; do
+        JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
+        THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
+        echo "ANALYSIS for $THISCLASS"
+        $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
+            SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+            -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:${JAVA_LIBS}${JAVAFILEDEP} \
+            -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+        preAnalysisResult
+    done
+    $PROJECT_FOLDER/GeneralScriptsFolder/AUTOtopNLabelCounter.sh $PROJECT_FOLDER/extTool/CGMM/graph/ base_SeT
+    if [ ! -f $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData ]; then
+        echo "ERROR, file temp_passData not found, exiting..."
+        exit
+    else
+        LABNUM=$(cat $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData)
+        rm $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData
+    fi
+    cd $CGMM_FOLDER
+    ./clean.sh
+    ./run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n SeTNull4lightAll -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
+    python3 MLP_LoadAndPredict.py
+    cd $SCRIPTPATH
 fi
 
 echo "ENDING run.sh SCRIPT"
