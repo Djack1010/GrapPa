@@ -1,6 +1,12 @@
-# nedo
+# GrapPa
 
-Project description (work in progress...)
+The tool GrapPa implements the approach presented in the Master's thesis "Graph-based Classification for Detecting Instances of Bug Patterns" by Giacomo Iadarola at the Technische Universitat Darmstadt, published in October 2018. The name comes from the first (Graph) and the last (Patterns) words of the thesis title.
+
+The approach converts Java source code files into graphs (Code Property Graphs) and then uses trained machine learning models to classify each of them as buggy or non-buggy, with regard of a specific bug pattern.
+
+The tool contains three trained models to detect Null Pointer, Array Index Out of Bounds and String Index Out of Bounds Exceptions, and can be easily extended to more bug patterns by providing dataset of buggy/non-buggy examples.
+
+The three dataset used for training the models are available at https://github.com/Djack1010/BUG_DB.
 
 ## Getting Started
 
