@@ -5,16 +5,28 @@
 BASERESULT=0
 
 function UsageInfo {
-    echo "USAGE: ./run.sh [ OP CLASS [ OP2 METHOD] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]"
-    echo -e "Available OP = -targ | -mut | -analysis "
-    echo -e "Available OP2 = -meth | -depen"
+    echo "USAGE: ./run.sh"
+    echo "[ OP CLASS [ -meth METHOD] | -analysis [ -depen PATH ] [ -bp BUG_PAT ] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]"
+    echo -e "Available OP = -targ | -mut "
     echo -e "\t-targ CLASS: run on a single CLASS file"
     echo -e "\t-mut CLASS: run on a mutated CLASS file"
-    echo -e "\t-meth METHOD: run on a specific METHOD"
-    echo -e "\t-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER"
-    echo -e "\t-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in nedoFolder/graphDB"
+    echo -e "\tAvailable OP2 = -meth"
+    echo -e "\t\t-meth METHOD: run on a specific METHOD"
+    echo ""
+    echo -e "-analysis: classify class files in SOURCE_ANALYSIS_FOLDER"
+    echo -e "\t-depen PATH: add dependencies to class path"
+    echo -e "\t-bp BUG_PAT: select bug pattern for classifying data [default NULL]"
+    echo -e "\tBUG_PAT available: NULL | ARRAY | STRING"
+    echo ""
+    echo -e "-targAnalysis FILE: classify targeted class file in SOURCE_ANALYSIS_FOLDER"
+    echo -e "\t-bp BUG_PAT: select bug pattern for classifying data [default NULL]"
+    echo -e "\tBUG_PAT available: NULL | ARRAY | STRING"
+    echo ""
+    echo -e "-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER"
     echo -e "\t-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)"
-    echo -e "TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )"
+    echo -e "\tTOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )"
+    echo ""
+    echo -e "-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in project_folder/graphDB"
     exit
 }
 
@@ -312,6 +324,15 @@ else
         elif [[ "${myArray[$n]}" == "-analysis" ]]; then
             MODE="n"
             n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-targAnalysis" ]]; then
+            MODE="z"
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                JCLASS=${myArray[$n]}
+                n=$(($n+1))
+            fi
         elif [[ "${myArray[$n]}" == "-mut" ]]; then
             MODE="m"
             n=$(($n+1))
@@ -344,6 +365,14 @@ else
                 UsageInfo
             else
                 JAVAFILEDEP=":${myArray[$n]}"
+                n=$(($n+1))
+            fi
+         elif [ "${myArray[$n]}" == "-bp" ];then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                BUG_PAT=":${myArray[$n]}"
                 n=$(($n+1))
             fi
         elif [ "${myArray[$n]}" == "-meth" ];then
@@ -421,6 +450,16 @@ elif [ "$MODE" == "t" ]; then
 elif [ "$MODE" == "n" ]; then
     SIMPLY="-simply"
     GRAPH2VECTOOL="-graph2vec CGMM"
+    if [ -z $BUG_PAT ] || [ "$BUG_PAT" == "NULL" ]; then
+        BUG_PAT=SeTNull4lightAll
+    elif [ "$BUG_PAT" == "ARRAY" ]; then
+        BUG_PAT=SeTArray3lightAll
+    elif [ "$BUG_PAT" == "STRING" ]; then
+        BUG_PAT=SeTString3lightAll
+    else
+        echo "ERROR, invalid bug pattern $BUG_PAT, exiting..."
+        exit
+    fi
     if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
         $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
         MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
@@ -428,7 +467,6 @@ elif [ "$MODE" == "n" ]; then
     fi
     JAVAFILELIST=$(find $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER -name "*.java")
     SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
-    LIMIT=0
     for JavaFile in $JAVAFILELIST; do
         JavaFileNEW=$(echo $JavaFile | sed "s/$SOURCEPATH4REGEX\///g")
         THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
@@ -439,6 +477,15 @@ elif [ "$MODE" == "n" ]; then
             -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
         preAnalysisResult
     done
+
+    BATCH_SIZE=$($PROJECT_FOLDER/GeneralScriptsFolder/calcBatchSize.sh $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/)
+    if [ "$BATCH_SIZE" == "ERROR" ]; then
+        echo "ERROR in calculating batch size, exiting..."
+        exit
+    else
+        echo "BATCH size: $BATCH_SIZE"
+    fi
+
     $PROJECT_FOLDER/GeneralScriptsFolder/AUTOtopNLabelCounter.sh $PROJECT_FOLDER/extTool/CGMM/graph/ base_SeT
     if [ ! -f $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData ]; then
         echo "ERROR, file temp_passData not found, exiting..."
@@ -447,11 +494,82 @@ elif [ "$MODE" == "n" ]; then
         LABNUM=$(cat $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData)
         rm $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData
     fi
+
     cd $CGMM_FOLDER
     ./clean.sh
-    ./run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n SeTNull4lightAll -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
-    python3 MLP_LoadAndPredict.py
+    ./run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n $BUG_PAT -bs $BATCH_SIZE -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
+    NAMEANALYSIS=$(echo $PACKAG_ANALYSIS_FOLDER | sed 's/\//./g' )
+    python3 MLP_LoadAndPredict.py -n $NAMEANALYSIS
     cd $SCRIPTPATH
+    ls $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/ >> $PROJECT_FOLDER/GeneralScriptsFolder/files.txt
+    paste $CGMM_FOLDER/RESULTS/pred${NAMEANALYSIS}.txt $PROJECT_FOLDER/GeneralScriptsFolder/files.txt > $CGMM_FOLDER/RESULTS/pred${NAMEANALYSIS}_namesTT.txt
+    rm $PROJECT_FOLDER/GeneralScriptsFolder/files.txt
+    cat $CGMM_FOLDER/RESULTS/pred${NAMEANALYSIS}_namesTT.txt | grep -v "<clinit>" | grep -v "<init>" > $CGMM_FOLDER/RESULTS/pred${NAMEANALYSIS}_names.txt
+    rm $CGMM_FOLDER/RESULTS/pred${NAMEANALYSIS}_namesTT.txt
+
+elif [ "$MODE" == "z" ]; then
+    SIMPLY="-simply"
+    GRAPH2VECTOOL="-graph2vec CGMM"
+    if [ -z $BUG_PAT ] || [ "$BUG_PAT" == "NULL" ]; then
+        BUG_PAT=SeTNull4lightAll
+    elif [ "$BUG_PAT" == "ARRAY" ]; then
+        BUG_PAT=SeTArray3lightAll
+    elif [ "$BUG_PAT" == "STRING" ]; then
+        BUG_PAT=SeTString3lightAll
+    else
+        echo "ERROR, invalid bug pattern $BUG_PAT, exiting..."
+        exit
+    fi
+    if [ ! -f $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java ]; then
+        $PROJECT_FOLDER/GeneralScriptsFolder/removeOverride.sh $SOURCE_ANALYSIS_FOLDER
+        MAINTESTFILE="package ${JPACK};\n\npublic class MainTest {\n\tpublic static void main(String[] args) {\n\t\t//do nothing\n\t}\n}"
+        echo -e $MAINTESTFILE > $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER/$DEFAULT_MAIN_CLASS.java
+    fi
+    
+    SOURCEPATH4REGEX=$(echo $SOURCE_ANALYSIS_FOLDER$PACKAG_ANALYSIS_FOLDER | sed "s/\//\\\\\//g")
+
+    if [ -z "$JCLASS" ]; then
+        echo "Target class not set, exiting..."
+        exit
+    fi
+    
+    JavaFileNEW=$(echo $JCLASS | sed "s/$SOURCEPATH4REGEX\///g")
+    THISCLASS=$(echo $JavaFileNEW | cut -d"." -f1 | sed 's/\//./g' )
+    echo "ANALYSIS for $THISCLASS"
+    $JAVA7_HOME/bin/java -cp $MYCP_JAVA \
+        SourceCode.MainCPG -p cg all-reachable:true -w -no-bodies-for-excluded -full-resolver \
+        -pf $PROJECT_FOLDER -cp $SOURCE_ANALYSIS_FOLDER:${JAVA_LIBS} \
+        -process-dir $SOURCE_ANALYSIS_FOLDER/$PACKAG_ANALYSIS_FOLDER -mainClass $JPACK.$DEFAULT_MAIN_CLASS -targetClass $JPACK.$THISCLASS $SIMPLY $GRAPH2VECTOOL 2>> $SCRIPTPATH/errors.txt 1>> $SCRIPTPATH/result.txt
+    #preAnalysisResult
+
+    $PROJECT_FOLDER/GeneralScriptsFolder/AUTOtopNLabelCounter.sh $PROJECT_FOLDER/extTool/CGMM/graph/ base_SeT
+    if [ ! -f $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData ]; then
+        echo "ERROR, file temp_passData not found, exiting..."
+        exit
+    else
+        LABNUM=$(cat $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData)
+        rm $PROJECT_FOLDER/GeneralScriptsFolder/temp_passData
+    fi
+
+    BATCH_SIZE=$($PROJECT_FOLDER/GeneralScriptsFolder/calcBatchSize.sh $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/)
+    if [ "$BATCH_SIZE" == "ERROR" ]; then
+        echo "ERROR in calculating batch size, exiting..."
+        exit
+    else
+        echo "BATCH size: $BATCH_SIZE"
+    fi
+    
+    cd $CGMM_FOLDER
+    ./clean.sh
+    ./run.sh -loadModelAndVec -nl $LABNUM -c 40 -l 8 -n $BUG_PAT -bs $BATCH_SIZE -dp $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/
+    python3 MLP_LoadAndPredict.py -n $THISCLASS
+    cd $SCRIPTPATH
+    ls $PROJECT_FOLDER/extTool/CGMM/graph/base_SeT/ >> $PROJECT_FOLDER/GeneralScriptsFolder/files.txt
+    paste $CGMM_FOLDER/RESULTS/pred${THISCLASS}.txt $PROJECT_FOLDER/GeneralScriptsFolder/files.txt > $CGMM_FOLDER/RESULTS/pred${THISCLASS}_namesTT.txt
+    rm $PROJECT_FOLDER/GeneralScriptsFolder/files.txt
+    cat $CGMM_FOLDER/RESULTS/pred${THISCLASS}_namesTT.txt | grep -v "<clinit>" | grep -v "<init>" > $CGMM_FOLDER/RESULTS/pred${THISCLASS}_names.txt
+    rm $CGMM_FOLDER/RESULTS/pred${THISCLASS}_namesTT.txt
+
 fi
 
 echo "ENDING run.sh SCRIPT"

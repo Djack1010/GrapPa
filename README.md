@@ -23,7 +23,7 @@ CGMM
 ```
 git clone https://github.com/Djack1010/CGMM.git
 ```
-
+Need to be cloned on local machine and set the `CGMM_FOLDER` in `config.txt`
 
 ### Compile
 
@@ -40,21 +40,39 @@ The scripts available are:
 run.sh -> Run nedo on a target project folder. It performs the static analysis and store the generated graphs.
 load.sh -> Load stored graphs and perform operation on them.
 
-The file config.txt needs to be set properly to run the scripts.
+The file `\nedo\GeneralScriptsFolder\RunSoot\config.txt` needs to be set properly to run the scripts.
 
 ### Script run.sh
-Run nedo on a target project folder set in Config.txt. It performs the static analysis and store the generated graphs.
+
+Run GrapPa on a target project folder set in Config.txt. It performs the static analysis and store the generated graphs.
 ```
-./run.sh -help
-USAGE: ./run.sh [ ( -targ CLASS | -mut CLASS ) [ -meth METHOD ] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]
+USAGE: ./run.sh
+[ OP CLASS [ -meth METHOD] | -analysis [ -depen PATH ] [ -bp BUG_PAT ] | -allclasses [ -graph2vec TOOLNAME] | -cpgtofile ]
+Available OP = -targ | -mut 
 	-targ CLASS: run on a single CLASS file
 	-mut CLASS: run on a mutated CLASS file
-	-meth METHOD: run on a specific METHOD
-	-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER
-	-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in nedoFolder/graphDB
-	-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME
-TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )
+	Available OP2 = -meth
+		-meth METHOD: run on a specific METHOD
+
+-analysis: classify class files in SOURCE_ANALYSIS_FOLDER
+	-depen PATH: add dependencies to class path
+	-bp BUG_PAT: select bug pattern for classifying data [default NULL]
+	BUG_PAT available: NULL | ARRAY | STRING
+
+-targAnalysis FILE: classify targeted class file in SOURCE_ANALYSIS_FOLDER
+	-bp BUG_PAT: select bug pattern for classifying data [default NULL]
+	BUG_PAT available: NULL | ARRAY | STRING
+
+-allclasses: run on all class files in SOURCE_ANALYSIS_FOLDER
+	-graph2vec TOOLNAME: print graph on file as input format for TOOLNAME (see Readme for available TOOLNAME options)
+	TOOLNAME list separated by semicolon : (Example: -graph2vec struc2vec:CGMM )
+
+-cpgtofile: run on all class files in SOURCE_ANALYSIS_FOLDER and store graph in project_folder/graphDB
+
 ```
+The most important option is the `-analysis` argument, which enable all the GrapPa's components sequentially on the source code of an input project. It has some optional arguments to set, `-depen PATH` in case that dependencies are required to run the input project, and `-bo BUG_PAT` to select the bug pattern we want to analyze, otherwise `NULL` is set as default (the Null Pointer Bug Pattern). 
+The analysis takes as input the project referenced in the variable `SOURCE_ANALYSIS_FOLDER`, in the `config.txt` file. Then, it runs the CPGs generation component and creates a graph for every method encountered in the .java files in `SOURCE_ANALYSIS_FOLDER`. After that, it exports the graph in the CGMM format, generating .adjlist files. The second GrapPa's component then vectorizes the graphs, and each graph is encoded using the trained model chosen by the `-bp BUG_PAT` argument. Finally, the vectors are taken as input by the third and last GrapPa's component, which use the neural network model to classify them and output the result.
+
 ### Script load.sh
 Load stored graphs in DB_GRAPH_FOLDER set in config.txt and then can output the graph as input format for some external tools (available tools: struc2vec, CGMM).
 ```
@@ -72,6 +90,7 @@ PACKAG_ANALYSIS_FOLDER=<The package folder of the project to analyse> (for insta
 MUTATION_FOLDER=<The path to the folder which contain the mutated code to insert into the project>
 DEFAULT_MAIN_CLASS=<Name of the class with a main method, used as main class for Soot. The file has to be placed in SOURCE_ANALYSIS_FOLDER/PACKAG_ANALYSIS_FOLDER>
 DB_GRAPH_FOLDER=<Path to the folder which contained stored graph, for load.sh script>
+CGMM_FOLDER=<Path to the folder which contains the CGMM tool, available at https://github.com/Djack1010/CGMM.git>
 
 ### Examples
 ```
@@ -80,6 +99,7 @@ DB_GRAPH_FOLDER=<Path to the folder which contained stored graph, for load.sh sc
 ./run.sh -allclasses -graph2vec CGMM:struc2vec
 ./run.sh -targ builder.Builder -meth toString
 ./run.sh -cpgtofile
+./run.sh -analysis
 ```
 ## Authors
 

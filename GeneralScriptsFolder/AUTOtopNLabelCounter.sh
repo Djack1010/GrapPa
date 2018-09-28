@@ -67,7 +67,7 @@ function progrBar {
         COUNT=$(($COUNT+1))
     done
     COUNT=$((50-$COUNT))
-    for (( c=1; c<$COUNT; c++ )); do
+    for (( c=0; c<$COUNT; c++ )); do
         echo -ne "-"
     done  
     echo -ne "] ($PER%)"
