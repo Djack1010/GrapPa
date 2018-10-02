@@ -1,6 +1,6 @@
 # GrapPa
 
-The tool GrapPa implements the approach presented in the Master's thesis "Graph-based Classification for Detecting Instances of Bug Patterns" by Giacomo Iadarola at the Technische Universitat Darmstadt, published in October 2018. The name comes from the first (Graph) and the last (Patterns) words of the thesis title.
+The tool GrapPa implements the approach presented in the Master's thesis "Graph-based Classification for Detecting Instances of Bug Patterns" by Giacomo Iadarola, submitted at the Technische Universitat Darmstadt in October 2018. The name comes from the first (Graph) and the last (Patterns) words of the thesis title.
 
 The approach converts Java source code files into graphs (Code Property Graphs) and then uses trained machine learning models to classify each of them as buggy or non-buggy, with regard of a specific bug pattern.
 
@@ -103,4 +103,4 @@ CGMM_FOLDER=<Path to the folder which contains the CGMM tool, available at https
 ```
 ## Authors
 
-* **Giacomo Iadarola** - *contributor* - [Djack1010](https://github.com/Djack1010)
+* **Giacomo Iadarola** - *main contributor* - [Djack1010](https://github.com/Djack1010)
