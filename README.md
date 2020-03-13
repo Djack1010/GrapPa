@@ -104,6 +104,13 @@ CGMM_FOLDER=<Path to the folder which contains the CGMM tool, available at https
 ## Authors & References
 
 * **Giacomo Iadarola** - *main contributor* - [Djack1010](https://github.com/Djack1010)
+
+Cite this work by refering to the Master thesis (bibtex format):
 ```
-Iadarola, Giacomo. Graph-based classification for detecting instances of bug patterns. MS thesis. University of Twente, 2018.
+@mastersthesis{iadarola2018graph,
+  title={Graph-based classification for detecting instances of bug patterns},
+  author={Iadarola, Giacomo},
+  year={2018},
+  school={University of Twente}
+}
 ```
